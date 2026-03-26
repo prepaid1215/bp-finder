@@ -3,28 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>BP FINDER Pro</title>
+    <title>앤텔레콤 BP FINDER Pro</title>
     <script type="text/javascript" src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e27b685233912bfd3431eb5deab591b5&libraries=services&autoload=false"></script>
     <style>
         :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text: #f8fafc; --success: #10b981; }
         body { background: var(--bg); color: var(--text); font-family: 'Pretendard', sans-serif; margin: 0; padding: 20px; display: flex; justify-content: center; }
         .app { width: 100%; max-width: 500px; background: var(--card); padding: 25px; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h2 { text-align: center; font-size: 20px; margin-bottom: 20px; color: #fff; }
+        
         .search-box { position: relative; margin-bottom: 15px; }
         input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; outline: none; font-size: 16px; }
-        button { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 5px; }
-        button:active { transform: scale(0.98); }
         
-        /* 지역 선택 리스트 */
-        #loc-list { background: #1e293b; border: 1px solid #334155; border-radius: 12px; margin-top: 5px; display: none; overflow: hidden; }
-        .loc-item { padding: 12px; border-bottom: 1px solid #334155; cursor: pointer; font-size: 14px; }
+        /* 검색 추천 리스트 */
+        #loc-list { 
+            background: #1e293b; border: 1px solid #475569; border-radius: 12px; 
+            margin-top: 5px; display: none; overflow: hidden; position: absolute; 
+            width: 100%; z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.4); 
+        }
+        .loc-item { padding: 12px; border-bottom: 1px solid #334155; cursor: pointer; transition: 0.2s; }
         .loc-item:hover { background: #334155; }
+        
+        button { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; transition: 0.2s; margin-top: 10px; }
+        button:active { transform: scale(0.98); }
         
         .res-card { background: #334155; padding: 15px; border-radius: 12px; margin-top: 12px; border-left: 5px solid #475569; cursor: pointer; transition: 0.2s; }
         .res-card:hover { border-left-color: var(--accent); background: #3f4e63; }
         .res-card.active { border-left-color: var(--success); background: #3f4e63; }
         
-        .tel-btn { display: inline-block; margin-top: 10px; color: #60a5fa; text-decoration: none; font-weight: 700; font-size: 14px; }
+        .tel-btn { display: inline-block; color: #60a5fa; text-decoration: none; font-weight: 700; font-size: 14px; }
         
         #map-container { width: 100%; height: 250px; margin-top: 15px; border-radius: 12px; display: none; overflow: hidden; border: 1px solid #334155; }
     </style>
@@ -33,7 +39,7 @@
     <div class="app">
         <h2>앤텔레콤 BP 찾기</h2>
         <div class="search-box">
-            <input type="text" id="q" placeholder="지역명 입력 (예: 남포동, 서면)" onkeypress="if(event.keyCode==13) run()">
+            <input type="text" id="q" placeholder="지역명 입력 (예: 연산동, 서면)" onkeypress="if(event.keyCode==13) run()">
             <div id="loc-list"></div>
             <button onclick="run()">검색하기</button>
         </div>
@@ -123,107 +129,112 @@ function run() {
         const query = document.getElementById('q').value.trim();
         if(!query) return;
 
-        // 1. 주소 검색(Geocoder)과 장소 검색(Keyword) 동시 시도 (서면 등 처리 위해)
         const ps = new kakao.maps.services.Places();
-        ps.keywordSearch(query, (data, status) => {
+        // 행정복지센터 위주로 검색하여 지역의 중심점을 먼저 찾음
+        const searchQuery = query.includes('행정복지센터') ? query : query + " 행정복지센터";
+
+        ps.keywordSearch(searchQuery, (data, status) => {
             if (status === kakao.maps.services.Status.OK) {
                 showLocationList(data);
             } else {
-                // 키워드 실패 시 주소 검색 시도
-                const geocoder = new kakao.maps.services.Geocoder();
-                geocoder.addressSearch(query, (result, status) => {
-                    if (status === kakao.maps.services.Status.OK) {
-                        showLocationList(result);
-                    } else {
-                        alert("지역을 찾지 못했습니다. 정확한 동네 이름을 입력해주세요.");
-                    }
+                // 센터로 안나올 경우 일반 장소 검색
+                ps.keywordSearch(query, (data2, status2) => {
+                    if(status2 === kakao.maps.services.Status.OK) showLocationList(data2);
+                    else alert("지역을 찾지 못했습니다.");
                 });
             }
         });
     });
 }
 
-// 2. 검색된 지역 리스트 표출 (부산 우선 정렬 및 필터링 적용)
+// 2. 검색 리스트 노출 (부산 및 주요 번화가 우선 정렬)
 function showLocationList(list) {
     const box = document.getElementById('loc-list');
     box.innerHTML = '';
     
-    // [필터링 및 정렬 로직 추가]
-    const filteredList = list.sort((a, b) => {
-        // '부산'이 포함된 주소를 최상단으로
-        const aIsBusan = a.address_name.includes('부산') ? 1 : 0;
-        const bIsBusan = b.address_name.includes('부산') ? 1 : 0;
-        if (aIsBusan !== bIsBusan) return bIsBusan - aIsBusan;
-        
-        // 장소 이름보다 주소명에 검색어가 포함된 것(행정구역 중심)을 우선
-        return a.address_name.length - b.address_name.length; 
+    const sortedList = list.sort((a, b) => {
+        const aAddr = a.address_name;
+        const bAddr = b.address_name;
+
+        // 1순위: '부산' 포함 여부
+        const aBusan = aAddr.includes('부산') ? 1 : 0;
+        const bBusan = bAddr.includes('부산') ? 1 : 0;
+        if (aBusan !== bBusan) return bBusan - aBusan;
+
+        // 2순위: 주요 번화가(부전동, 연산동 등) 가중치
+        const hot = ['부전동', '연산동', '양정동', '중앙대로'];
+        const aHot = hot.some(p => aAddr.includes(p)) ? 1 : 0;
+        const bHot = hot.some(p => bAddr.includes(p)) ? 1 : 0;
+        if (aHot !== bHot) return bHot - aHot;
+
+        return aAddr.length - bAddr.length;
     });
 
-    if (filteredList.length > 0) {
-        box.style.display = 'block';
-    }
+    if (sortedList.length > 0) box.style.display = 'block';
 
-    filteredList.slice(0, 6).forEach(loc => {
+    sortedList.slice(0, 6).forEach(loc => {
         const div = document.createElement('div');
         div.className = 'loc-item';
-        
-        // 장소명(place_name)과 주소(address_name)를 조합하여 가독성 높임
-        const displayName = loc.place_name || "";
-        const address = loc.address_name;
-        
-        // 지명보다 주소가 중요한 경우 주소를 더 강조해서 표시
-        div.innerHTML = `📍 <span style="color:#fff">${address}</span> <br> <small style="color:#94a3b8; font-size:11px;">${displayName}</small>`;
-        
+        const isBusan = loc.address_name.includes('부산');
+        const pinColor = isBusan ? '#3b82f6' : '#ef4444';
+
+        div.innerHTML = `
+            <div style="display:flex; align-items:center;">
+                <span style="color:${pinColor}; margin-right:8px;">📍</span>
+                <div>
+                    <div style="color:#fff; font-weight:600; font-size:14px;">${loc.address_name}</div>
+                    <div style="color:#94a3b8; font-size:12px;">${loc.place_name}</div>
+                </div>
+            </div>
+        `;
         div.onclick = () => {
             box.style.display = 'none';
-            document.getElementById('q').value = address; // 클릭 시 주소로 입력창 교체
-            calculateDist(parseFloat(loc.y), parseFloat(loc.x), address);
+            document.getElementById('q').value = loc.place_name;
+            calculateDist(parseFloat(loc.y), parseFloat(loc.x), loc.place_name);
         };
         box.appendChild(div);
     });
 }
 
-// 3. 거리 계산 및 결과 출력 (텍스트 우선 매칭 로직 포함)
-function calculateDist(uLat, uLng, queryName) {
+// 3. 거리 계산 및 정렬 출력 (텍스트 매칭 보너스 포함)
+function calculateDist(uLat, uLng, targetName) {
     const sorted = DATA.map(c => {
         const R = 6371;
         const dLat = (c.lat - uLat) * Math.PI / 180, dLng = (c.lng - uLng) * Math.PI / 180;
         const a = Math.sin(dLat/2)**2 + Math.cos(uLat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.sin(dLng/2)**2;
         const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         
-        // [수정사항 1] 텍스트 매칭 점수 부여 (센터 주소에 검색어가 포함되면 가중치)
         let score = dist;
-        if(c.addr.includes(queryName.split(' ')[0])) score -= 100; // 우선순위 대폭 상승
+        // 주소에 검색어(동 이름 등)가 포함되면 우선순위 대폭 상승
+        if(c.addr.includes(targetName.split(' ')[0])) score -= 100; 
 
         return {...c, dist, score};
     }).sort((a,b) => a.score - b.score).slice(0, 5);
 
-    let h = `<div style="font-size:12px; color:#94a3b8; margin:15px 0 10px;">🚩 선택한 지역 주변 결과</div>`;
+    let h = `<div style="font-size:12px; color:#94a3b8; margin:15px 0 10px;">🏢 ${targetName} 기준 주변 결과</div>`;
     h += sorted.map((c, idx) => `
-      <div class="res-card" id="card-${idx}" onclick="showOnMap(${c.lat}, ${c.lng}, '${c.name}', ${idx})">
+      <div class="res-card" id="card-${idx}" onclick="showOnMap(${c.lat}, ${c.lng}, ${idx})">
         <div style="font-weight:700;">${c.name}</div>
         <div style="font-size:13px; color:#94a3b8; margin:5px 0;">${c.addr}</div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span style="color:var(--success); font-size:12px;">약 ${c.dist.toFixed(1)}km</span>
-          <a href="tel:${c.tel}" class="tel-btn" onclick="event.stopPropagation()">📞 ${c.tel}</a>
+          <a href="tel:${c.tel}" class="tel-btn" onclick="event.stopPropagation()">📞 전화하기</a>
         </div>
       </div>`).join('');
     
     document.getElementById('out').innerHTML = h;
-    document.getElementById('map-container').style.display = 'none'; // 초기엔 지도 숨김
+    document.getElementById('map-container').style.display = 'none';
 }
 
-// 4. 지도 표출 함수
-function showOnMap(lat, lng, title, idx) {
+// 4. 지도 표시
+function showOnMap(lat, lng, idx) {
     const container = document.getElementById('map-container');
     container.style.display = 'block';
 
-    // 카드 활성화 스타일
     document.querySelectorAll('.res-card').forEach(c => c.classList.remove('active'));
     document.getElementById('card-' + idx).classList.add('active');
 
     const pos = new kakao.maps.LatLng(lat, lng);
-
     if (!map) {
         map = new kakao.maps.Map(container, { center: pos, level: 3 });
         marker = new kakao.maps.Marker({ position: pos, map: map });
@@ -231,8 +242,6 @@ function showOnMap(lat, lng, title, idx) {
         map.setCenter(pos);
         marker.setPosition(pos);
     }
-    
-    // 지도가 보이지 않는 상태에서 생성되었을 경우 크기 재조정 필요
     setTimeout(() => map.relayout(), 100);
 }
 </script>
