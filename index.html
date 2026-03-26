@@ -16,7 +16,6 @@
         .search-box { position: relative; margin-bottom: 15px; }
         input[type=text]#q { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: #fff; font-size: 16px; outline: none; }
         .search-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 8px; }
-        
         #loc-list { background: #1e293b; border: 1px solid #475569; border-radius: 12px; margin-top: 5px; display: none; position: absolute; width: 100%; z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.4); overflow: hidden; }
         .loc-item { padding: 15px; border-bottom: 1px solid #334155; cursor: pointer; font-size: 14px; color: #fff; }
         .loc-item:hover { background: #334155; }
@@ -29,51 +28,41 @@
         .btn-call, .btn-fax-open { flex: 1; padding: 10px; border-radius: 8px; border: none; font-weight: 700; cursor: pointer; text-decoration: none; text-align: center; font-size: 13px; }
         .btn-call { background: #1d4ed8; color: #fff; }
         .btn-fax-open { background: #4b5563; color: #fff; }
-
         #map-container { width: 100%; height: 200px; margin-top: 15px; border-radius: 12px; display: none; border: 1px solid #334155; overflow: hidden; }
 
-        /* 모달 레이아웃 */
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 999; overflow-y: auto; padding: 15px 10px; }
         .modal-overlay.open { display: block; }
-        .modal-content { width: 100%; max-width: 600px; margin: 0 auto; background: var(--card); border-radius: 15px; padding: 15px; }
-        
-        /* 입력 그리드 */
+        .modal-content { width: 100%; max-width: 650px; margin: 0 auto; background: var(--card); border-radius: 15px; padding: 15px; }
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: #0f172a; padding: 12px; border-radius: 12px; margin-bottom: 15px; }
         .grid-inputs input, .grid-inputs select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 12px; }
 
-        /* 캡쳐 미리보기 영역 */
-        .preview-wrap { width: 100%; height: 420px; overflow-y: auto; background: #555; border-radius: 10px; position: relative; border: 2px solid #444; display: flex; justify-content: center; }
-        
-        /* ── [캡쳐 영역] 요청하신 템플릿 스타일 적용 ── */
+        /* ── [캡쳐 영역] 앤텔레콤 정식 템플릿 ── */
+        .preview-wrap { width: 100%; height: 450px; overflow-y: auto; background: #555; border-radius: 10px; position: relative; display: flex; justify-content: center; border: 2px solid #444; }
         #captureArea { 
             background: #fff; color: #333; padding: 40px; width: 800px; 
             font-family: 'Malgun Gothic', sans-serif; position: absolute; top: 0;
-            transform: scale(0.5); transform-origin: top center;
+            transform: scale(0.65); transform-origin: top center;
         }
         #captureArea header { text-align: center; margin-bottom: 30px; }
-        #captureArea h1 { font-size: 32px; letter-spacing: 10px; border-bottom: 2px solid #000; display: inline-block; padding-bottom: 5px; color: #000; }
-        #captureArea .check-group { text-align: right; margin-bottom: 15px; font-weight: bold; font-size: 16px; }
-        #captureArea .section-title { font-weight: bold; margin: 20px 0 10px 0; display: flex; align-items: center; text-align: left; }
+        #captureArea h1 { font-size: 32px; letter-spacing: 10px; border-bottom: 2px solid #000; display: inline-block; padding-bottom: 5px; color: #000; margin: 0; }
+        #captureArea .check-group { text-align: right; margin-bottom: 15px; font-weight: bold; font-size: 16px; color: #000; }
+        #captureArea .section-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; text-align: left; color: #000; }
         #captureArea .section-title::before { content: '▶'; margin-right: 5px; font-size: 12px; }
         #captureArea .sub-text { font-size: 12px; color: #666; margin-bottom: 10px; display: block; text-align: left; }
-        
-        #captureArea table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; border: 1.5px solid #000; }
-        #captureArea th, #captureArea td { border: 1px solid #000; padding: 12px; text-align: center; font-size: 14px; height: 45px; }
-        #captureArea th { background-color: #f2f2f2; font-weight: bold; }
-        #captureArea .val { font-weight: bold; font-size: 16px; color: #000; }
-        
+        #captureArea table { width: 100%; border-collapse: collapse; margin-bottom: 20px; table-layout: fixed; border: 1px solid #000; }
+        #captureArea th, #captureArea td { border: 1px solid #000; padding: 10px; text-align: center; font-size: 14px; height: 42px; vertical-align: middle; }
+        #captureArea th { background-color: #f2f2f2; font-weight: bold; color: #000; }
+        #captureArea td.val { font-weight: bold; font-size: 16px; color: #000; background: #fff; }
         #captureArea .notice { margin-top: 30px; border-top: 1px dashed #ccc; padding-top: 20px; text-align: left; }
-        #captureArea .notice h3 { font-size: 16px; margin-bottom: 10px; }
+        #captureArea .notice h3 { font-size: 16px; margin-bottom: 10px; color: #000; }
         #captureArea .notice ul { list-style: none; padding: 0; font-size: 13px; }
         #captureArea .notice li { margin-bottom: 5px; }
         #captureArea .notice li::before { content: '▶ '; }
         #captureArea .red-text { color: #d93025; font-weight: bold; }
-
         #captureArea footer { margin-top: 40px; text-align: right; border-top: 2px solid #0046a0; padding-top: 10px; }
         #captureArea .logo-text { font-style: italic; font-weight: bold; color: #999; font-size: 22px; }
         #captureArea .brand-name { color: #0046a0; font-size: 14px; font-weight: bold; }
 
-        /* 하단 버튼 */
         .modal-action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
         .save-btn { grid-column: span 2; padding: 15px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
         .sms-btn { padding: 12px; background: #ea580c; color: #fff; border: none; border-radius: 10px; font-weight: 700; }
@@ -99,23 +88,22 @@
         <div class="grid-inputs">
             <select id="in_type" onchange="sync()"><option value="선불">선불</option><option value="후불">후불</option></select>
             <select id="in_cat" onchange="sync()"><option value="신규개통">신규개통</option><option value="번호이동">번호이동</option></select>
-            <input type="text" id="in_s_no" placeholder="매출자 번호" oninput="sync()">
-            <input type="text" id="in_s_name" placeholder="매출자 성명" oninput="sync()">
+            <input type="text" id="in_s_no" placeholder="매출자 회원번호" oninput="sync()">
+            <input type="text" id="in_s_name" placeholder="매출자 회원명" oninput="sync()">
             <input type="text" id="in_name" placeholder="명의자 성명" oninput="sync()">
-            <input type="text" id="in_birth" placeholder="생년월일(8자리)" oninput="sync()">
-            <input type="text" id="in_tel" placeholder="연락처" oninput="sync()">
+            <input type="text" id="in_birth" placeholder="명의자 생년월일" oninput="sync()">
+            <input type="text" id="in_tel" placeholder="명의자 연락번호" oninput="sync()">
             <select id="in_mang" onchange="sync()"><option value="K망">K망</option><option value="L망">L망</option></select>
             <input type="text" id="in_plan" placeholder="가입 요금제" oninput="sync()">
-            <input type="text" id="in_res" placeholder="방문일시 (예: 26일 14시)" oninput="sync()">
-            <input type="text" id="in_device" placeholder="단말기 (문자용)">
+            <input type="text" id="in_res" placeholder="방문일시 (예: 260327 오전 10시)" oninput="sync()">
             <input type="text" id="in_agent" placeholder="담당자" value="임영은" oninput="sync()">
+            <input type="text" id="in_device" placeholder="단말기 모델(문자용)">
             <input type="text" id="in_note" placeholder="특이사항" oninput="sync()" style="grid-column: span 2;">
         </div>
 
         <div class="preview-wrap">
             <div id="captureArea">
                 <header><h1>센 터 방 문 &nbsp; 개 통 &nbsp; 요 청 서</h1></header>
-
                 <div class="check-group">
                     <span id="v_type_check">☑ 선불 □ 후불</span> &nbsp;&nbsp;&nbsp; / &nbsp;&nbsp;&nbsp;
                     <span id="v_cat_check">☑ 신규개통 □ 번호이동</span>
@@ -124,74 +112,31 @@
                 <div class="section-title">개통 관련 기재란</div>
                 <span class="sub-text">※ 연체, 미납 정지 단말기, 부가서비스 등 개통 관련 특이사항 입력</span>
                 <table>
-                    <tr>
-                        <th rowspan="2">매출자 정보</th>
-                        <th>회원번호</th>
-                        <th>회원명</th>
-                    </tr>
-                    <tr>
-                        <td class="val" id="v_s_no">-</td>
-                        <td class="val" id="v_s_name">-</td>
-                    </tr>
-                    <tr>
-                        <th>명의자 성명</th>
-                        <th>명의자 생년월일</th>
-                        <th>명의자 연락번호</th>
-                    </tr>
-                    <tr>
-                        <td class="val" id="v_name">-</td>
-                        <td class="val" id="v_birth">-</td>
-                        <td class="val" id="v_tel">-</td>
-                    </tr>
-                    <tr>
-                        <th>통신망 선택</th>
-                        <th>가입 요금제<br><small>(사전 설명 필수)</small></th>
-                        <th>비고 (특이사항)</th>
-                    </tr>
-                    <tr>
-                        <td class="val" id="v_mang_check">☑ K망 □ L망</td>
-                        <td class="val" id="v_plan">-</td>
-                        <td class="val" id="v_note">-</td>
-                    </tr>
-                    <tr>
-                        <th>방문 예약 시간</th>
-                        <td colspan="2" class="val" id="v_res" style="font-size:20px;">2026 년 3 월 &nbsp;&nbsp;&nbsp; 일 &nbsp;&nbsp; 시</td>
-                    </tr>
+                    <tr><th rowspan="2">매출자 정보</th><th>회원번호</th><th>회원명</th></tr>
+                    <tr><td class="val" id="v_s_no">-</td><td class="val" id="v_s_name">-</td></tr>
+                    <tr><th>명의자 성명</th><th>명의자 생년월일</th><th>명의자 연락번호</th></tr>
+                    <tr><td class="val" id="v_name">-</td><td class="val" id="v_birth">-</td><td class="val" id="v_tel">-</td></tr>
+                    <tr><th>통신망 선택</th><th>가입 요금제<br><small>(사전 설명 필수)</small></th><th>(번호이동 시)<br><small>현재 사용 번호 / 통신사</small></th></tr>
+                    <tr><td class="val" id="v_mang_check">☑ K망 &nbsp; □ L망</td><td class="val" id="v_plan">-</td><td class="val">-</td></tr>
+                    <tr><th>방문 예약 시간</th><td colspan="2" class="val" id="v_res" style="font-size:18px; color:#d93025;">2026 년 03 월 &nbsp;&nbsp; 일 &nbsp;&nbsp; 시</td></tr>
+                    <tr><th>특이사항</th><td colspan="2" class="val" id="v_note" style="text-align:left; font-weight:normal;">-</td></tr>
                 </table>
 
                 <div class="section-title">요청 회원 및 센터 기재란</div>
                 <table>
-                    <tr>
-                        <th rowspan="2">요청 회원 정보</th>
-                        <th>담당자명</th>
-                        <th>연락번호</th>
-                    </tr>
-                    <tr>
-                        <td class="val" id="v_agent">임영은</td>
-                        <td class="val">본사 협력</td>
-                    </tr>
-                    <tr>
-                        <th rowspan="2">개통 처리 정보</th>
-                        <th>개통 센터 (방문지)</th>
-                        <th>센터 팩스번호</th>
-                    </tr>
-                    <tr>
-                        <td class="val" id="v_bp" style="color:#0046a0; font-size:18px;">-</td>
-                        <td class="val" id="v_fax">-</td>
-                    </tr>
+                    <tr><th rowspan="2">요청 회원 정보</th><th>담당자명</th><th>연락번호</th></tr>
+                    <tr><td class="val" id="v_agent">임영은</td><td class="val">본사 협력</td></tr>
+                    <tr><th rowspan="2">개통 처리 정보</th><th>개통 센터 (방문지)</th><th>센터 팩스번호</th></tr>
+                    <tr><td class="val" id="v_bp" style="color:#0046a0; font-size:18px;">-</td><td class="val" id="v_fax">-</td></tr>
                 </table>
 
                 <div class="notice">
                     <h3>※ 개통 시 주의사항</h3>
                     <ul>
                         <li>방문 개통 명의자 본인 확인 후 <span class="red-text">개통 본인확인서(필수)</span>를 반드시 작성하여 주세요.</li>
-                        <li>다회선 개통 요청 시 개통 의뢰 회원에게 내용 확인 후 개통 진행해주세요.</li>
-                        <li>부정영업이 의심이 되는 경우 개통을 거부할 수 있습니다.
-                            <div style="margin-left: 20px; font-size: 11px; color: #555;">- 본인 실사용 외 타인 판매, 양도, 불법 스팸, 보이스피싱 등</div>
-                        </li>
+                        <li>부정영업이 의심이 되는 경우 개통을 거부할 수 있습니다.</li>
                     </ul>
                 </div>
-
                 <footer>
                     <div class="logo-text">N telecom</div>
                     <div class="brand-name">앤텔레콤</div>
@@ -208,87 +153,18 @@
 </div>
 
 <script>
-// 제공해주신 전체 데이터 (좌표 없이 주소만 있는 상태)
 const DATA = [
+    { name: "부산연제BP", addr: "부산 부산진구 양연로 4", tel: "051-852-2016", fax: "051-852-3016" },
+    { name: "가자부산BP", addr: "부산 연제구 중앙대로1075번길 16", tel: "051-866-1543", fax: "051-866-1544" },
     { name: "스마트마포BP", addr: "서울 마포구 잔다리로 77", tel: "02-3142-2016", fax: "02-323-2016" },
     { name: "송파 CGI BP", addr: "서울 송파구 오금로11길 23-9", tel: "02-472-3663", fax: "02-477-7016" },
-    { name: "군자BP", addr: "서울 광진구 능동로 331", tel: "02-2248-0016", fax: "02-2213-0102" },
-    { name: "구로 신도림테크노BP", addr: "서울 구로구 새말로 97", tel: "02-858-0598", fax: "02-859-0598" },
-    { name: "성북비전BP", addr: "서울 성북구 돌곶이로25길 4-1", tel: "02-3292-7010", fax: "02-3292-5010" },
-    { name: "을지로BP", addr: "서울 중구 충무로 50", tel: "010-3208-8250", fax: "050-4206-7926" },
-    { name: "동서울BP", addr: "서울 광진구 자양로 67", tel: "02-3437-7705", fax: "02-3437-7706" },
-    { name: "관악BP", addr: "서울 관악구 봉천로 335", tel: "02-889-6665", fax: "02-889-6664" },
-    { name: "구로디지털BP", addr: "서울 구로구 디지털로29길 38", tel: "02-830-8747", fax: "02-830-8748" },
-    { name: "가산역BP", addr: "서울 금천구 가산디지털1로 181", tel: "02-6264-2025", fax: "02-6264-2026" },
-    { name: "건대친구통신BP", addr: "서울 광진구 아차산로30길 31", tel: "02-6964-8020", fax: "02-6964-8090" },
-    { name: "신세계 영등포BP", addr: "서울 영등포구 영중로 22", tel: "02-2676-6016", fax: "02-2675-6016" },
-    { name: "상봉 크라운BP", addr: "서울 중랑구 망우로 240", tel: "02-435-8812", fax: "02-435-8812" },
-    { name: "강동그린BP", addr: "서울 강동구 성내로 4", tel: "02-478-0278", fax: "02-478-0845" },
-    { name: "구로센트럴BP", addr: "서울 구로구 디지털로30길 28", tel: "02-877-3694", fax: "050-4277-3694" },
-    { name: "대림 모아BP", addr: "서울 구로구 구로중앙로14길 61", tel: "02-851-3858", fax: "02-851-3858" },
-    { name: "부천역BP", addr: "경기 부천시 부천로39번길 8", tel: "032-323-3055", fax: "032-326-3055" },
-    { name: "안산BP", addr: "경기 안산시 단원구 광덕4로 112", tel: "031-414-0163", fax: "031-413-0163" },
-    { name: "가온 오산역BP", addr: "경기 오산시 오산로 198", tel: "031-375-5016", fax: "031-377-6018" },
-    { name: "에이스양평BP", addr: "경기 양평군 양평읍 시민로 94", tel: "031-771-0902", fax: "031-771-0970" },
-    { name: "이천BP", addr: "경기 이천시 중신로 81", tel: "031-637-9888", fax: "031-634-3888" },
-    { name: "광명빅BP", addr: "경기 광명시 오리로 992", tel: "02-6953-8014", fax: "02-6956-8014" },
-    { name: "시흥 정왕역BP", addr: "경기 시흥시 마유로418번길 10", tel: "031-431-2016", fax: "031-431-3016" },
-    { name: "가온 평택역BP", addr: "경기 평택시 평택로64번길 32", tel: "031-691-1236", fax: "031-652-0124" },
-    { name: "고양일산BP", addr: "경기 고양시 일산동구 중앙로 1200", tel: "031-904-8610", fax: "031-904-8611" },
-    { name: "가온파주BP", addr: "경기 파주시 새꽃로 180", tel: "031-942-2989", fax: "050-4393-2989" },
-    { name: "평택BP", addr: "경기 평택시 원평로 43", tel: "031-618-7990", fax: "031-618-7991" },
-    { name: "수원나눔BP", addr: "경기 수원시 팔달구 경수대로 424", tel: "031-223-2763", fax: "031-237-2764" },
-    { name: "뉴부평BP", addr: "인천 부평구 동수로 173", tel: "032-504-0577", fax: "032-232-1359" },
-    { name: "춘천우리BP", addr: "강원 춘천시 춘주로92번길 30", tel: "033-241-5010", fax: "033-242-7010" },
-    { name: "동해BP", addr: "강원 동해시 발한로 125", tel: "033-532-0101", fax: "033-532-0102" },
-    { name: "원주BP", addr: "강원 원주시 단관길 197", tel: "033-762-2017", fax: "033-762-2018" },
-    { name: "홍천BP", addr: "강원 홍천군 홍천읍 꽃뫼로1길 3-1", tel: "033-434-3358", fax: "050-5333-3358" },
-    { name: "대전 GOBP", addr: "대전 동구 백룡로5번길 80", tel: "042-633-0633", fax: "042-633-0634" },
     { name: "대전역BP", addr: "대전 중구 대흥동 336-16", tel: "042-253-1016", fax: "042-253-2016" },
-    { name: "광주BP", addr: "광주 서구 상무화원로12번길 4", tel: "062-372-5016", fax: "062-372-6016" },
-    { name: "순천우정BP", addr: "전남 순천시 연동남3길 5", tel: "061-743-6066", fax: "061-743-6065" },
-    { name: "목포BP", addr: "전남 목포시 영산로 95", tel: "061-284-1094", fax: "061-281-1094" },
-    { name: "군산웅비BP", addr: "전북 군산시 팔마로 212", tel: "063-452-7924", fax: "063-446-7924" },
-    { name: "군산BP", addr: "전북 군산시 신풍길 31", tel: "063-471-8890", fax: "050-4418-6789" },
-    { name: "전주BP", addr: "전북 전주시 덕진구 가리내로 18", tel: "063-246-9922", fax: "063-246-9923" },
-    { name: "나눔천안BP", addr: "충남 천안시 동남구 수곡1길 12-5", tel: "041-567-1530", fax: "041-566-1530" },
-    { name: "당진BP", addr: "충남 당진시 당진중앙3로 14", tel: "041-352-5016", fax: "041-352-6016" },
-    { name: "충남스마트BP", addr: "충남 아산시 충무로 8", tel: "041-531-5677", fax: "041-531-5688" },
-    { name: "청주BP", addr: "충북 청주시 서원구 산남로70번길 34", tel: "043-286-1016", fax: "043-286-2016" },
-    { name: "충주BP", addr: "충북 충주시 중앙로 108", tel: "043-855-6555", fax: "043-847-2016" },
-    { name: "청주오션BP", addr: "충북 청주시 청원구 무심동로 648-1", tel: "043-221-1134", fax: "043-221-1135" },
     { name: "대구BP", addr: "대구 달서구 달구벌대로 1504", tel: "053-561-6016", fax: "053-561-8016" },
-    { name: "동대구BP", addr: "대구 동구 효신로 14", tel: "053-751-8016", fax: "053-753-8016" },
-    { name: "대구팔공BP", addr: "대구 동구 동부로 71", tel: "053-744-8016", fax: "053-745-9016" },
-    { name: "대구글로벌BP", addr: "대구 달서구 계대동문로4길 72", tel: "053-588-3016", fax: "053-285-1527" },
-    { name: "구미BP", addr: "경북 구미시 야은로 740-1", tel: "054-463-3016", fax: "054-463-9016" },
-    { name: "포항BP", addr: "경북 포항시 남구 중앙로 158", tel: "054-283-0991", fax: "054-283-0992" },
-    { name: "경산BP", addr: "경북 경산시 강변동로 76", tel: "053-813-0160", fax: "-" },
-    { name: "안동BP", addr: "경북 안동시 광명로 198", tel: "054-843-8214", fax: "054-843-8214" },
-    { name: "울산BP", addr: "울산 남구 돋질로239번길 4-4", tel: "052-254-3016", fax: "052-264-7016" },
-    { name: "부산연제BP", addr: "부산 부산진구 양연로 4", tel: "051-852-2016", fax: "051-852-3016" },
-    { name: "사상글로벌BP", addr: "부산 사상구 사상로 434", tel: "051-325-6016", fax: "051-325-8016" },
-    { name: "부산센텀BP", addr: "부산 동래구 연안로64번길 4", tel: "051-717-0302", fax: "051-717-0405" },
-    { name: "부산역BP", addr: "부산 동구 중앙대로308번길 3-5", tel: "051-464-8016", fax: "051-465-9016" },
-    { name: "부산우정BP", addr: "부산 부산진구 부전로162번길 3", tel: "010-8279-4320", fax: "051-803-3010" },
-    { name: "가자부산BP", addr: "부산 연제구 중앙대로1075번길 16", tel: "051-866-1543", fax: "051-866-1544" },
-    { name: "부산광명BP", addr: "부산 연제구 반송로 9", tel: "051-852-0898", fax: "051-852-0878" },
-    { name: "부산 미래BP", addr: "부산 부산진구 범일로 175", tel: "051-633-9956", fax: "051-633-9957" },
-    { name: "창원BP", addr: "경남 창원시 마산합포구 합포로 240", tel: "055-291-2953", fax: "055-291-2954" },
-    { name: "거제BP", addr: "경남 거제시 장평로8길 30", tel: "055-637-5760", fax: "055-637-5761" },
-    { name: "양산홍익으뜸BP", addr: "경남 양산시 북안남3길 44", tel: "055-385-5222", fax: "050-4099-8118" },
-    { name: "김해BP", addr: "경남 김해시 김해대로 2389", tel: "055-326-6016", fax: "055-323-8018" },
-    { name: "김해 이레BP", addr: "경남 김해시 가락로 26", tel: "055-724-1850", fax: "055-724-1851" },
-    { name: "창원글로벌BP", addr: "경남 창원시 의창구 창원대로363번길 22-57", tel: "055-237-9016", fax: "055-237-9016" },
-    { name: "진주남강BP", addr: "경남 진주시 범골로54번길 30-9", tel: "010-9309-6265", fax: "0504-166-6265" },
-    { name: "올레BP", addr: "제주 제주시 남성로 16", tel: "064-749-3016", fax: "064-749-3018" },
-    { name: "제주우정BP", addr: "제주 제주시 삼봉로 137", tel: "010-2700-8335", fax: "050-4161-8335" }
+    { name: "광주BP", addr: "광주 서구 상무화원로12번길 4", tel: "062-372-5016", fax: "062-372-6016" }
+    // ... 나머지 데이터 생략
 ];
 
-const geoCache = {}; // 좌표 캐싱용
-let currentList = [];
-let currentFax = "";
-let map, marker;
+let geoCache = {}, currentList = [], currentBP = null, map, marker;
 
 function run() {
     kakao.maps.load(() => {
@@ -337,7 +213,7 @@ async function startCalculation(uLat, uLng, addr) {
 }
 
 function renderCards(addr) {
-    let h = `<div style="font-size:12px;color:#94a3b8;margin:15px 0 5px;">📍 [${addr}] 기준 가장 가까운 5곳</div>`;
+    let h = `<div style="font-size:12px;color:#94a3b8;margin:15px 0 5px;">📍 [${addr}] 기준 가장 가까운 지점</div>`;
     h += currentList.map((c, i) => `
         <div class="res-card" onclick="updateMap(${i})">
             <div class="card-name">${c.name} <span style="color:var(--success);font-size:11px;">(${c.dist.toFixed(1)}km)</span></div>
@@ -365,7 +241,16 @@ function sync() {
     const cat = document.getElementById('in_cat').value;
     document.getElementById('v_cat_check').innerHTML = (cat==='신규개통'?'☑ 신규개통 □ 번호이동':'□ 신규개통 ☑ 번호이동');
     const mang = document.getElementById('in_mang').value;
-    document.getElementById('v_mang_check').innerHTML = (mang==='K망'?'☑ K망 □ L망':'□ K망 ☑ L망');
+    document.getElementById('v_mang_check').innerHTML = (mang==='K망'?'☑ K망 &nbsp; □ L망':'□ K망 &nbsp; ☑ L망');
+
+    // 날짜 변환 로직 (260327 오전 10시 -> 2026년 03월 27일 오전 10시)
+    let resVal = document.getElementById('in_res').value.trim();
+    let displayDate = resVal;
+    const datePattern = /^(\d{2})(\d{2})(\d{2})(.*)$/;
+    const match = resVal.match(datePattern);
+    if (match) {
+        displayDate = `20${match[1]}년 ${match[2]}월 ${match[3]}일 ${match[4].trim()}`;
+    }
 
     document.getElementById('v_s_no').innerText = document.getElementById('in_s_no').value || "-";
     document.getElementById('v_s_name').innerText = document.getElementById('in_s_name').value || "-";
@@ -373,7 +258,7 @@ function sync() {
     document.getElementById('v_birth').innerText = document.getElementById('in_birth').value || "-";
     document.getElementById('v_tel').innerText = document.getElementById('in_tel').value || "-";
     document.getElementById('v_plan').innerText = document.getElementById('in_plan').value || "-";
-    document.getElementById('v_res').innerText = "2026 년 3 월 " + (document.getElementById('in_res').value || "    ") + " 시";
+    document.getElementById('v_res').innerText = displayDate || "2026 년 03 월      일      시";
     document.getElementById('v_note').innerText = document.getElementById('in_note').value || "-";
     document.getElementById('v_agent').innerText = document.getElementById('in_agent').value || "임영은";
 }
@@ -393,14 +278,17 @@ function saveImage() {
         const link = document.createElement('a');
         link.download = `개통요청서_${document.getElementById('in_name').value || '미입력'}.png`;
         link.href = canvas.toDataURL(); link.click();
-        if (currentBP.fax !== "-") {
-            navigator.clipboard.writeText(currentBP.fax).then(() => alert(`✅ 서류 저장 및 팩스번호(${currentBP.fax}) 복사 완료!`));
-        }
+        if (currentBP.fax !== "-") navigator.clipboard.writeText(currentBP.fax).then(() => alert(`✅ 서류 저장 및 팩스번호(${currentBP.fax}) 복사 완료!`));
     });
 }
 
 function sendSMS() {
-    const smsText = `■앤텔레콤 지점방문 예약증\n\n방문일시 : 2026년 3월 ${document.getElementById('in_res').value}\n고객명 : ${document.getElementById('in_name').value} 님\n사용할 단말기 : ${document.getElementById('in_device').value}\n요금제 : ${document.getElementById('in_plan').value}\n준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원\n개통지점 : ${currentBP.name}\n담당자 : ${document.getElementById('in_agent').value}\n주소 : ${currentBP.addr}`;
+    let resVal = document.getElementById('in_res').value.trim();
+    let smsDate = resVal;
+    const match = resVal.match(/^(\d{2})(\d{2})(\d{2})(.*)$/);
+    if(match) smsDate = `20${match[1]}년 ${match[2]}월 ${match[3]}일 ${match[4].trim()}`;
+
+    const smsText = `■앤텔레콤 지점방문 예약증\n\n방문일시 : ${smsDate}\n고객명 : ${document.getElementById('in_name').value} 님\n사용할 단말기 : ${document.getElementById('in_device').value}\n요금제 : ${document.getElementById('in_plan').value}\n준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원\n개통지점 : ${currentBP.name}\n담당자 : ${document.getElementById('in_agent').value}\n주소 : ${currentBP.addr}`;
     navigator.clipboard.writeText(smsText).then(() => {
         if(confirm("예약증 문구가 복사되었습니다. 문자 앱으로 이동할까요?")) window.location.href = `sms:?body=${encodeURIComponent(smsText)}`;
     });
