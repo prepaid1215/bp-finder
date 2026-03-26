@@ -18,7 +18,6 @@
         .search-btn { width: 100%; padding: 14px; background: var(--accent); color: white; border: none; border-radius: 12px; font-weight: 700; cursor: pointer; margin-top: 8px; }
         #loc-list { background: #1e293b; border: 1px solid #475569; border-radius: 12px; margin-top: 5px; display: none; position: absolute; width: 100%; z-index: 100; box-shadow: 0 10px 20px rgba(0,0,0,0.4); overflow: hidden; }
         .loc-item { padding: 15px; border-bottom: 1px solid #334155; cursor: pointer; font-size: 14px; color: #fff; }
-        .loc-item:hover { background: #334155; }
         #loading { display: none; text-align: center; font-size: 13px; color: var(--accent); margin: 10px 0; }
 
         .res-card { background: #334155; padding: 15px; border-radius: 12px; margin-top: 10px; border-left: 5px solid #475569; cursor: pointer; }
@@ -43,14 +42,12 @@
             transform: scale(0.65); transform-origin: top center;
         }
         #captureArea header h1 { text-align: center; font-size: 32px; letter-spacing: 10px; border-bottom: 2px solid #000; display: inline-block; padding-bottom: 5px; margin: 0 0 30px 0; color: #000; width: 100%; }
-        #captureArea .check-group { text-align: right; margin-bottom: 15px; font-weight: bold; font-size: 16px; color: #000; }
-        #captureArea .section-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; text-align: left; color: #000; font-size: 18px; }
-        #captureArea .section-title::before { content: '▶'; margin-right: 8px; font-size: 14px; }
-        #captureArea table { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; border: 1px solid #000; }
+        #captureArea table { width: 100%; border-collapse: collapse; margin-bottom: 25px; table-layout: fixed; border: 1.5px solid #000; }
         #captureArea th, #captureArea td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 14px; height: 40px; vertical-align: middle; }
         #captureArea th { background-color: #f2f2f2; font-weight: bold; color: #000; }
         #captureArea .val { font-weight: bold; font-size: 17px; color: #000; background: #fff; }
-        #captureArea .notice { border-top: 1px dashed #ccc; padding-top: 20px; text-align: left; font-size: 13px; color: #333; }
+        #captureArea .section-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; text-align: left; color: #000; font-size: 18px; }
+        #captureArea .section-title::before { content: '▶'; margin-right: 8px; font-size: 14px; }
         #captureArea footer { margin-top: 30px; text-align: right; border-top: 2px solid #0046a0; padding-top: 10px; }
         #captureArea .logo-text { font-style: italic; font-weight: bold; color: #999; font-size: 22px; }
         #captureArea .brand-name { color: #0046a0; font-size: 14px; font-weight: bold; }
@@ -80,25 +77,26 @@
         <div class="grid-inputs">
             <select id="in_type" onchange="sync()"><option value="선불">선불</option><option value="후불">후불</option></select>
             <select id="in_cat" onchange="sync()"><option value="신규개통">신규개통</option><option value="번호이동">번호이동</option></select>
-            <input type="text" id="in_s_no" placeholder="매출자 회원번호 (자동기억)" oninput="sync()">
-            <input type="text" id="in_s_name" placeholder="매출자 성명 (자동기억)" oninput="sync()">
-            <input type="text" id="in_name" placeholder="명의자 성명" oninput="sync()">
-            <input type="text" id="in_birth" placeholder="명의자 생년월일" oninput="sync()">
-            <input type="text" id="in_tel" placeholder="명의자 연락번호" oninput="sync()">
+            <input type="text" id="in_name" placeholder="명의자 성명 (초기화)">
+            <input type="text" id="in_birth" placeholder="명의자 생년월일 (초기화)">
+            <input type="text" id="in_tel" placeholder="명의자 연락번호 (초기화)">
             <select id="in_mang" onchange="sync()"><option value="K망">K망</option><option value="L망">L망</option></select>
-            <input type="text" id="in_plan" placeholder="가입 요금제" oninput="sync()">
+            <input type="text" id="in_plan" placeholder="가입 요금제 (초기화)">
+            <input type="text" id="in_device" placeholder="단말기 모델 (초기화)">
             <input type="text" id="in_res" placeholder="방문일시 (예: 260410오후2시)" oninput="sync()">
-            <input type="text" id="in_agent" placeholder="담당자 성함 (자동기억)" oninput="sync()">
-            <input type="text" id="in_agent_tel" placeholder="담당자 연락처 (자동기억)" oninput="sync()">
+            <input type="text" id="in_note" placeholder="특이사항/비고 (초기화)" oninput="sync()">
+            <input type="text" id="in_agent_no" placeholder="담당 회원번호 (자동기억)" oninput="sync()">
+            <input type="text" id="in_agent" placeholder="담당 회원명 (자동기억)" oninput="sync()">
             <input type="text" id="in_agent_center" placeholder="소속 센터 (자동기억)" oninput="sync()">
-            <input type="text" id="in_device" placeholder="단말기 모델">
-            <input type="text" id="in_note" placeholder="비고/특이사항" oninput="sync()" style="grid-column: span 2;">
+            <input type="text" id="in_agent_tel" placeholder="담당 연락처 (자동기억)" oninput="sync()">
         </div>
 
         <div class="preview-wrap">
             <div id="captureArea">
                 <header><h1>센 터 방 문 &nbsp; 개 통 &nbsp; 요 청 서</h1></header>
-                <div class="check-group"><span id="v_type_check">☑ 선불 □ 후불</span> / <span id="v_cat_check">☑ 신규개통 □ 번호이동</span></div>
+                <div style="text-align:right; margin-bottom:15px; font-weight:bold; font-size:16px;">
+                    <span id="v_type_check">☑ 선불 □ 후불</span> / <span id="v_cat_check">☑ 신규개통 □ 번호이동</span>
+                </div>
 
                 <div class="section-title">개통 관련 기재란</div>
                 <table>
@@ -106,29 +104,29 @@
                     <tr><td class="val" id="v_s_no">-</td><td class="val" id="v_s_name">-</td></tr>
                     <tr><th>명의자 성명</th><th>명의자 생년월일</th><th>명의자 연락번호</th></tr>
                     <tr><td class="val" id="v_name">-</td><td class="val" id="v_birth">-</td><td class="val" id="v_tel">-</td></tr>
-                    <tr><th>통신망 선택</th><th>가입 요금제</th><th>비고</th></tr>
-                    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan">-</td><td class="val" id="v_note">-</td></tr>
-                    <tr><th>방문 예약 시간</th><td colspan="2" class="val" id="v_res" style="color:#d93025; font-size:18px;">2026 년 04 월 &nbsp;&nbsp; 일 &nbsp;&nbsp; 시</td></tr>
+                    <tr><th>통신망 선택</th><th>가입 요금제</th><th>방문 예약 시간</th></tr>
+                    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan">-</td><td class="val" id="v_res" style="color:#d93025; font-size:16px;">-</td></tr>
+                    <tr><th>비고</th><td colspan="2" class="val" id="v_note" style="text-align:left; font-weight:normal;">-</td></tr>
                 </table>
 
                 <div class="section-title">요청 회원 및 센터 기재란</div>
                 <table>
                     <tr><th rowspan="4" style="width:20%">요청 회원 정보</th><th style="width:40%">회원번호</th><th style="width:40%">회원명</th></tr>
-                    <tr><td class="val" id="v_s_no_copy">-</td><td class="val" id="v_s_name_copy">-</td></tr>
+                    <tr><td class="val" id="v_agent_no_out">-</td><td class="val" id="v_agent_out">-</td></tr>
                     <tr><th>소속 센터 / 활동 지역</th><th>연락번호</th></tr>
-                    <tr><td class="val" id="v_agent_center">-</td><td class="val" id="v_agent_tel">-</td></tr>
+                    <tr><td class="val" id="v_agent_center_out">-</td><td class="val" id="v_agent_tel_out">-</td></tr>
                     <tr><th rowspan="2">개통 처리 정보</th><th>개통 센터</th><th>개통 확정 번호</th></tr>
                     <tr><td class="val" id="v_bp" style="color:#0046a0; font-size:18px;">-</td><td class="val">-</td></tr>
                 </table>
 
-                <div class="notice">※ 개통 시 주의사항: 명의자 본인 확인 후 개통 본인확인서를 반드시 작성하여 주세요.</div>
+                <div style="font-size:13px; border-top:1px dashed #ccc; padding-top:15px;">※ 개통 시 주의사항: 명의자 본인 확인 후 개통 본인확인서를 반드시 작성하여 주세요.</div>
                 <footer><div class="logo-text">N telecom</div><div class="brand-name">앤텔레콤</div></footer>
             </div>
         </div>
 
         <div class="modal-action-btns">
             <button class="save-btn" onclick="saveImage()">📸 서류 저장 및 팩스번호 복사</button>
-            <button class="sms-btn" onclick="copyToClipboard()">💬 소비자 예약문자 복사</button>
+            <button class="sms-btn" onclick="copySMS()">💬 소비자 예약문자 복사</button>
             <button class="close-btn" onclick="closeFax()">닫기</button>
         </div>
     </div>
@@ -217,10 +215,10 @@ let currentList = [];
 let currentFax = "";
 let map, marker;
 
-// 페이지 로드 시 자동 기억 필드만 복구
+
+// 자동 기억 항목 로드 (하단 정보)
 window.onload = () => {
-    const saved = ['in_s_no', 'in_s_name', 'in_agent', 'in_agent_tel', 'in_agent_center'];
-    saved.forEach(id => {
+    ['in_agent_no', 'in_agent', 'in_agent_center', 'in_agent_tel'].forEach(id => {
         const val = localStorage.getItem(id);
         if(val) document.getElementById(id).value = val;
     });
@@ -290,10 +288,10 @@ function updateMap(i) {
 }
 
 function sync() {
-    // 자동 기억 필드 저장
-    const saved = ['in_s_no', 'in_s_name', 'in_agent', 'in_agent_tel', 'in_agent_center'];
-    saved.forEach(id => localStorage.setItem(id, document.getElementById(id).value));
+    // 하단 정보 브라우저에 저장
+    ['in_agent_no', 'in_agent', 'in_agent_center', 'in_agent_tel'].forEach(id => localStorage.setItem(id, document.getElementById(id).value));
 
+    // 체크박스 & 날짜 변환
     const type = document.getElementById('in_type').value;
     document.getElementById('v_type_check').innerHTML = (type==='선불'?'☑ 선불 □ 후불':'□ 선불 ☑ 후불');
     const cat = document.getElementById('in_cat').value;
@@ -306,27 +304,30 @@ function sync() {
     const match = resVal.match(/^(\d{2})(\d{2})(\d{2})(.*)$/);
     if (match) displayDate = `20${match[1]}년 ${match[2]}월 ${match[3]}일 ${match[4].trim()}`;
 
-    // 상단 기재란
-    document.getElementById('v_s_no').innerText = document.getElementById('in_s_no').value || "-";
-    document.getElementById('v_s_name').innerText = document.getElementById('in_s_name').value || "-";
+    // 상단 데이터 매칭 (매출자 정보는 하단의 담당자 정보를 공유하거나 별도 입력)
+    document.getElementById('v_s_no').innerText = document.getElementById('in_agent_no').value || "-";
+    document.getElementById('v_s_name').innerText = document.getElementById('in_agent').value || "-";
     document.getElementById('v_name').innerText = document.getElementById('in_name').value || "-";
     document.getElementById('v_birth').innerText = document.getElementById('in_birth').value || "-";
     document.getElementById('v_tel').innerText = document.getElementById('in_tel').value || "-";
     document.getElementById('v_plan').innerText = document.getElementById('in_plan').value || "-";
+    document.getElementById('v_res').innerText = displayDate || "-";
     document.getElementById('v_note').innerText = document.getElementById('in_note').value || "-";
-    document.getElementById('v_res').innerText = displayDate || "2026 년 04 월      일      시";
 
-    // 하단 요청 정보 기재란 (3번 이미지 구조)
-    document.getElementById('v_s_no_copy').innerText = document.getElementById('in_s_no').value || "-";
-    document.getElementById('v_s_name_copy').innerText = document.getElementById('in_s_name').value || "-";
-    document.getElementById('v_agent_center').innerText = document.getElementById('in_agent_center').value || "-";
-    document.getElementById('v_agent_tel').innerText = document.getElementById('in_agent_tel').value || "-";
+    // 하단 데이터 매칭 (자동기억 항목)
+    document.getElementById('v_agent_no_out').innerText = document.getElementById('in_agent_no').value || "-";
+    document.getElementById('v_agent_out').innerText = document.getElementById('in_agent').value || "-";
+    document.getElementById('v_agent_center_out').innerText = document.getElementById('in_agent_center').value || "-";
+    document.getElementById('v_agent_tel_out').innerText = document.getElementById('in_agent_tel').value || "-";
 }
 
 function openFax(i) {
     currentBP = currentList[i];
     document.getElementById('v_bp').innerText = currentBP.name;
-    document.getElementById('faxModal').classList.add('open'); sync();
+    document.getElementById('faxModal').classList.add('open'); 
+    // 상단 휘발성 정보만 초기화
+    ['in_name', 'in_birth', 'in_tel', 'in_plan', 'in_device', 'in_note', 'in_res'].forEach(id => document.getElementById(id).value = "");
+    sync(); 
 }
 
 function closeFax() { document.getElementById('faxModal').classList.remove('open'); }
@@ -340,11 +341,9 @@ function saveImage() {
     });
 }
 
-function copyToClipboard() {
-    const smsText = `■앤텔레콤 지점방문 예약증\n\n지점 : ${currentBP.name}\n일시 : ${document.getElementById('v_res').innerText}\n고객 : ${document.getElementById('in_name').value} 님\n준비물 : 신분증, 사용할 단말기\n주소 : ${currentBP.addr}`;
-    navigator.clipboard.writeText(smsText).then(() => {
-        alert("✅ 예약 문자 내용이 복사되었습니다. 문자 앱에 붙여넣기 하세요.");
-    });
+function copySMS() {
+    const smsText = `■앤텔레콤 지점방문 예약증\n\n지점 : ${currentBP.name}\n일시 : ${document.getElementById('v_res').innerText}\n고객 : ${document.getElementById('in_name').value || '고객'} 님\n준비물 : 신분증, 단말기\n주소 : ${currentBP.addr}`;
+    navigator.clipboard.writeText(smsText).then(() => alert("✅ 예약 문자가 클립보드에 복사되었습니다."));
 }
 </script>
 </body>
