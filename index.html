@@ -196,7 +196,7 @@ function showLocationList(list) {
     });
 }
 
-// 3. 거리 계산 및 정렬 출력 (텍스트 매칭 보너스 포함)
+// 3. 거리 계산 및 결과 출력 (정확한 인덱스 및 좌표 전달)
 function calculateDist(uLat, uLng, targetName) {
     const sorted = DATA.map(c => {
         const R = 6371;
@@ -205,9 +205,7 @@ function calculateDist(uLat, uLng, targetName) {
         const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
         
         let score = dist;
-        // 주소에 검색어(동 이름 등)가 포함되면 우선순위 대폭 상승
         if(c.addr.includes(targetName.split(' ')[0])) score -= 100; 
-
         return {...c, dist, score};
     }).sort((a,b) => a.score - b.score).slice(0, 5);
 
@@ -226,23 +224,36 @@ function calculateDist(uLat, uLng, targetName) {
     document.getElementById('map-container').style.display = 'none';
 }
 
-// 4. 지도 표시
+// 4. 지도 표시 함수 (좌표 불일치 버그 수정 버전)
 function showOnMap(lat, lng, idx) {
     const container = document.getElementById('map-container');
     container.style.display = 'block';
 
+    // 카드 활성화 스타일 적용
     document.querySelectorAll('.res-card').forEach(c => c.classList.remove('active'));
-    document.getElementById('card-' + idx).classList.add('active');
+    const activeCard = document.getElementById('card-' + idx);
+    if(activeCard) activeCard.classList.add('active');
 
-    const pos = new kakao.maps.LatLng(lat, lng);
+    // 카카오맵 좌표 객체 생성
+    const moveLatLon = new kakao.maps.LatLng(lat, lng);
+
     if (!map) {
-        map = new kakao.maps.Map(container, { center: pos, level: 3 });
-        marker = new kakao.maps.Marker({ position: pos, map: map });
+        // 지도가 처음 생성될 때
+        const options = { center: moveLatLon, level: 3 };
+        map = new kakao.maps.Map(container, options);
+        marker = new kakao.maps.Marker({ position: moveLatLon });
+        marker.setMap(map);
     } else {
-        map.setCenter(pos);
-        marker.setPosition(pos);
+        // 기존 지도가 있을 때 위치와 마커 이동
+        map.setCenter(moveLatLon);
+        marker.setPosition(moveLatLon);
     }
-    setTimeout(() => map.relayout(), 100);
+
+    // [핵심] 지도가 보이지 않는 상태에서 크기가 결정되면 좌표가 틀어짐 -> relayout 후 중심 재설정
+    setTimeout(() => {
+        map.relayout();
+        map.setCenter(moveLatLon);
+    }, 150);
 }
 </script>
 </body>
