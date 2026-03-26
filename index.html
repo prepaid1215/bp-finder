@@ -32,7 +32,9 @@
         .btn-fax-open { background: #4b5563; color: #fff; }
         .btn-sub-text { font-size: 10px; font-weight: 400; margin-top: 3px; opacity: 0.9; }
 
-        #map-container { width: 100%; height: 200px; margin-top: 15px; border-radius: 12px; display: none; border: 1px solid #334155; overflow: hidden; }
+        /* 지도 컨테이너 - 클릭 유도 디자인 추가 */
+        #map-container { width: 100%; height: 200px; margin-top: 15px; border-radius: 12px; display: none; border: 1px solid #334155; overflow: hidden; cursor: pointer; position: relative; }
+        #map-container::after { content: '📍 클릭 시 카카오맵으로 연결'; position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 4px 8px; border-radius: 4px; z-index: 10; pointer-events: none; }
 
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 999; overflow-y: auto; padding: 15px 10px; }
         .modal-overlay.open { display: block; }
@@ -74,7 +76,7 @@
     </div>
     <div id="loading">⏳ 거리를 계산 중입니다...</div>
     <div id="out"></div>
-    <div id="map-container"></div>
+    <div id="map-container" onclick="openKakaoMap()"></div>
 </div>
 
 <div class="modal-overlay" id="faxModal">
@@ -85,13 +87,13 @@
             <input type="text" id="in_s_no" placeholder="매출자 회원번호 (초기화)" oninput="sync()">
             <input type="text" id="in_s_name" placeholder="매출자 성명 (초기화)" oninput="sync()">
             <input type="text" id="in_name" placeholder="명의자 성명 (초기화)" oninput="sync()">
-            <input type="text" id="in_birth" placeholder="명의자 생년월일 (초기화)" oninput="sync()">
-            <input type="text" id="in_tel" placeholder="명의자 연락번호 (초기화)" oninput="sync()">
+            <input type="text" id="in_birth" placeholder="명의자 생년월일" oninput="sync()">
+            <input type="text" id="in_tel" placeholder="명의자 연락번호" oninput="sync()">
             <select id="in_mang" onchange="sync()"><option value="K망">K망</option><option value="L망">L망</option></select>
-            <input type="text" id="in_plan" placeholder="가입 요금제 (초기화)" oninput="sync()">
-            <input type="text" id="in_device" placeholder="단말기 모델 (초기화)" oninput="sync()">
+            <input type="text" id="in_plan" placeholder="가입 요금제" oninput="sync()">
+            <input type="text" id="in_device" placeholder="단말기 모델">
             <input type="text" id="in_res" placeholder="방문일시 (예: 260410오후2시)" oninput="sync()">
-            <input type="text" id="in_note" placeholder="비고/특이사항 (초기화)" oninput="sync()">
+            <input type="text" id="in_note" placeholder="비고/특이사항" oninput="sync()">
             <input type="text" id="in_agent_no" placeholder="요청자 회원번호 (기억)" oninput="sync()">
             <input type="text" id="in_agent" placeholder="요청자 성명 (기억)" oninput="sync()">
             <input type="text" id="in_agent_center" placeholder="소속 센터 (기억)" oninput="sync()">
@@ -137,17 +139,7 @@
 </div>
 
 <script>
-// 관용 지명 매핑 데이터 (필요한 곳들을 여기에 추가하세요)
-const SMART_MAP = {
-    "서면": "부산광역시 부산진구 부전동",
-    "동성로": "대구광역시 중구 동성로",
-    "남포동": "부산광역시 중구 남포동",
-    "상남동": "경상남도 창원시 성산구 상남동",
-    "해운대": "부산광역시 해운대구 우동",
-    "인계동": "경기도 수원시 팔달구 인계동",
-    "두정동": "충청남도 천안시 서북구 두정동"
-};
-
+const SMART_MAP = { "서면": "부산 부산진구 부전동", "동성로": "대구 중구 동성로", "남포동": "부산 중구 남포동" };
 // 제공해주신 전체 데이터 (좌표 없이 주소만 있는 상태)
 const DATA = [
     { name: "스마트마포BP", addr: "서울 마포구 잔다리로 77", tel: "02-3142-2016", fax: "02-323-2016" },
@@ -241,26 +233,19 @@ function run() {
     kakao.maps.load(() => {
         let q = document.getElementById('q').value.trim();
         if(!q) return;
-
         const geocoder = new kakao.maps.services.Geocoder();
         const box = document.getElementById('loc-list');
         box.innerHTML = '';
-        
-        // [지능형 보정] 관용 명칭이 검색어에 포함된 경우 해당 주소로 검색 시도
         let smartQuery = q;
-        let isSmart = false;
-        for (let key in SMART_MAP) {
-            if (q.includes(key)) { smartQuery = SMART_MAP[key]; isSmart = true; break; }
-        }
+        for (let key in SMART_MAP) { if (q.includes(key)) { smartQuery = SMART_MAP[key]; break; } }
 
         geocoder.addressSearch(smartQuery, (result, status) => {
             if (status === 'OK') {
                 box.style.display = 'block';
-                result.forEach((loc, idx) => {
+                result.forEach((loc) => {
                     const div = document.createElement('div');
                     div.className = 'loc-item';
-                    let tag = (isSmart && idx === 0) ? `<span class="loc-tag">추천</span>` : "";
-                    div.innerHTML = `${tag}<strong>${loc.address_name}</strong>`;
+                    div.innerHTML = `<strong>${loc.address_name}</strong>`;
                     div.onclick = () => {
                         box.style.display = 'none';
                         document.getElementById('q').value = loc.address_name;
@@ -269,24 +254,19 @@ function run() {
                     box.appendChild(div);
                 });
             } else {
-                // 주소 검색 실패 시 키워드 검색으로 전환
                 const ps = new kakao.maps.services.Places();
                 ps.keywordSearch(q, (res, stat) => {
                     if (stat === 'OK') {
                         box.style.display = 'block';
                         res.slice(0, 8).forEach(loc => {
-                            const div = document.createElement('div');
-                            div.className = 'loc-item';
+                            const div = document.createElement('div'); div.className = 'loc-item';
                             div.innerHTML = `<strong>${loc.address_name}</strong><br><small>${loc.place_name}</small>`;
                             div.onclick = () => {
-                                box.style.display = 'none';
-                                document.getElementById('q').value = loc.address_name;
+                                box.style.display = 'none'; document.getElementById('q').value = loc.address_name;
                                 startCalculation(parseFloat(loc.y), parseFloat(loc.x), loc.address_name);
                             };
                             box.appendChild(div);
                         });
-                    } else {
-                        alert("검색 결과가 없습니다. 지역 이름을 더 자세히 입력해주세요.");
                     }
                 });
             }
@@ -328,11 +308,18 @@ function renderCards(addr) {
 
 function updateMap(i) {
     const bp = currentList[i];
+    currentBP = bp; // 전역 BP 업데이트
     const container = document.getElementById('map-container'); container.style.display = 'block';
     const pos = new kakao.maps.LatLng(bp.lat, bp.lng);
     if (!map) { map = new kakao.maps.Map(container, { center: pos, level: 3 }); marker = new kakao.maps.Marker({ position: pos, map: map }); }
     else { map.setCenter(pos); marker.setPosition(pos); }
-    setTimeout(() => { map.relayout(); map.setCenter(pos); }, 100);
+}
+
+// [신규] 카카오맵 외부 연결 함수
+function openKakaoMap() {
+    if (!currentBP) return;
+    const url = `https://map.kakao.com/link/map/${encodeURIComponent(currentBP.name)},${currentBP.lat},${currentBP.lng}`;
+    window.open(url, '_blank');
 }
 
 function sync() {
@@ -387,8 +374,7 @@ function copySMS() {
     const mang = document.getElementById('in_mang').value;
     const plan = document.getElementById('in_plan').value || "-";
     const agentName = document.getElementById('in_agent').value || "-";
-    const agentTel = document.getElementById('in_agent_tel').value || "-";
-    const formattedTel = agentTel.replace(/-/g, '.');
+    const agentTel = (document.getElementById('in_agent_tel').value || "-").replace(/-/g, '.');
 
     const smsText = `■앤텔레콤 지점방문 예약증
 
@@ -399,7 +385,7 @@ function copySMS() {
 요금제 : ${mang} ${plan}
 준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원
 개통지점 : ${currentBP.name}
-담당자 : ${agentName} / ${formattedTel}
+담당자 : ${agentName} / ${agentTel}
 주소 : ${currentBP.addr}`;
     
     navigator.clipboard.writeText(smsText).then(() => alert("✅ 예약 문자가 클립보드에 복사되었습니다."));
