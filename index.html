@@ -352,10 +352,34 @@ function saveImage() {
 }
 
 function copySMS() {
-    const resText = document.getElementById('v_res').innerText;
-    const nameText = document.getElementById('in_name').value || '고객';
-    const smsText = `■앤텔레콤 지점방문 예약증\n\n지점 : ${currentBP.name}\n일시 : ${resText}\n고객 : ${nameText} 님\n준비물 : 신분증, 사용할 단말기\n주소 : ${currentBP.addr}`;
-    navigator.clipboard.writeText(smsText).then(() => alert("✅ 예약 문자가 클립보드에 복사되었습니다."));
+    const res = document.getElementById('v_res').innerText;
+    const name = document.getElementById('in_name').value || "고객";
+    const device = document.getElementById('in_device').value || "-";
+    const mang = document.getElementById('in_mang').value;
+    const plan = document.getElementById('in_plan').value || "-";
+    
+    // 요청 회원(담당자) 정보 가져오기
+    const agentName = document.getElementById('in_agent').value || "-";
+    let agentTel = document.getElementById('in_agent_tel').value || "-";
+    
+    // 전화번호 형식을 010.1234.5678 스타일로 변환 (선택 사항)
+    const formattedTel = agentTel.replace(/-/g, '.');
+
+    const smsText = `■앤텔레콤 지점방문 예약증
+
+방문일시 : ${res}
+고객명 : ${name} 님
+사용할 단말기 : ${device}
+유심 : 나노유심
+요금제 : ${mang} ${plan}
+준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원
+개통지점 : ${currentBP.name}
+담당자 : ${agentName} / ${formattedTel}
+주소 : ${currentBP.addr}`;
+    
+    navigator.clipboard.writeText(smsText).then(() => {
+        alert("✅ 예약 문자가 클립보드에 복사되었습니다.\n담당자 정보는 요청 회원 정보와 동일하게 설정되었습니다.");
+    });
 }
 </script>
 </body>
