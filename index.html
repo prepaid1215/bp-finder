@@ -124,7 +124,7 @@ function run() {
             <div style="font-size:13px; color:#94a3b8; margin:5px 0;">${c.addr}</div>
             <div style="display:flex; justify-content:space-between; align-items:center;">
               <span style="color:#10b981; font-size:12px;">약 ${c.dist.toFixed(1)}km</span>
-              <a href="tel:${c.tel}" class="tel-btn">📞 전화상담</a>
+              <a href="tel:${c.tel}" class="tel-btn">📞 ${c.tel}</a>
             </div>
           </div>`).join('');
         document.getElementById('out').innerHTML = h;
