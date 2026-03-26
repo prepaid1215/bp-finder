@@ -32,55 +32,56 @@
 
         #map-container { width: 100%; height: 230px; margin-top: 15px; border-radius: 12px; display: none; border: 1px solid #334155; overflow: hidden; }
 
-        /* 팩스 모달 설정 */
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 999; overflow-y: auto; padding: 20px 10px; }
+        /* 팩스 모달 레이아웃 */
+        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.9); z-index: 999; overflow-y: auto; padding: 15px 10px; }
         .modal-overlay.open { display: block; }
-        .modal-content { width: 100%; max-width: 500px; margin: 0 auto; background: var(--card); border-radius: 15px; padding: 20px; }
+        .modal-content { width: 100%; max-width: 550px; margin: 0 auto; background: var(--card); border-radius: 15px; padding: 15px; }
 
-        .modal-input-group { background: #0f172a; padding: 15px; border-radius: 12px; margin-bottom: 20px; border: 1px solid #334155; }
+        /* 입력 그룹 */
+        .modal-input-group { background: #0f172a; padding: 12px; border-radius: 12px; margin-bottom: 15px; border: 1px solid #334155; }
         .modal-input-group h3 { font-size: 14px; margin: 0 0 10px 0; color: var(--accent); }
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; }
-        .grid-inputs input, .grid-inputs select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 12px; outline: none; }
+        .grid-inputs input, .grid-inputs select { width: 100%; padding: 8px; border-radius: 6px; border: 1px solid #334155; background: #1e293b; color: #fff; font-size: 12px; outline: none; }
 
-        /* ── [캡쳐 영역] 정식 서류 스타일 (2번 이미지 기준) ── */
-        #captureArea { 
-            background: #fff; color: #000; padding: 40px 30px; width: 794px; /* A4 비율 */
-            font-family: 'Malgun Gothic', 'Apple SD Gothic Neo', sans-serif; position: relative;
+        /* ── 미리보기 축소 영역 ── */
+        .preview-wrap { 
+            width: 100%; height: 450px; overflow-y: auto; background: #555; border-radius: 10px; 
+            position: relative; border: 2px solid #444; display: flex; justify-content: center;
         }
-        .f-header-title { text-align: center; font-size: 38px; font-weight: 900; margin-bottom: 30px; letter-spacing: 10px; }
-        .f-top-checks { display: flex; justify-content: flex-end; gap: 20px; font-size: 15px; font-weight: bold; margin-bottom: 10px; }
-        .f-section-title { font-size: 16px; font-weight: bold; margin: 20px 0 5px 0; }
-        .f-section-sub { font-size: 12px; margin-bottom: 8px; }
+        /* 실제 저장될 캡쳐 영역 (A4 사이즈 유지하되 화면에선 0.6배 축소) */
+        #captureArea { 
+            background: #fff; color: #000; padding: 50px 40px; width: 794px; 
+            font-family: 'Malgun Gothic', sans-serif; position: absolute; top: 0;
+            transform: scale(0.55); transform-origin: top center;
+        }
         
+        .f-header-title { text-align: center; font-size: 40px; font-weight: 900; margin-bottom: 30px; letter-spacing: 12px; }
+        .f-top-checks { display: flex; justify-content: flex-end; gap: 20px; font-size: 16px; font-weight: bold; margin-bottom: 10px; }
         .f-table { width: 100%; border-collapse: collapse; border: 2px solid #000; table-layout: fixed; }
-        .f-table th, .f-table td { border: 1px solid #000; padding: 8px; font-size: 13px; text-align: center; vertical-align: middle; height: 45px; }
+        .f-table th, .f-table td { border: 1px solid #000; padding: 8px; font-size: 14px; text-align: center; vertical-align: middle; height: 45px; }
         .f-table th { background: #f2f2f2; font-weight: bold; }
-        .f-table td.label-sub { background: #f2f2f2; font-size: 11px; height: 25px; }
-        .f-table td.val { text-align: center; font-weight: bold; font-size: 15px; background: #fff; }
-        
-        .f-notice { font-size: 12px; margin-top: 25px; line-height: 1.8; font-weight: bold; }
-        .f-notice span { color: red; text-decoration: underline; }
-        .f-footer { display: flex; justify-content: flex-end; align-items: flex-end; margin-top: 30px; border-top: 1px solid #eee; padding-top: 20px; }
-        .f-logo-text { text-align: right; line-height: 1; }
-        .f-logo-main { font-size: 32px; font-weight: 900; color: #1d4ed8; font-style: italic; }
-        .f-logo-sub { font-size: 14px; color: #666; margin-top: 5px; }
+        .f-table td.label-sub { background: #f2f2f2; font-size: 12px; height: 28px; }
+        .f-table td.val { font-weight: bold; font-size: 16px; background: #fff; }
+        .f-notice { font-size: 13px; margin-top: 30px; line-height: 1.8; font-weight: bold; text-align: left; }
+        .f-logo-main { font-size: 34px; font-weight: 900; color: #1d4ed8; font-style: italic; text-align: right; margin-top: 30px; }
 
-        .save-btn { width: 100%; padding: 15px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: 700; margin-top: 15px; cursor: pointer; }
-        .close-btn { width: 100%; padding: 10px; margin-top: 8px; background: #444; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
+        /* 하단 액션 버튼 그룹 */
+        .modal-action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
+        .save-btn { grid-column: span 2; padding: 15px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 15px; }
+        .sms-btn { padding: 12px; background: #ea580c; color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; font-size: 13px; }
+        .close-btn { padding: 12px; background: #444; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-size: 13px; }
     </style>
 </head>
 <body>
 
 <div class="app">
     <h2>앤텔레콤 BP FINDER</h2>
-
     <div class="search-box">
-        <input type="text" id="q" placeholder="소비자 주소 입력 (예: 연산동 123)" onkeypress="if(event.keyCode==13) run()">
+        <input type="text" id="q" placeholder="소비자 주소 입력 (예: 연산동)" onkeypress="if(event.keyCode==13) run()">
         <div id="loc-list"></div>
-        <button class="search-btn" onclick="run()">주소로 주변 센터 찾기</button>
+        <button class="search-btn" onclick="run()">가까운 센터 찾기</button>
     </div>
-
-    <div id="loading">⏳ 주변 센터를 계산 중입니다...</div>
+    <div id="loading">⏳ 거리를 계산하고 있습니다...</div>
     <div id="out"></div>
     <div id="map-container"></div>
 </div>
@@ -88,34 +89,32 @@
 <div class="modal-overlay" id="faxModal">
     <div class="modal-content">
         <div class="modal-input-group">
-            <h3>📝 정식 개통 요청서 작성</h3>
+            <h3>📝 정식 서류 & 예약증 작성</h3>
             <div class="grid-inputs">
-                <input type="text" id="in_s_no" placeholder="매출자 회원번호" oninput="sync()">
-                <input type="text" id="in_s_name" placeholder="매출자 성명" oninput="sync()">
-                <input type="text" id="in_name" placeholder="명의자 성명" oninput="sync()">
-                <input type="text" id="in_birth" placeholder="명의자 생년월일" oninput="sync()">
-                <input type="text" id="in_tel" placeholder="명의자 연락처" oninput="sync()">
+                <select id="in_type" onchange="sync()"><option value="선불">선불</option><option value="후불">후불</option></select>
+                <select id="in_cat" onchange="sync()"><option value="신규개통">신규개통</option><option value="번호이동">번호이동</option></select>
+                <input type="text" id="in_name" placeholder="고객명 (예: 기철 님)" oninput="sync()">
+                <input type="text" id="in_birth" placeholder="생년월일 (8자리)" oninput="sync()">
+                <input type="text" id="in_tel" placeholder="연락처 (예: 010...)" oninput="sync()">
                 <input type="text" id="in_plan" placeholder="가입 요금제" oninput="sync()">
-                <input type="text" id="in_res_day" placeholder="예약일 (예: 25)" oninput="sync()">
-                <input type="text" id="in_res_hour" placeholder="예약시간 (예: 14)" oninput="sync()">
-                <input type="text" id="in_r_no" placeholder="요청자 회원번호" oninput="sync()">
-                <input type="text" id="in_r_name" placeholder="요청자 성명" oninput="sync()">
+                <input type="text" id="in_device" placeholder="사용 단말기 (문자용)" oninput="sync()">
+                <input type="text" id="in_sim" placeholder="유심종류 (문자용)" value="나노유심" oninput="sync()">
+                <input type="text" id="in_res_day" placeholder="방문일 (예: 25일)" oninput="sync()">
+                <input type="text" id="in_res_hour" placeholder="방문시각 (예: 11시)" oninput="sync()">
+                <input type="text" id="in_s_no" placeholder="매출자 회원번호" oninput="sync()">
+                <input type="text" id="in_s_name" placeholder="매출자 이름" oninput="sync()">
+                <input type="text" id="in_agent" placeholder="담당자 (예: 임영은)" value="임영은" oninput="sync()">
+                <input type="text" id="in_agent_tel" placeholder="담당자 번호" value="010.7305.8253" oninput="sync()">
                 <input type="text" id="in_note" placeholder="특이사항" oninput="sync()" style="grid-column: span 2;">
             </div>
         </div>
 
-        <div style="overflow-x: auto; background: #555; padding: 10px;">
+        <div class="preview-wrap">
             <div id="captureArea">
-                <div class="f-header-title">센터방문 개통 요청서</div>
+                <div class="f-header-title">센 터 방 문  개 통  요 청 서</div>
                 <div class="f-top-checks">
-                    <span>[V] 선불  [ ] 후불</span>
-                    <span>/</span>
-                    <span>[V] 신규개통  [ ] 번호이동</span>
+                    <span id="v_type_check"></span> / <span id="v_cat_check"></span>
                 </div>
-
-                <div class="f-section-title">▶ 개통 관련 기재란</div>
-                <div class="f-section-sub">※ 연체, 미납 정지 단말기, 부가서비스 등 개통 관련 특이사항 입력</div>
-                
                 <table class="f-table">
                     <tr>
                         <th rowspan="2" style="width:20%">매출자 정보</th>
@@ -138,81 +137,44 @@
                     </tr>
                     <tr>
                         <th>통신망 선택</th>
-                        <td class="label-sub">가입 요금제<br>(사전 설명 필수)</td>
-                        <td class="label-sub">(번호이동 시)<br>현재 사용 번호 / 통신사</td>
+                        <td class="label-sub">가입 요금제 (사전 설명 필수)</td>
+                        <td class="label-sub">(번호이동 시) 현재 번호 / 통신사</td>
                     </tr>
                     <tr>
-                        <td class="val">[V] K망  [ ] L망</td>
+                        <td class="val">[V] K망  [ ] L망</td>
                         <td class="val" id="v_plan">-</td>
                         <td class="val">-</td>
                     </tr>
                     <tr>
                         <th>방문 예약 시간</th>
                         <td colspan="2" class="val" style="font-size: 18px;">
-                            2026 년 3 월 <span id="v_res_day">  </span> 일  오후 <span id="v_res_hour">  </span> 시
+                            2026 년 3 월 <span id="v_res_day">  </span> 일  오후 <span id="v_res_hour">  </span> 시
                         </td>
                     </tr>
                     <tr>
                         <th>특이사항</th>
-                        <td colspan="2" class="val" id="v_note" style="text-align:left; font-weight:normal; font-size:13px;">-</td>
+                        <td colspan="2" class="val" id="v_note" style="text-align:left; font-weight:normal; font-size:14px;">-</td>
                     </tr>
                 </table>
-
-                <div class="f-section-title">▶ 요청 회원 및 센터 기재란</div>
-                <table class="f-table">
-                    <tr>
-                        <th rowspan="4" style="width:20%">요청 회원 정보</th>
-                        <td class="label-sub">회원번호</td>
-                        <td class="label-sub">회원명</td>
-                    </tr>
-                    <tr>
-                        <td class="val" id="v_r_no">-</td>
-                        <td class="val" id="v_r_name">-</td>
-                    </tr>
-                    <tr>
-                        <td class="label-sub">소속 센터 / 활동 지역</td>
-                        <td class="label-sub">연락번호</td>
-                    </tr>
-                    <tr>
-                        <td class="val">-</td>
-                        <td class="val">-</td>
-                    </tr>
-                    <tr>
-                        <th>개통 처리 정보</th>
-                        <td class="label-sub">개통 센터</td>
-                        <td class="label-sub">개통 확정 번호</td>
-                    </tr>
-                    <tr>
-                        <td style="background:#f2f2f2;"></td>
-                        <td class="val" id="v_bp" style="color:#1d4ed8; font-size:18px;">-</td>
-                        <td class="val">-</td>
-                    </tr>
-                </table>
-
                 <div class="f-notice">
                     ※ 개통 시 주의사항<br>
-                    ▶ 방문 개통 명의자 본인 확인 후 <span>개통 본인확인서(필수)</span>를 반드시 작성하여 주세요.<br>
+                    ▶ 방문 개통 명의자 본인 확인 후 <span style="color:red; text-decoration:underline;">개통 본인확인서(필수)</span>를 반드시 작성하여 주세요.<br>
                     ▶ 다회선 개통 요청 시 개통 의뢰 회원에게 내용 확인 후 개통 진행해주세요.<br>
-                    ▶ 부정영업이 의심이 되는 경우 개통을 거부할 수 있습니다.<br>
-                    <span style="font-weight:normal; color:#555; margin-left:15px;">- 본인 실사용 외 타인 판매, 양도, 불법 스팸, 보이스피싱 등</span>
+                    ▶ 부정영업이 의심되는 경우 개통을 거부할 수 있습니다.
                 </div>
-
-                <div class="f-footer">
-                    <div class="f-logo-text">
-                        <div class="f-logo-main">N telecom</div>
-                        <div class="f-logo-sub">앤텔레콤</div>
-                    </div>
-                </div>
+                <div class="f-logo-main">N telecom</div>
             </div>
         </div>
 
-        <button class="save-btn" onclick="saveImage()">📸 정식 서류 저장 및 번호 복사</button>
-        <button class="close-btn" onclick="closeFax()">닫기</button>
+        <div class="modal-action-btns">
+            <button class="save-btn" onclick="saveImage()">📸 정식 서류 저장 및 팩스번호 복사</button>
+            <button class="sms-btn" onclick="sendSMS()">💬 소비자 예약문자 발송</button>
+            <button class="close-btn" onclick="closeFax()">닫기</button>
+        </div>
     </div>
 </div>
 
 <script>
-// 센터 데이터 (전체 리스트 동일)
 // 제공해주신 전체 데이터 (좌표 없이 주소만 있는 상태)
 const DATA = [
     { name: "스마트마포BP", addr: "서울 마포구 잔다리로 77", tel: "02-3142-2016", fax: "02-323-2016" },
@@ -289,117 +251,86 @@ const DATA = [
     { name: "올레BP", addr: "제주 제주시 남성로 16", tel: "064-749-3016", fax: "064-749-3018" },
     { name: "제주우정BP", addr: "제주 제주시 삼봉로 137", tel: "010-2700-8335", fax: "050-4161-8335" }
 ];
-
-const geoCache = {}; // 좌표 캐싱용
-let currentList = [];
-let currentFax = "";
-let map, marker;
-
+let currentList = [], currentFax = "", currentBP = null, map, marker;
 
 function run() {
     kakao.maps.load(() => {
-        const query = document.getElementById('q').value.trim();
-        if(!query) return;
+        const q = document.getElementById('q').value.trim();
         const geocoder = new kakao.maps.services.Geocoder();
-        geocoder.addressSearch(query, (result, status) => {
-            if (status === kakao.maps.services.Status.OK) showSuggestList(result);
-            else alert("정확한 주소를 입력해주세요.");
+        geocoder.addressSearch(q, (result, status) => {
+            if (status === kakao.maps.services.Status.OK) {
+                const box = document.getElementById('loc-list');
+                box.innerHTML = ''; box.style.display = 'block';
+                result.slice(0,3).forEach(loc => {
+                    const div = document.createElement('div'); div.className = 'loc-item';
+                    div.innerHTML = `<strong>${loc.address_name}</strong>`;
+                    div.onclick = () => {
+                        box.style.display = 'none'; document.getElementById('q').value = loc.address_name;
+                        calculate(parseFloat(loc.y), parseFloat(loc.x));
+                    };
+                    box.appendChild(div);
+                });
+            }
         });
     });
 }
 
-function showSuggestList(list) {
-    const box = document.getElementById('loc-list');
-    box.innerHTML = ''; box.style.display = 'block';
-    const sorted = list.sort((a,b) => a.address_name.includes('부산') ? -1 : 1);
-    sorted.slice(0,5).forEach(loc => {
-        const div = document.createElement('div');
-        div.className = 'loc-item';
-        div.innerHTML = `<strong>${loc.address_name}</strong>`;
-        div.onclick = () => {
-            box.style.display = 'none';
-            document.getElementById('q').value = loc.address_name;
-            startCalculation(parseFloat(loc.y), parseFloat(loc.x), loc.address_name);
-        };
-        box.appendChild(div);
-    });
+function calculate(uLat, uLng) {
+    currentList = DATA.map(c => {
+        const dLat = (c.lat-uLat)*Math.PI/180, dLng = (c.lng-uLng)*Math.PI/180;
+        const a = Math.sin(dLat/2)**2 + Math.cos(uLat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.sin(dLng/2)**2;
+        return { ...c, dist: 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) };
+    }).sort((a,b) => a.dist - b.dist).slice(0,5);
+    renderCards();
 }
 
-async function startCalculation(uLat, uLng, addrName) {
-    document.getElementById('loading').style.display = 'block';
-    const geocoder = new kakao.maps.services.Geocoder();
-    const withCoords = await Promise.all(DATA.map(async (bp) => {
-        let coords = geoCache[bp.addr];
-        if(!coords) {
-            coords = await new Promise(resolve => {
-                geocoder.addressSearch(bp.addr, (res, status) => {
-                    if(status === kakao.maps.services.Status.OK) resolve({lat: parseFloat(res[0].y), lng: parseFloat(res[0].x)});
-                    else resolve(null);
-                });
-            });
-            if(coords) geoCache[bp.addr] = coords;
-        }
-        if(coords) {
-            const dLat = (coords.lat-uLat)*Math.PI/180, dLng = (coords.lng-uLng)*Math.PI/180;
-            const a = Math.sin(dLat/2)**2 + Math.cos(uLat*Math.PI/180)*Math.cos(coords.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-            const dist = 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-            return {...bp, lat: coords.lat, lng: coords.lng, dist};
-        }
-        return null;
-    }));
-    currentList = withCoords.filter(b => b !== null).sort((a,b) => a.dist - b.dist).slice(0,5);
-    document.getElementById('loading').style.display = 'none';
-    renderResults(addrName);
-}
-
-function renderResults(addrName) {
-    let h = `<div style="font-size:12px;color:#94a3b8;margin:15px 0 5px;">📍 [${addrName}] 주변 결과</div>`;
+function renderCards() {
+    let h = `<div style="font-size:12px;color:#94a3b8;margin:15px 0 5px;">📍 가장 가까운 5곳</div>`;
     h += currentList.map((c, i) => `
         <div class="res-card" id="card-${i}" onclick="updateMap(${i})">
-            <div class="card-name">${c.name} <span style="color:var(--success);font-size:12px;">(${c.dist.toFixed(1)}km)</span></div>
+            <div class="card-name">${c.name} <span style="color:var(--success);font-size:11px;">(${c.dist.toFixed(1)}km)</span></div>
             <div class="card-addr">${c.addr}</div>
             <div class="card-btns">
                 <a href="tel:${c.tel}" class="btn-call">📞 전화예약</a>
-                <button class="btn-fax-open" onclick="openFax(${i})">📠 팩스요청</button>
+                <button class="btn-fax-open" onclick="openFax(${i})">📠 팩스/예약증</button>
             </div>
         </div>`).join('');
-    document.getElementById('out').innerHTML = h;
-    updateMap(0);
+    document.getElementById('out').innerHTML = h; updateMap(0);
 }
 
 function updateMap(i) {
     const bp = currentList[i];
-    const container = document.getElementById('map-container');
-    container.style.display = 'block';
+    const container = document.getElementById('map-container'); container.style.display = 'block';
     const pos = new kakao.maps.LatLng(bp.lat, bp.lng);
-    if (!map) {
-        map = new kakao.maps.Map(container, { center: pos, level: 3 });
-        marker = new kakao.maps.Marker({ position: pos, map: map });
-    } else { map.setCenter(pos); marker.setPosition(pos); }
+    if (!map) { map = new kakao.maps.Map(container, { center: pos, level: 3 }); marker = new kakao.maps.Marker({ position: pos, map: map }); }
+    else { map.setCenter(pos); marker.setPosition(pos); }
     setTimeout(() => { map.relayout(); map.setCenter(pos); }, 100);
-    document.querySelectorAll('.res-card').forEach(c => c.classList.remove('active'));
-    document.getElementById('card-'+i).classList.add('active');
 }
 
 function sync() {
-    document.getElementById('v_s_no').innerText = document.getElementById('in_s_no').value || "-";
-    document.getElementById('v_s_name').innerText = document.getElementById('in_s_name').value || "-";
+    // 체크박스 텍스트 업데이트
+    const type = document.getElementById('in_type').value;
+    document.getElementById('v_type_check').innerHTML = (type === '선불') ? '[V] 선불  [ ] 후불' : '[ ] 선불  [V] 후불';
+    const cat = document.getElementById('in_cat').value;
+    document.getElementById('v_cat_check').innerHTML = (cat === '신규개통') ? '[V] 신규개통  [ ] 번호이동' : '[ ] 신규개통  [V] 번호이동';
+
     document.getElementById('v_name').innerText = document.getElementById('in_name').value || "-";
     document.getElementById('v_birth').innerText = document.getElementById('in_birth').value || "-";
     document.getElementById('v_tel').innerText = document.getElementById('in_tel').value || "-";
     document.getElementById('v_plan').innerText = document.getElementById('in_plan').value || "-";
-    document.getElementById('v_res_day').innerText = document.getElementById('in_res_day').value || "  ";
-    document.getElementById('v_res_hour').innerText = document.getElementById('in_res_hour').value || "  ";
+    document.getElementById('v_s_no').innerText = document.getElementById('in_s_no').value || "-";
+    document.getElementById('v_s_name').innerText = document.getElementById('in_s_name').value || "-";
+    document.getElementById('v_res_day').innerText = document.getElementById('in_res_day').value || "  ";
+    document.getElementById('v_res_hour').innerText = document.getElementById('in_res_hour').value || "  ";
     document.getElementById('v_note').innerText = document.getElementById('in_note').value || "-";
-    document.getElementById('v_r_no').innerText = document.getElementById('in_r_no').value || "-";
-    document.getElementById('v_r_name').innerText = document.getElementById('in_r_name').value || "-";
 }
 
 function openFax(i) {
-    const bp = currentList[i];
-    currentFax = bp.fax;
-    document.getElementById('v_bp').innerText = bp.name;
+    currentBP = currentList[i];
+    currentFax = currentBP.fax;
+    document.getElementById('v_bp').innerText = currentBP.name;
     document.getElementById('faxModal').classList.add('open');
+    sync();
 }
 
 function closeFax() { document.getElementById('faxModal').classList.remove('open'); }
@@ -409,11 +340,25 @@ function saveImage() {
     html2canvas(area, { scale: 3 }).then(canvas => {
         const link = document.createElement('a');
         link.download = `개통요청서_${document.getElementById('in_name').value || '미입력'}.png`;
-        link.href = canvas.toDataURL();
-        link.click();
-        if (currentFax && currentFax !== "-") {
-            navigator.clipboard.writeText(currentFax).then(() => alert(`✅ 정식 서류 저장 완료!\n✅ 팩스번호(${currentFax}) 복사 완료!`));
-        }
+        link.href = canvas.toDataURL(); link.click();
+        if (currentFax) navigator.clipboard.writeText(currentFax).then(() => alert(`✅ 정식 서류 저장 및 팩스번호(${currentFax}) 복사 완료!`));
+    });
+}
+
+function sendSMS() {
+    const name = document.getElementById('in_name').value;
+    const res = document.getElementById('in_res_day').value + " " + document.getElementById('in_res_hour').value;
+    const device = document.getElementById('in_device').value;
+    const sim = document.getElementById('in_sim').value;
+    const plan = document.getElementById('in_plan').value;
+    const agent = document.getElementById('in_agent').value;
+    const agentTel = document.getElementById('in_agent_tel').value;
+
+    const smsText = `■앤텔레콤 지점방문 예약증\n\n방문일시 : 2026년 3월 ${res}\n고객명 : ${name} 님\n사용할 단말기 : ${device}\n유심 : ${sim}\n요금제 : ${plan}\n준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원\n개통지점 : ${currentBP.name}\n담당자 : ${agent} / ${agentTel}\n주소 : ${currentBP.addr}`;
+
+    navigator.clipboard.writeText(smsText).then(() => {
+        const move = confirm("예약증 문구가 복사되었습니다. 문자 앱으로 이동할까요?");
+        if(move) window.location.href = `sms:?body=${encodeURIComponent(smsText)}`;
     });
 }
 </script>
