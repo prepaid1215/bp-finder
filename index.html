@@ -14,7 +14,6 @@
         .search-box { position: relative; margin-bottom: 15px; }
         input { width: 100%; padding: 14px; border-radius: 12px; border: 1px solid #334155; background: #0f172a; color: #fff; box-sizing: border-box; outline: none; font-size: 16px; }
         
-        /* 검색 추천 리스트 */
         #loc-list { 
             background: #1e293b; border: 1px solid #475569; border-radius: 12px; 
             margin-top: 5px; display: none; overflow: hidden; position: absolute; 
@@ -31,6 +30,7 @@
         .res-card.active { border-left-color: var(--success); background: #3f4e63; }
         
         .tel-btn { display: inline-block; color: #60a5fa; text-decoration: none; font-weight: 700; font-size: 14px; }
+        .fax-info { font-size: 12px; color: #64748b; margin-top: 2px; }
         
         #map-container { width: 100%; height: 250px; margin-top: 15px; border-radius: 12px; display: none; overflow: hidden; border: 1px solid #334155; }
     </style>
@@ -49,97 +49,99 @@
 
 <script>
 const DATA = [
-  { name: "스마트마포BP", addr: "서울 마포구 잔다리로 77 (서교동) 대창빌딩 401호", tel: "02-3142-2016", lat: 37.5514, lng: 126.9207 },
-  { name: "송파 CGI BP", addr: "서울 송파구 오금로11길 23-9 (방이동) 5층 511호", tel: "02-472-3663", lat: 37.5097, lng: 127.1169 },
-  { name: "군자BP", addr: "서울 광진구 능동로 331 (중곡동) 2층", tel: "02-2248-0016", lat: 37.5633, lng: 127.0817 },
-  { name: "구로 신도림테크노BP", addr: "서울 구로구 새말로 97 (구로동) 9층 3호", tel: "02-858-0598", lat: 37.5074, lng: 126.8868 },
-  { name: "성북비전BP", addr: "서울 성북구 돌곶이로 25길 4-1 퀸즈빌8차 101호", tel: "02-3292-7010", lat: 37.5984, lng: 127.0706 },
-  { name: "을지로BP", addr: "서울 중구 충무로 50 (을지로3가) 6층", tel: "010-3208-8250", lat: 37.5651, lng: 126.9973 },
-  { name: "동서울BP", addr: "서울 광진구 자양로 67 (자양동) 302호", tel: "02-3437-7705", lat: 37.5414, lng: 127.0826 },
-  { name: "관악BP", addr: "서울 관악구 봉천로 335 (봉천동) 301호", tel: "02-889-6665", lat: 37.4803, lng: 126.9527 },
-  { name: "구로디지털BP", addr: "서울 구로구 디지털로29길 38 (구로동) 에이스테크노타워3차 709호", tel: "02-830-8747", lat: 37.4854, lng: 126.8987 },
-  { name: "가산역BP", addr: "서울 금천구 가산디지털1로 181 (가산동) 5층 507호", tel: "02-6264-2025", lat: 37.4775, lng: 126.8878 },
-  { name: "건대친구통신BP", addr: "서울 광진구 아차산로30길 31 (자양동) 3층", tel: "02-6964-8020", lat: 37.5402, lng: 127.0738 },
-  { name: "신세계 영등포BP", addr: "서울 영등포구 영중로 22 (영등포동3가) 4층 401호", tel: "02-2676-6016", lat: 37.5161, lng: 126.9072 },
-  { name: "상봉 크라운BP", addr: "서울 중랑구 망우로 240 (상봉동) 3층 302호", tel: "02-435-8812", lat: 37.5966, lng: 127.0858 },
-  { name: "강동그린BP", addr: "서울 강동구 성내로 4 (성내동) 3층", tel: "02-478-0278", lat: 37.5310, lng: 127.1240 },
-  { name: "구로센트럴BP", addr: "서울 구로구 디지털로30길 28 (구로동) 마리오타워1108호", tel: "02-877-3694", lat: 37.4851, lng: 126.8977 },
-  { name: "대림 모아BP", addr: "서울 구로구 구로중앙로14길 61 (구로동) 3층", tel: "02-851-3858", lat: 37.4928, lng: 126.8915 },
-  { name: "부천역BP", addr: "경기 부천시 부천로39번길 8 (심곡동) 6층", tel: "032-323-3055", lat: 37.5004, lng: 126.7765 },
-  { name: "안산BP", addr: "경기 안산시 단원구 광덕4로 112 (고잔동) 206호", tel: "031-414-0163", lat: 37.3219, lng: 126.8309 },
-  { name: "가온 오산역BP", addr: "경기 오산시 오산로 198 (원동) 우정빌딩 102호", tel: "031-375-5016", lat: 37.1533, lng: 127.0771 },
-  { name: "에이스양평BP", addr: "경기 양평군 양평읍 시민로 94 지하1층", tel: "031-771-0902", lat: 37.4914, lng: 127.4927 },
-  { name: "이천BP", addr: "경기 이천시 중신로 81 2층 202호", tel: "031-637-9888", lat: 37.2723, lng: 127.4417 },
-  { name: "광명빅BP", addr: "경기 광명시 오리로 992 (광명동) 광명리더스 빌딩 901호", tel: "02-6953-8014", lat: 37.4783, lng: 126.8642 },
-  { name: "시흥 정왕역BP", addr: "경기 시흥시 마유로418번길 10 (정왕동) 롯데시네마 2층 203호", tel: "031-431-2016", lat: 37.3457, lng: 126.7339 },
-  { name: "가온 평택역BP", addr: "경기 평택시 평택로64번길 32 (평택동) 3층", tel: "031-691-1236", lat: 36.9930, lng: 127.1129 },
-  { name: "고양일산BP", addr: "경기 고양시 일산동구 중앙로 1200 (마두동) 삼희골드프라자 205호", tel: "031-904-8610", lat: 37.6601, lng: 126.7762 },
-  { name: "가온파주BP", addr: "경기 파주시 새꽃로 180 (금촌동) 1층", tel: "031-942-2989", lat: 37.7416, lng: 126.7799 },
-  { name: "평택BP", addr: "경기 평택시 원평로 43 (평택동) 2층", tel: "031-618-7990", lat: 36.9943, lng: 127.0909 },
-  { name: "수원나눔BP", addr: "경기 수원시 팔달구 경수대로 424 (인계동) 2층 202호", tel: "031-223-2763", lat: 37.2636, lng: 127.0286 },
-  { name: "뉴부평BP", addr: "인천 부평구 동수로 173 (부개동) 1층", tel: "032-504-0577", lat: 37.5072, lng: 126.7222 },
-  { name: "춘천우리BP", addr: "강원 춘천시 춘주로92번길 30 (온의동) 1층", tel: "033-241-5010", lat: 37.8747, lng: 127.7340 },
-  { name: "동해BP", addr: "강원 동해시 발한로 125 (발한동) 1층", tel: "033-532-0101", lat: 37.5247, lng: 129.1144 },
-  { name: "원주BP", addr: "강원특별자치도 원주시 단관길 197 (관설동) 1층", tel: "033-762-2017", lat: 37.3431, lng: 127.9200 },
-  { name: "홍천BP", addr: "강원 홍천군 홍천읍 꽃뫼로1길 3-1 1층", tel: "033-434-3358", lat: 37.6973, lng: 127.8882 },
-  { name: "대전 GOBP", addr: "대전 동구 백룡로5번길 80 (자양동) 지하1층", tel: "042-633-0633", lat: 36.3505, lng: 127.4271 },
-  { name: "대전역BP", addr: "대전시 중구 대흥동 336-16 조양빌딩 3층", tel: "042-253-1016", lat: 36.3291, lng: 127.4281 },
-  { name: "광주BP", addr: "광주 서구 상무화원로12번길 4 (치평동) 1층", tel: "062-372-5016", lat: 35.1532, lng: 126.8520 },
-  { name: "순천우정BP", addr: "전남 순천시 연동남3길 5 (조례동) 2층", tel: "061-743-6066", lat: 34.9559, lng: 127.4879 },
-  { name: "목포BP", addr: "전남 목포시 영산로 95 (명륜동) 3층", tel: "061-284-1094", lat: 34.8118, lng: 126.3917 },
-  { name: "군산웅비BP", addr: "전북 군산시 팔마로 212 (경장동) 2층", tel: "063-452-7924", lat: 35.9688, lng: 126.7364 },
-  { name: "군산BP", addr: "전북특별자치도 군산시 신풍길 31 (신풍동) 1층", tel: "063-471-8890", lat: 35.9664, lng: 126.7369 },
-  { name: "전주BP", addr: "전북특별자치도 전주시 덕진구 가리내로 18 (금암동) 1층", tel: "063-246-9922", lat: 35.8468, lng: 127.1316 },
-  { name: "나눔천안BP", addr: "충남 천안시 동남구 수곡1길 12-5 (신방동) 은광빌딩 4층", tel: "041-567-1530", lat: 36.8157, lng: 127.1149 },
-  { name: "당진BP", addr: "충남 당진시 당진중앙3로 14 조향빌딩 (읍내동) 6층 602호", tel: "041-352-5016", lat: 36.8923, lng: 126.6278 },
-  { name: "충남스마트BP", addr: "충남 아산시 충무로 8 (온천동) 영성빌딩 5층", tel: "041-531-5677", lat: 36.7891, lng: 127.0032 },
-  { name: "청주BP", addr: "충북 청주시 서원구 산남로70번길 34 (산남동) 1동 610호", tel: "043-286-1016", lat: 36.6320, lng: 127.4875 },
-  { name: "충주BP", addr: "충북 충주시 중앙로 108 (성내동) 1층", tel: "043-855-6555", lat: 36.9910, lng: 127.9258 },
-  { name: "청주오션BP", addr: "충북 청주시 청원구 무심동로 648-1 (내덕동) 6층 2호", tel: "043-221-1134", lat: 36.6426, lng: 127.5019 },
-  { name: "대구BP", addr: "대구시 달서구 달구벌대로 1504 (감삼동) 5층", tel: "053-561-6016", lat: 35.8563, lng: 128.5346 },
-  { name: "동대구BP", addr: "대구 동구 효신로 14 (효목동) 2층", tel: "053-751-8016", lat: 35.8693, lng: 128.6235 },
-  { name: "대구팔공BP", addr: "대구 동구 동부로 71 (신천동) 2층", tel: "053-744-8016", lat: 35.8734, lng: 128.6087 },
-  { name: "대구글로벌BP", addr: "대구광역시 달서구 계대동문로4길 72 (신당동) 1층 101호", tel: "053-588-3016", lat: 35.8509, lng: 128.5222 },
-  { name: "구미BP", addr: "경북 구미시 야은로 740-1 (신평동) 3층", tel: "054-463-3016", lat: 36.1195, lng: 128.3444 },
-  { name: "포항BP", addr: "포항시 남구 중앙로 158 (해도동) 3층", tel: "054-283-0991", lat: 36.0190, lng: 129.3435 },
-  { name: "경산BP", addr: "경북 경산시 강변동로 76 (서상동) 3층", tel: "053-813-0160", lat: 35.8248, lng: 128.7409 },
-  { name: "안동BP", addr: "경북 안동시 광명로 198 (옥동) 옥동삼성1차아파트 상가동 302-1호", tel: "054-843-8214", lat: 36.5683, lng: 128.7290 },
-  { name: "울산BP", addr: "울산 남구 돋질로239번길 4-4 (달동) 2층", tel: "052-254-3016", lat: 35.5384, lng: 129.3113 },
-  { name: "부산연제BP", addr: "부산 부산진구 양연로 4 (양정동) 4층", tel: "051-852-2016", lat: 35.1666, lng: 129.0592 },
-  { name: "부산센텀BP", addr: "부산 동래구 연안로64번길 4 (안락동) 201호", tel: "051-717-0302", lat: 35.2041, lng: 129.0844 },
-  { name: "부산역BP", addr: "부산 동구 중앙대로308번길 3-5 (초량동) 세진빌딩 303호", tel: "051-464-8016", lat: 35.1151, lng: 129.0414 },
-  { name: "부산우정BP", addr: "부산 부산진구 부전로162번길 3 (부전동) 3층", tel: "010-8279-4320", lat: 35.1602, lng: 129.0584 },
-  { name: "가자부산BP", addr: "부산 연제구 중앙대로1075번길 16 (연산동) 2층", tel: "051-866-1543", lat: 35.1848, lng: 129.0818 },
-  { name: "부산광명BP", addr: "부산 연제구 반송로 9 (연산동) 4층", tel: "051-852-0898", lat: 35.1853, lng: 129.0799 },
-  { name: "부산 미래BP", addr: "부산 부산진구 범일로 175 (범천동) 2층", tel: "051-633-9956", lat: 35.1391, lng: 129.0501 },
-  { name: "창원BP", addr: "경남 창원시 마산합포구 합포로 240 (산호동) 4층", tel: "055-291-2953", lat: 35.2130, lng: 128.5745 },
-  { name: "거제BP", addr: "경남 거제시 장평로8길 30 (장평동) 2층 201호", tel: "055-637-5760", lat: 34.8801, lng: 128.6219 },
-  { name: "양산홍익으뜸BP", addr: "경남 양산시 북안남3길 44 (북부동) 2층", tel: "055-385-5222", lat: 35.3407, lng: 129.0364 },
-  { name: "김해BP", addr: "경남 김해시 김해대로 2389 (부원동) 3층", tel: "055-326-6016", lat: 35.2306, lng: 128.8893 },
-  { name: "김해 이레BP", addr: "경남 김해시 가락로 26 (부원동) 부원프라자 7층", tel: "055-724-1850", lat: 35.2285, lng: 128.8867 },
-  { name: "창원글로벌BP", addr: "경남 창원시 의창구 창원대로363번길 22-57 (팔용동) 1층 114호", tel: "055-237-9016", lat: 35.2591, lng: 128.6371 },
-  { name: "진주남강BP", addr: "경남 진주시 범골로54번길 30-9 (충무공동) 드림IT밸리 주1동 B601호", tel: "010-9309-6265", lat: 35.1798, lng: 128.1076 },
-  { name: "올레BP", addr: "제주특별자치도 제주시 남성로 16 (용담1동) 1층", tel: "064-749-3016", lat: 33.5128, lng: 126.5191 },
+  { name: "스마트마포BP", addr: "서울 마포구 잔다리로 77 (서교동) 대창빌딩 401호", tel: "02-3142-2016", fax: "02-323-2016", lat: 37.5514, lng: 126.9207 },
+  { name: "송파 CGI BP", addr: "서울 송파구 오금로11길 23-9 (방이동) 5층 511호", tel: "02-472-3663", fax: "02-477-7016", lat: 37.5097, lng: 127.1169 },
+  { name: "군자BP", addr: "서울 광진구 능동로 331 (중곡동) 2층", tel: "02-2248-0016", fax: "02-2213-0102", lat: 37.5633, lng: 127.0817 },
+  { name: "구로 신도림테크노BP", addr: "서울 구로구 새말로 97 (구로동) 9층 3호", tel: "02-858-0598", fax: "02-859-0598", lat: 37.5074, lng: 126.8868 },
+  { name: "성북비전BP", addr: "서울 성북구 돌곶이로 25길 4-1 퀸즈빌8차 101호", tel: "02-3292-7010", fax: "02-3292-5010", lat: 37.5984, lng: 127.0706 },
+  { name: "을지로BP", addr: "서울 중구 충무로 50 (을지로3가) 6층", tel: "010-3208-8250", fax: "050-4206-7926", lat: 37.5651, lng: 126.9973 },
+  { name: "동서울BP", addr: "서울 광진구 자양로 67 (자양동) 302호", tel: "02-3437-7705", fax: "02-3437-7706", lat: 37.5414, lng: 127.0826 },
+  { name: "관악BP", addr: "서울 관악구 봉천로 335 (봉천동) 301호", tel: "02-889-6665", fax: "02-889-6664", lat: 37.4803, lng: 126.9527 },
+  { name: "구로디지털BP", addr: "서울 구로구 디지털로29길 38 (구로동) 에이스테크노타워3차 709호", tel: "02-830-8747", fax: "02-830-8748", lat: 37.4854, lng: 126.8987 },
+  { name: "가산역BP", addr: "서울 금천구 가산디지털1로 181 (가산동) 5층 507호", tel: "02-6264-2025", fax: "02-6264-2026", lat: 37.4775, lng: 126.8878 },
+  { name: "건대친구통신BP", addr: "서울 광진구 아차산로30길 31 (자양동) 3층", tel: "02-6964-8020", fax: "02-6964-8090", lat: 37.5402, lng: 127.0738 },
+  { name: "신세계 영등포BP", addr: "서울 영등포구 영중로 22 (영등포동3가) 4층 401호", tel: "02-2676-6016", fax: "02-2675-6016", lat: 37.5161, lng: 126.9072 },
+  { name: "상봉 크라운BP", addr: "서울 중랑구 망우로 240 (상봉동) 3층 302호", tel: "02-435-8812", fax: "02-435-8812", lat: 37.5966, lng: 127.0858 },
+  { name: "강동그린BP", addr: "서울 강동구 성내로 4 (성내동) 3층", tel: "02-478-0278", fax: "02-478-0845", lat: 37.5310, lng: 127.1240 },
+  { name: "구로센트럴BP", addr: "서울 구로구 디지털로30길 28 (구로동) 마리오타워1108호", tel: "02-877-3694", fax: "050-4277-3694", lat: 37.4851, lng: 126.8977 },
+  { name: "대림 모아BP", addr: "서울 구로구 구로중앙로14길 61 (구로동) 3층", tel: "02-851-3858", fax: "02-851-3858", lat: 37.4928, lng: 126.8915 },
+  { name: "부천역BP", addr: "경기 부천시 부천로39번길 8 (심곡동) 6층", tel: "032-323-3055", fax: "032-326-3055", lat: 37.5004, lng: 126.7765 },
+  { name: "안산BP", addr: "경기 안산시 단원구 광덕4로 112 (고잔동) 206호", tel: "031-414-0163", fax: "031-413-0163", lat: 37.3219, lng: 126.8309 },
+  { name: "가온 오산역BP", addr: "경기 오산시 오산로 198 (원동) 우정빌딩 102호", tel: "031-375-5016", fax: "031-377-6018", lat: 37.1533, lng: 127.0771 },
+  { name: "에이스양평BP", addr: "경기 양평군 양평읍 시민로 94 지하1층", tel: "031-771-0902", fax: "031-771-0970", lat: 37.4914, lng: 127.4927 },
+  { name: "이천BP", addr: "경기 이천시 중신로 81 2층 202호", tel: "031-637-9888", fax: "031-634-3888", lat: 37.2723, lng: 127.4417 },
+  { name: "광명빅BP", addr: "경기 광명시 오리로 992 (광명동) 광명리더스 빌딩 901호", tel: "02-6953-8014", fax: "02-6956-8014", lat: 37.4783, lng: 126.8642 },
+  { name: "시흥 정왕역BP", addr: "경기 시흥시 마유로418번길 10 (정왕동) 롯데시네마 2층 203호", tel: "031-431-2016", fax: "031-431-3016", lat: 37.3457, lng: 126.7339 },
+  { name: "가온 평택역BP", addr: "경기 평택시 평택로64번길 32 (평택동) 3층", tel: "031-691-1236", fax: "031-652-0124", lat: 36.9930, lng: 127.1129 },
+  { name: "고양일산BP", addr: "경기 고양시 일산동구 중앙로 1200 (마두동) 삼희골드프라자 205호", tel: "031-904-8610", fax: "031-904-8611", lat: 37.6601, lng: 126.7762 },
+  { name: "가온파주BP", addr: "경기 파주시 새꽃로 180 (금촌동) 1층", tel: "031-942-2989", fax: "050-4393-2989", lat: 37.7416, lng: 126.7799 },
+  { name: "평택BP", addr: "경기 평택시 원평로 43 (평택동) 2층", tel: "031-618-7990", fax: "031-618-7991", lat: 36.9943, lng: 127.0909 },
+  { name: "수원나눔BP", addr: "경기 수원시 팔달구 경수대로 424 (인계동) 2층 202호", tel: "031-223-2763", fax: "031-237-2764", lat: 37.2636, lng: 127.0286 },
+  { name: "뉴부평BP", addr: "인천 부평구 동수로 173 (부개동) 1층", tel: "032-504-0577", fax: "032-232-1359", lat: 37.5072, lng: 126.7222 },
+  { name: "춘천우리BP", addr: "강원 춘천시 춘주로92번길 30 (온의동) 1층", tel: "033-241-5010", fax: "033-242-7010", lat: 37.8747, lng: 127.7340 },
+  { name: "동해BP", addr: "강원 동해시 발한로 125 (발한동) 1층", tel: "033-532-0101", fax: "033-532-0102", lat: 37.5247, lng: 129.1144 },
+  { name: "원주BP", addr: "강원특별자치도 원주시 단관길 197 (관설동) 1층", tel: "033-762-2017", fax: "033-762-2018", lat: 37.3431, lng: 127.9200 },
+  { name: "홍천BP", addr: "강원 홍천군 홍천읍 꽃뫼로1길 3-1 1층", tel: "033-434-3358", fax: "050-5333-3358", lat: 37.6973, lng: 127.8882 },
+  { name: "대전 GOBP", addr: "대전 동구 백룡로5번길 80 (자양동) 지하1층", tel: "042-633-0633", fax: "042-633-0634", lat: 36.3505, lng: 127.4271 },
+  { name: "대전역BP", addr: "대전시 중구 대흥동 336-16 조양빌딩 3층", tel: "042-253-1016", fax: "042-253-2016", lat: 36.3291, lng: 127.4281 },
+  { name: "광주BP", addr: "광주 서구 상무화원로12번길 4 (치평동) 1층", tel: "062-372-5016", fax: "062-372-6016", lat: 35.1532, lng: 126.8520 },
+  { name: "순천우정BP", addr: "전남 순천시 연동남3길 5 (조례동) 2층", tel: "061-743-6066", fax: "061-743-6065", lat: 34.9559, lng: 127.4879 },
+  { name: "목포BP", addr: "전남 목포시 영산로 95 (명륜동) 3층", tel: "061-284-1094", fax: "061-281-1094", lat: 34.8118, lng: 126.3917 },
+  { name: "군산웅비BP", addr: "전북 군산시 팔마로 212 (경장동) 2층", tel: "063-452-7924", fax: "063-446-7924", lat: 35.9688, lng: 126.7364 },
+  { name: "군산BP", addr: "전북특별자치도 군산시 신풍길 31 (신풍동) 1층", tel: "063-471-8890", fax: "050-4418-6789", lat: 35.9664, lng: 126.7369 },
+  { name: "전주BP", addr: "전북특별자치도 전주시 덕진구 가리내로 18 (금암동) 1층", tel: "063-246-9922", fax: "063-246-9923", lat: 35.8468, lng: 127.1316 },
+  { name: "나눔천안BP", addr: "충남 천안시 동남구 수곡1길 12-5 (신방동) 은광빌딩 4층", tel: "041-567-1530", fax: "041-566-1530", lat: 36.8157, lng: 127.1149 },
+  { name: "당진BP", addr: "충남 당진시 당진중앙3로 14 조향빌딩 (읍내동) 6층 602호", tel: "041-352-5016", fax: "041-352-6016", lat: 36.8923, lng: 126.6278 },
+  { name: "충남스마트BP", addr: "충남 아산시 충무로 8 (온천동) 영성빌딩 5층", tel: "041-531-5677", fax: "041-531-5688", lat: 36.7891, lng: 127.0032 },
+  { name: "청주BP", addr: "충북 청주시 서원구 산남로70번길 34 (산남동) 1동 610호", tel: "043-286-1016", fax: "043-286-2016", lat: 36.6320, lng: 127.4875 },
+  { name: "충주BP", addr: "충북 충주시 중앙로 108 (성내동) 1층", tel: "043-855-6555", fax: "043-847-2016", lat: 36.9910, lng: 127.9258 },
+  { name: "청주오션BP", addr: "충북 청주시 청원구 무심동로 648-1 (내덕동) 6층 2호", tel: "043-221-1134", fax: "043-221-1135", lat: 36.6426, lng: 127.5019 },
+  { name: "대구BP", addr: "대구시 달서구 달구벌대로 1504 (감삼동) 5층", tel: "053-561-6016", fax: "053-561-8016", lat: 35.8563, lng: 128.5346 },
+  { name: "동대구BP", addr: "대구 동구 효신로 14 (효목동) 2층", tel: "053-751-8016", fax: "053-753-8016", lat: 35.8693, lng: 128.6235 },
+  { name: "대구팔공BP", addr: "대구 동구 동부로 71 (신천동) 2층", tel: "053-744-8016", fax: "053-745-9016", lat: 35.8734, lng: 128.6087 },
+  { name: "대구글로벌BP", addr: "대구광역시 달서구 계대동문로4길 72 (신당동) 1층 101호", tel: "053-588-3016", fax: "053-285-1527", lat: 35.8509, lng: 128.5222 },
+  { name: "구미BP", addr: "경북 구미시 야은로 740-1 (신평동) 3층", tel: "054-463-3016", fax: "054-463-9016", lat: 36.1195, lng: 128.3444 },
+  { name: "포항BP", addr: "포항시 남구 중앙로 158 (해도동) 3층", tel: "054-283-0991", fax: "054-283-0992", lat: 36.0190, lng: 129.3435 },
+  { name: "경산BP", addr: "경북 경산시 강변동로 76 (서상동) 3층", tel: "053-813-0160", fax: "-", lat: 35.8248, lng: 128.7409 },
+  { name: "안동BP", addr: "경북 안동시 광명로 198 (옥동) 옥동삼성1차아파트 상가동 302-1호", tel: "054-843-8214", fax: "054-843-8214", lat: 36.5683, lng: 128.7290 },
+  { name: "울산BP", addr: "울산 남구 돋질로239번길 4-4 (달동) 2층", tel: "052-254-3016", fax: "052-264-7016", lat: 35.5384, lng: 129.3113 },
+  { name: "부산연제BP", addr: "부산 부산진구 양연로 4 (양정동) 4층", tel: "051-852-2016", fax: "051-852-3016", lat: 35.1666, lng: 129.0592 },
+  { name: "사상글로벌BP", addr: "부산 사상구 사상로 434 (모라동) 1층", tel: "051-325-6016", fax: "051-325-8016", lat: 35.1866, lng: 128.9912 },
+  { name: "부산센텀BP", addr: "부산 동래구 연안로64번길 4 (안락동) 201호", tel: "051-717-0302", fax: "051-717-0405", lat: 35.2041, lng: 129.0844 },
+  { name: "부산역BP", addr: "부산 동구 중앙대로308번길 3-5 (초량동) 세진빌딩 303호", tel: "051-464-8016", fax: "051-465-9016", lat: 35.1151, lng: 129.0414 },
+  { name: "부산우정BP", addr: "부산 부산진구 부전로162번길 3 (부전동) 3층", tel: "010-8279-4320", fax: "051-803-3010", lat: 35.1602, lng: 129.0584 },
+  { name: "가자부산BP", addr: "부산 연제구 중앙대로1075번길 16 (연산동) 2층", tel: "051-866-1543", fax: "051-866-1544", lat: 35.1848, lng: 129.0818 },
+  { name: "부산광명BP", addr: "부산 연제구 반송로 9 (연산동) 4층", tel: "051-852-0898", fax: "051-852-0878", lat: 35.1853, lng: 129.0799 },
+  { name: "부산 미래BP", addr: "부산 부산진구 범일로 175 (범천동) 2층", tel: "051-633-9956", fax: "051-633-9957", lat: 35.1391, lng: 129.0501 },
+  { name: "창원BP", addr: "경남 창원시 마산합포구 합포로 240 (산호동) 4층", tel: "055-291-2953", fax: "055-291-2954", lat: 35.2130, lng: 128.5745 },
+  { name: "거제BP", addr: "경남 거제시 장평로8길 30 (장평동) 2층 201호", tel: "055-637-5760", fax: "055-637-5761", lat: 34.8801, lng: 128.6219 },
+  { name: "양산홍익으뜸BP", addr: "경남 양산시 북안남3길 44 (북부동) 2층", tel: "055-385-5222", fax: "050-4099-8118", lat: 35.3407, lng: 129.0364 },
+  { name: "김해BP", addr: "경남 김해시 김해대로 2389 (부원동) 3층", tel: "055-326-6016", fax: "055-323-8018", lat: 35.2306, lng: 128.8893 },
+  { name: "김해 이레BP", addr: "경남 김해시 가락로 26 (부원동) 부원프라자 7층", tel: "055-724-1850", fax: "055-724-1851", lat: 35.2285, lng: 128.8867 },
+  { name: "창원글로벌BP", addr: "경남 창원시 의창구 창원대로363번길 22-57 (팔용동) 1층 114호", tel: "055-237-9016", fax: "055-237-9016", lat: 35.2591, lng: 128.6371 },
+  { name: "진주남강BP", addr: "경남 진주시 범골로54번길 30-9 (충무공동) 드림IT밸리 주1동 B601호", tel: "010-9309-6265", fax: "0504-166-6265", lat: 35.1798, lng: 128.1076 },
+  { name: "올레BP", addr: "제주특별자치도 제주시 남성로 16 (용담1동) 1층", tel: "064-749-3016", fax: "064-749-3018", lat: 33.5128, lng: 126.5191 },
+  { name: "제주우정BP", addr: "제주특별자치도 제주시 삼봉로 137 (도련일동) 101호", tel: "010-2700-8335", fax: "050-4161-8335", lat: 33.5191, lng: 126.5862 }
 ];
 
+// 현재 검색 결과 저장 (좌표 인덱스 불일치 방지)
+let currentResults = [];
 let map, marker;
 
 function run() {
     kakao.maps.load(() => {
         const query = document.getElementById('q').value.trim();
-        if(!query) return;
+        if (!query) return;
 
         const ps = new kakao.maps.services.Places();
-        // 행정복지센터 위주로 검색하여 지역의 중심점을 먼저 찾음
         const searchQuery = query.includes('행정복지센터') ? query : query + " 행정복지센터";
 
         ps.keywordSearch(searchQuery, (data, status) => {
             if (status === kakao.maps.services.Status.OK) {
                 showLocationList(data);
             } else {
-                // 센터로 안나올 경우 일반 장소 검색
                 ps.keywordSearch(query, (data2, status2) => {
-                    if(status2 === kakao.maps.services.Status.OK) showLocationList(data2);
+                    if (status2 === kakao.maps.services.Status.OK) showLocationList(data2);
                     else alert("지역을 찾지 못했습니다.");
                 });
             }
@@ -147,26 +149,20 @@ function run() {
     });
 }
 
-// 2. 검색 리스트 노출 (부산 및 주요 번화가 우선 정렬)
 function showLocationList(list) {
     const box = document.getElementById('loc-list');
     box.innerHTML = '';
-    
+
     const sortedList = list.sort((a, b) => {
         const aAddr = a.address_name;
         const bAddr = b.address_name;
-
-        // 1순위: '부산' 포함 여부
         const aBusan = aAddr.includes('부산') ? 1 : 0;
         const bBusan = bAddr.includes('부산') ? 1 : 0;
         if (aBusan !== bBusan) return bBusan - aBusan;
-
-        // 2순위: 주요 번화가(부전동, 연산동 등) 가중치
         const hot = ['부전동', '연산동', '양정동', '중앙대로'];
         const aHot = hot.some(p => aAddr.includes(p)) ? 1 : 0;
         const bHot = hot.some(p => bAddr.includes(p)) ? 1 : 0;
         if (aHot !== bHot) return bHot - aHot;
-
         return aAddr.length - bAddr.length;
     });
 
@@ -177,7 +173,6 @@ function showLocationList(list) {
         div.className = 'loc-item';
         const isBusan = loc.address_name.includes('부산');
         const pinColor = isBusan ? '#3b82f6' : '#ef4444';
-
         div.innerHTML = `
             <div style="display:flex; align-items:center;">
                 <span style="color:${pinColor}; margin-right:8px;">📍</span>
@@ -196,60 +191,66 @@ function showLocationList(list) {
     });
 }
 
-// 3. 거리 계산 및 결과 출력 (정확한 인덱스 및 좌표 전달)
 function calculateDist(uLat, uLng, targetName) {
-    const sorted = DATA.map(c => {
+    // 결과를 전역 배열에 저장하여 카드 인덱스와 좌표가 항상 일치하도록 함
+    currentResults = DATA.map(c => {
         const R = 6371;
-        const dLat = (c.lat - uLat) * Math.PI / 180, dLng = (c.lng - uLng) * Math.PI / 180;
-        const a = Math.sin(dLat/2)**2 + Math.cos(uLat*Math.PI/180)*Math.cos(c.lat*Math.PI/180)*Math.sin(dLng/2)**2;
-        const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
-        
+        const dLat = (c.lat - uLat) * Math.PI / 180;
+        const dLng = (c.lng - uLng) * Math.PI / 180;
+        const a = Math.sin(dLat / 2) ** 2 + Math.cos(uLat * Math.PI / 180) * Math.cos(c.lat * Math.PI / 180) * Math.sin(dLng / 2) ** 2;
+        const dist = R * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
         let score = dist;
-        if(c.addr.includes(targetName.split(' ')[0])) score -= 100; 
-        return {...c, dist, score};
-    }).sort((a,b) => a.score - b.score).slice(0, 5);
+        if (c.addr.includes(targetName.split(' ')[0])) score -= 100;
+        return { ...c, dist, score };
+    }).sort((a, b) => a.score - b.score).slice(0, 5);
 
     let h = `<div style="font-size:12px; color:#94a3b8; margin:15px 0 10px;">🏢 ${targetName} 기준 주변 결과</div>`;
-    h += sorted.map((c, idx) => `
-      <div class="res-card" id="card-${idx}" onclick="showOnMap(${c.lat}, ${c.lng}, ${idx})">
+    h += currentResults.map((c, idx) => `
+      <div class="res-card" id="card-${idx}" onclick="showOnMap(${idx})">
         <div style="font-weight:700;">${c.name}</div>
         <div style="font-size:13px; color:#94a3b8; margin:5px 0;">${c.addr}</div>
         <div style="display:flex; justify-content:space-between; align-items:center;">
           <span style="color:var(--success); font-size:12px;">약 ${c.dist.toFixed(1)}km</span>
           <a href="tel:${c.tel}" class="tel-btn" onclick="event.stopPropagation()">📞 전화하기</a>
         </div>
+        <div class="fax-info">FAX: ${c.fax}</div>
       </div>`).join('');
-    
+
     document.getElementById('out').innerHTML = h;
     document.getElementById('map-container').style.display = 'none';
+
+    // 지도 초기화 (다른 지역 재검색 시 이전 지도 제거)
+    map = null;
+    marker = null;
 }
 
-// 4. 지도 표시 함수 (좌표 불일치 버그 수정 버전)
-function showOnMap(lat, lng, idx) {
+// 인덱스를 받아 currentResults에서 좌표를 직접 가져오므로 좌표 불일치 없음
+function showOnMap(idx) {
+    const bp = currentResults[idx];
+    if (!bp) return;
+
     const container = document.getElementById('map-container');
     container.style.display = 'block';
 
-    // 카드 활성화 스타일 적용
     document.querySelectorAll('.res-card').forEach(c => c.classList.remove('active'));
     const activeCard = document.getElementById('card-' + idx);
-    if(activeCard) activeCard.classList.add('active');
+    if (activeCard) {
+        activeCard.classList.add('active');
+        activeCard.scrollIntoView({ behavior: 'smooth', block: 'nearest' });
+    }
 
-    // 카카오맵 좌표 객체 생성
-    const moveLatLon = new kakao.maps.LatLng(lat, lng);
+    const moveLatLon = new kakao.maps.LatLng(bp.lat, bp.lng);
 
     if (!map) {
-        // 지도가 처음 생성될 때
         const options = { center: moveLatLon, level: 3 };
         map = new kakao.maps.Map(container, options);
-        marker = new kakao.maps.Marker({ position: moveLatLon });
-        marker.setMap(map);
+        marker = new kakao.maps.Marker({ position: moveLatLon, map: map });
     } else {
-        // 기존 지도가 있을 때 위치와 마커 이동
         map.setCenter(moveLatLon);
         marker.setPosition(moveLatLon);
     }
 
-    // [핵심] 지도가 보이지 않는 상태에서 크기가 결정되면 좌표가 틀어짐 -> relayout 후 중심 재설정
+    // 지도 숨김 상태에서 렌더링 시 좌표 틀어짐 방지
     setTimeout(() => {
         map.relayout();
         map.setCenter(moveLatLon);
