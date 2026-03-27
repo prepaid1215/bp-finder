@@ -323,9 +323,17 @@ function sync() {
     let displayDate = resVal;
     const dayMatch = resVal.match(/^(\d{1,2})(.*)$/);
     if (dayMatch) {
-        let day = dayMatch[1].padStart(2, '0');
+        let inputDay = parseInt(dayMatch[1]);
         let timeInfo = dayMatch[2].trim();
-        displayDate = `${year}년 ${month}월 ${day}일 ${timeInfo}`;
+        // 만약 입력한 '일'이 오늘보다 작으면 자동으로 다음 달로 간주 
+        let calcMonth = now.getMonth();
+        if (inputDay < today) {
+            calcMonth += 1;
+            if (calcMonth > 11) { calcMonth = 0; year += 1; }
+        }
+        let finalMonth = String(calcMonth + 1).padStart(2, '0');
+        let finalDay = String(inputDay).padStart(2, '0');
+        displayDate = `${year}년 ${finalMonth}월 ${finalDay}일 ${timeInfo}`;
     }
 
     document.getElementById('v_s_no').innerText = document.getElementById('in_s_no').value || "-";
