@@ -36,12 +36,22 @@
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--bg); padding: 15px; border-radius: 14px; margin-bottom: 20px; }
         .grid-inputs input, .grid-inputs select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 12px; }
 
-        /* 서류 미리보기 축소 설정 */
-        .preview-wrap { width: 100%; height: 420px; overflow-y: auto; background: #444; border-radius: 12px; position: relative; display: flex; justify-content: center; border: 2px solid #333; }
+        /* [수정] 서류 미리보기 스크롤 제거 설정 */
+        .preview-wrap { 
+            width: 100%; 
+            height: 520px; /* 높이를 충분히 확보 */
+            overflow: hidden; /* 스크롤바 강제 제거 */
+            background: #444; 
+            border-radius: 12px; 
+            position: relative; 
+            display: flex; 
+            justify-content: center; 
+            border: 2px solid #333; 
+        }
         #captureArea { 
             background: #fff; color: #333; padding: 40px; width: 800px; 
             font-family: 'Malgun Gothic', sans-serif; position: absolute; top: 0;
-            transform: scale(0.48); /* 기존 0.65에서 0.48로 축소하여 한눈에 들어오게 조정 */
+            transform: scale(0.45); /* 0.48에서 0.45로 낮춰 스크롤 없이 전체 노출 */
             transform-origin: top center;
         }
         
@@ -53,7 +63,6 @@
         #captureArea .section-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; text-align: left; color: #000; font-size: 18px; }
         #captureArea .section-title::before { content: '▶'; margin-right: 8px; font-size: 14px; }
         
-        /* 개통 시 주의사항 (이미지 양식 재현) */
         .notice-area { border-top: 1px dashed #ccc; padding-top: 15px; text-align: left; }
         .notice-area .title { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #000; }
         .notice-list { list-style: none; padding: 0; margin: 0; }
@@ -104,13 +113,10 @@
             <input type="text" id="in_agent_center" placeholder="소속 센터 (기억)" oninput="sync()">
             <input type="text" id="in_agent_tel" placeholder="요청자 연락처 (기억)" oninput="sync()">
         </div>
-
         <div class="preview-wrap">
             <div id="captureArea">
                 <header><h1>센 터 방 문 &nbsp; 개 통 &nbsp; 요 요청 서</h1></header>
-                <div style="text-align:right; margin-bottom:15px; font-weight:bold; font-size:16px;">
-                    <span id="v_type_check">☑ 선불 □ 후불</span> / <span id="v_cat_check">☑ 신규개통 □ 번호이동</span>
-                </div>
+                <div style="text-align:right; margin-bottom:15px; font-weight:bold; font-size:16px;"><span id="v_type_check">☑ 선불 □ 후불</span> / <span id="v_cat_check">☑ 신규개통 □ 번호이동</span></div>
                 <div class="section-title">개통 관련 기재란</div>
                 <table>
                     <tr><th rowspan="2" style="width:20%">매출자 정보</th><th style="width:40%">회원번호</th><th style="width:40%">회원명</th></tr>
@@ -141,12 +147,7 @@
                 <div class="footer"><p class="logo-main">N telecom</p><p class="logo-sub">앤텔레콤</p></div>
             </div>
         </div>
-
-        <div class="modal-action-btns">
-            <button class="save-btn" onclick="saveImage()">📸 서류 저장 및 팩스번호 복사</button>
-            <button class="sms-btn" onclick="copySMS()">💬 소비자 예약문자 복사</button>
-            <button class="close-btn" onclick="closeFax()">닫기</button>
-        </div>
+        <div class="modal-action-btns"><button class="save-btn" onclick="saveImage()">📸 서류 저장 및 팩스번호 복사</button><button class="sms-btn" onclick="copySMS()">💬 소비자 예약문자 복사</button><button class="close-btn" onclick="closeFax()">닫기</button></div>
     </div>
 </div>
 
@@ -243,7 +244,6 @@ function run() {
         box.innerHTML = '';
         let smartQuery = q;
         for (let key in SMART_MAP) { if (q.includes(key)) { smartQuery = SMART_MAP[key]; break; } }
-
         geocoder.addressSearch(smartQuery, (result, status) => {
             if (status === 'OK') {
                 box.style.display = 'block';
@@ -332,13 +332,12 @@ function sync() {
     document.getElementById('v_cat_check').innerHTML = (cat==='신규개통'?'☑ 신규개통 □ 번호이동':'□ 신규개통 ☑ 번호이동');
     const mang = document.getElementById('in_mang').value;
     document.getElementById('v_mang_check').innerHTML = (mang==='K망'?'☑ K망 □ L망':'□ K망 ☑ L망');
-
     let resVal = document.getElementById('in_res').value.trim();
     let now = new Date();
     let year = now.getFullYear();
+    let month = String(now.getMonth() + 1).padStart(2, '0');
     let today = now.getDate();
     let displayDate = resVal;
-
     const dayMatch = resVal.match(/^(\d{1,2})(.*)$/);
     if (dayMatch) {
         let inputDay = parseInt(dayMatch[1]);
@@ -349,7 +348,6 @@ function sync() {
         let finalDay = String(inputDay).padStart(2, '0');
         displayDate = `${year}년 ${finalMonth}월 ${finalDay}일 ${timeInfo}`;
     }
-
     document.getElementById('v_s_no').innerText = document.getElementById('in_s_no').value || "-";
     document.getElementById('v_s_name').innerText = document.getElementById('in_s_name').value || "-";
     document.getElementById('v_name').innerText = document.getElementById('in_name').value || "-";
