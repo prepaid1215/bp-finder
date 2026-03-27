@@ -36,23 +36,24 @@
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--bg); padding: 15px; border-radius: 14px; margin-bottom: 20px; }
         .grid-inputs input, .grid-inputs select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 12px; }
 
-        /* [수정] 서류 미리보기 스크롤 제거 설정 */
+        /* [수정] 서류 미리보기 중앙 정렬 및 스크롤 제거 */
         .preview-wrap { 
             width: 100%; 
-            height: 520px; /* 높이를 충분히 확보 */
-            overflow: hidden; /* 스크롤바 강제 제거 */
+            height: 550px; /* 높이를 살짝 더 확보 */
+            overflow: hidden; 
             background: #444; 
             border-radius: 12px; 
-            position: relative; 
             display: flex; 
             justify-content: center; 
+            align-items: center; /* 세로 방향 중앙 정렬 추가 */
             border: 2px solid #333; 
         }
         #captureArea { 
             background: #fff; color: #333; padding: 40px; width: 800px; 
-            font-family: 'Malgun Gothic', sans-serif; position: absolute; top: 0;
-            transform: scale(0.45); /* 0.48에서 0.45로 낮춰 스크롤 없이 전체 노출 */
-            transform-origin: top center;
+            font-family: 'Malgun Gothic', sans-serif; 
+            transform: scale(0.46); /* 전체가 한눈에 들어오도록 조정 */
+            transform-origin: center center; /* 축소 기준점을 중앙으로 변경 */
+            flex-shrink: 0;
         }
         
         #captureArea header h1 { text-align: center; font-size: 32px; letter-spacing: 10px; border-bottom: 2px solid #000; display: inline-block; padding-bottom: 5px; margin: 0 0 30px 0; color: #000; width: 100%; }
@@ -101,13 +102,13 @@
             <input type="text" id="in_s_no" placeholder="매출 회원번호 (초기화)" oninput="sync()">
             <input type="text" id="in_s_name" placeholder="매출 회원명 (초기화)" oninput="sync()">
             <input type="text" id="in_name" placeholder="명의자 성명 (초기화)" oninput="sync()">
-            <input type="text" id="in_birth" placeholder="명의자 생년월일" oninput="sync()">
-            <input type="text" id="in_tel" placeholder="명의자 연락번호" oninput="sync()">
+            <input type="text" id="in_birth" placeholder="명의자 생년월일 (초기화)" oninput="sync()">
+            <input type="text" id="in_tel" placeholder="명의자 연락번호 (초기화)" oninput="sync()">
             <select id="in_mang" onchange="sync()"><option value="K망">K망</option><option value="L망">L망</option></select>
-            <input type="text" id="in_plan" placeholder="가입 요금제" oninput="sync()">
-            <input type="text" id="in_device" placeholder="단말기 모델">
+            <input type="text" id="in_plan" placeholder="가입 요금제 (초기화)" oninput="sync()">
+            <input type="text" id="in_device" placeholder="단말기 모델 (초기화)">
             <input type="text" id="in_res" placeholder="방문일 (예: 15오후 2시)" oninput="sync()">
-            <input type="text" id="in_note" placeholder="비고/특이사항" oninput="sync()">
+            <input type="text" id="in_note" placeholder="비고/특이사항 (초기화)" oninput="sync()">
             <input type="text" id="in_agent_no" placeholder="요청자 회원번호 (기억)" oninput="sync()">
             <input type="text" id="in_agent" placeholder="요청자 성명 (기억)" oninput="sync()">
             <input type="text" id="in_agent_center" placeholder="소속 센터 (기억)" oninput="sync()">
@@ -115,7 +116,7 @@
         </div>
         <div class="preview-wrap">
             <div id="captureArea">
-                <header><h1>센 터 방 문 &nbsp; 개 통 &nbsp; 요 청 서</h1></header>
+                <header><h1>센 터 방 문 &nbsp; 개 통 &nbsp; 요 요청 서</h1></header>
                 <div style="text-align:right; margin-bottom:15px; font-weight:bold; font-size:16px;"><span id="v_type_check">☑ 선불 □ 후불</span> / <span id="v_cat_check">☑ 신규개통 □ 번호이동</span></div>
                 <div class="section-title">개통 관련 기재란</div>
                 <table>
@@ -124,7 +125,7 @@
                     <tr><th>명의자 성명</th><th>명의자 생년월일</th><th>명의자 연락번호</th></tr>
                     <tr><td class="val" id="v_name">-</td><td class="val" id="v_birth">-</td><td class="val" id="v_tel">-</td></tr>
                     <tr><th>통신망 선택</th><th>가입 요금제</th><th>방문 예약 시간</th></tr>
-                    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan">-</td><td class="val" id="v_res" style="color:#d93025;">-</td></tr>
+                    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan">-</td><td class="val" id="v_res" style="color:#d93025; font-size:16px;">-</td></tr>
                     <tr><th>비고</th><td colspan="2" class="val" id="v_note" style="text-align:left; font-weight:normal;">-</td></tr>
                 </table>
                 <div class="section-title">요청 회원 및 센터 기재란</div>
@@ -228,6 +229,7 @@ const DATA = [
     { name: "올레BP", addr: "제주특별자치도 제주시 남성로 16 (용담1동) 1층", tel: "064-749-3016", fax: "064-749-3018" },
 ];
 let geoCache = {}, currentList = [], currentBP = null, map, marker;
+
 window.onload = () => {
     ['in_agent_no', 'in_agent', 'in_agent_center', 'in_agent_tel'].forEach(id => {
         const val = localStorage.getItem(id);
