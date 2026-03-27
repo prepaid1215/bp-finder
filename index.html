@@ -416,7 +416,7 @@ async function saveImage() {
 }
 
 function copySMS() {
-    const res = document.getElementById('v_res').innerText;
+    const res = document.getElementById('v_res').innerText; // 예: "2026년 04월 15일 오전 2시"
     const name = document.getElementById('in_name').value || "고객";
     const device = document.getElementById('in_device').value || "-";
     const mang = document.getElementById('in_mang').value;
@@ -424,13 +424,29 @@ function copySMS() {
     const agentName = document.getElementById('in_agent').value || "-";
     const agentTel = (document.getElementById('in_agent_tel').value || "-").replace(/-/g, '.');
 
-    // 1. 요일 정보 추출 (예: '금')
-    const dayOfWeek = new Date(res).toLocaleDateString('ko-KR', { weekday: 'short' });
+    // 1. 숫자만 추출 (parts[0]:년, [1]:월, [2]:일, [3]:시)
+    const parts = res.match(/\d+/g);
+    const isAM = res.includes("오전") ? "오전" : "오후";
+    let formattedRes = res; // 변환 실패 시 기본값
 
-    // 2. 전체 문자열 구성 (변수를 하나로 통합)
+    if (parts && parts.length >= 3) {
+        const year = parts[0];
+        const month = parseInt(parts[1]); // 04 -> 4
+        const day = parseInt(parts[2]);   // 15 -> 15
+        const hour = parts[3] || "";
+
+        // 요일 계산을 위한 Date 객체 생성
+        const dateObj = new Date(year, month - 1, day);
+        const dayOfWeek = dateObj.toLocaleDateString('ko-KR', { weekday: 'short' });
+
+        // 2. 형식 재조합: "4월 15일 (수) 오전 2시"
+        formattedRes = `${month}월 ${day}일 (${dayOfWeek}) ${isAM} ${hour}시`;
+    }
+
+    // 3. 전체 문자열 구성
     const smsText = `■앤텔레콤 지점방문 예약증
 
-방문일시 : ${res}(${dayOfWeek})
+방문일시 : ${formattedRes}
 고객명 : ${name} 님
 사용할 단말기 : ${device}
 유심 : 나노유심
@@ -440,7 +456,7 @@ function copySMS() {
 담당자 : ${agentName} / ${agentTel}
 주소 : ${currentBP.addr}`;
 
-    // 3. 클립보드 복사
+    // 4. 클립보드 복사
     navigator.clipboard.writeText(smsText).then(() => {
         alert("✅ 예약 문자가 클립보드에 복사되었습니다.");
     });
