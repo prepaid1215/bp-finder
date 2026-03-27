@@ -12,8 +12,8 @@
         body { background: var(--bg); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
         .app { width: 100%; max-width: 500px; background: var(--card); padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
         h2 { text-align: center; font-size: 22px; margin-bottom: 25px; color: #fff; font-weight: 800; }
-        .search-box { position: relative; margin-bottom: 20px; }
-        input[type=text]#q { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--input-bg); color: #fff; font-size: 16px; outline: none; transition: all 0.2s; }
+        .search-box { position: relative; margin-bottom: 15px; }
+        input[type=text]#q { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--input-bg); color: #fff; font-size: 16px; outline: none; }
         .search-btn { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 16px; }
         #loc-list { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-top: 5px; display: none; position: absolute; width: 100%; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.6); max-height: 300px; overflow-y: auto; }
         .loc-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; color: #fff; }
@@ -84,7 +84,7 @@
             <select id="in_mang" onchange="sync()"><option value="K망">K망</option><option value="L망">L망</option></select>
             <input type="text" id="in_plan" placeholder="가입 요금제 (초기화)" oninput="sync()">
             <input type="text" id="in_device" placeholder="단말기 모델 (초기화)">
-            <input type="text" id="in_res" placeholder="방문일 (예: 15오후 2시)" oninput="sync()">
+            <input type="text" id="in_res" placeholder="방문일 (예: 02오후 2시)" oninput="sync()">
             <input type="text" id="in_note" placeholder="비고/특이사항 (초기화)" oninput="sync()">
             <input type="text" id="in_agent_no" placeholder="요청자 회원번호 (기억)" oninput="sync()">
             <input type="text" id="in_agent" placeholder="요청자 성명 (기억)" oninput="sync()">
@@ -102,7 +102,7 @@
                     <tr><th>명의자 성명</th><th>명의자 생년월일</th><th>명의자 연락번호</th></tr>
                     <tr><td class="val" id="v_name">-</td><td class="val" id="v_birth">-</td><td class="val" id="v_tel">-</td></tr>
                     <tr><th>통신망 선택</th><th>가입 요금제</th><th>방문 예약 시간</th></tr>
-                    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan">-</td><td class="val" id="v_res" style="color:#d93025; font-size:16px;">-</td></tr>
+                    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan">-</td><td class="val" id="v_res" style="color:#d93025;">-</td></tr>
                     <tr><th>비고</th><td colspan="2" class="val" id="v_note" style="text-align:left; font-weight:normal;">-</td></tr>
                 </table>
                 <div class="section-title">요청 회원 및 센터 기재란</div>
@@ -151,7 +151,7 @@ const DATA = [
     { name: "부천역BP", addr: "경기 부천시 부천로39번길 8 (심곡동) 6층", tel: "032-323-3055", fax: "032-326-3055" }, // [cite: 3, 4]
     { name: "안산BP", addr: "경기 안산시 단원구 광덕4로 112 (고잔동) 206호", tel: "031-414-0163", fax: "031-413-0163" }, // [cite: 4]
     { name: "가온 오산역BP", addr: "경기 오산시 오산로 198 (원동) 우정빌딩 102호", tel: "031-375-5016", fax: "031-377-6018" }, // [cite: 4]
-    { name: "에이스양평BP", addr: "경기 양평군 양평읍 시민로 94 지하1층", tel: "031-771-0902", fax: "031-771-0970" }, // [cite: 4]
+    { name: "에이스양평BP", addr: "경기 양평군 양평읍 시민로 94 (양근리) 지하1층", tel: "031-771-0902", fax: "031-771-0970" }, // [cite: 4]
     { name: "이천BP", addr: "경기 이천시 중신로 81 2층 202호", tel: "031-637-9888", fax: "031-634-3888" }, // [cite: 4]
     { name: "광명빅BP", addr: "경기 광명시 오리로 992 (광명동) 광명리더스 빌딩 901호", tel: "02-6953-8014", fax: "02-6956-8014" }, // [cite: 4]
     { name: "시흥 정왕역BP", addr: "경기 시흥시 마유로418번길 10 (정왕동) 롯데시네마 2층 203호", tel: "031-431-2016", fax: "031-431-3016" }, // [cite: 5]
@@ -164,9 +164,9 @@ const DATA = [
     { name: "춘천우리BP", addr: "강원 춘천시 춘주로92번길 30 (온의동) 1층", tel: "033-241-5010", fax: "033-242-7010" }, // [cite: 6]
     { name: "동해BP", addr: "강원 동해시 발한로 125 (발한동) 1층", tel: "033-532-0101", fax: "033-532-0102" }, // [cite: 6]
     { name: "원주BP", addr: "강원특별자치도 원주시 단관길 197 (관설동) 1층", tel: "033-762-2017", fax: "033-762-2018" }, // [cite: 6]
-    { name: "홍천BP", addr: "강원 홍천군 홍천읍 꽃뫼로1길 3-1 1층", tel: "033-434-3358", fax: "050-5333-3358" }, // [cite: 6]
+    { name: "홍천BP", addr: "강원 홍천군 홍천읍 꽃뫼로1길 3-1 (희망리) 1층", tel: "033-434-3358", fax: "050-5333-3358" }, // [cite: 6]
     { name: "대전 GOBP", addr: "대전 동구 백룡로5번길 80 (자양동) 지하1층", tel: "042-633-0633", fax: "042-633-0634" }, // [cite: 6, 7]
-    { name: "대전역BP", addr: "대전시 중구 대흥동 336-16 조양빌딩 3층", tel: "042-253-1016", fax: "042-253-2016" }, // [cite: 7]
+    { name: "대전역BP", addr: "대전시 중구 대흥동 336-16 조양빌딩 (대흥동) 3층", tel: "042-253-1016", fax: "042-253-2016" }, // [cite: 7]
     { name: "광주BP", addr: "광주 서구 상무화원로12번길 4 (치평동) 1층", tel: "062-372-5016", fax: "062-372-6016" }, // [cite: 7]
     { name: "순천우정BP", addr: "전남 순천시 연동남3길 5 (조례동) 2층", tel: "061-743-6066", fax: "061-743-6065" }, // [cite: 7]
     { name: "목포BP", addr: "전남 목포시 영산로 95 (명륜동) 3층", tel: "061-284-1094", fax: "061-281-1094" }, // [cite: 7]
@@ -178,7 +178,7 @@ const DATA = [
     { name: "충남스마트BP", addr: "충남 아산시 충무로 8 (온천동) 영성빌딩 5층", tel: "041-531-5677", fax: "041-531-5688" }, // [cite: 8]
     { name: "청주BP", addr: "충북 청주시 서원구 산남로70번길 34 (산남동) 1동 610호", tel: "043-286-1016", fax: "043-286-2016" }, // [cite: 8]
     { name: "청주오션BP", addr: "충북 청주시 청원구 무심동로 648-1 (내덕동) 6층 2호", tel: "043-221-1134", fax: "043-221-1135" }, // [cite: 9]
-    { name: "충주BP", addr: "충북 충주시 중앙로 108 (성내동) 1층", tel: "043-855-6555", fax: "043-847-2016" }, // [cite: 9]
+    { name: "충주BP", addr: "충북 충주시 중앙로 108 (성서동) 1층", tel: "043-855-6555", fax: "043-847-2016" }, // [cite: 9]
     { name: "대구BP", addr: "대구시 달서구 달구벌대로 1504 (감삼동) 5층", tel: "053-561-6016", fax: "053-561-8016" }, // [cite: 9]
     { name: "동대구BP", addr: "대구 동구 효신로 14 (효목동) 2층", tel: "053-751-8016", fax: "053-753-8016" }, // [cite: 9]
     { name: "대구팔공BP", addr: "대구 동구 동부로 71 (신천동) 2층", tel: "053-744-8016", fax: "053-745-9016" }, // [cite: 9]
@@ -187,23 +187,23 @@ const DATA = [
     { name: "포항BP", addr: "포항시 남구 중앙로 158 (해도동) 3층", tel: "054-283-0991", fax: "054-283-0992" }, // [cite: 10]
     { name: "경산BP", addr: "경북 경산시 강변동로 76 (서상동) 3층", tel: "053-813-0160", fax: "-" }, // [cite: 10]
     { name: "안동BP", addr: "경북 안동시 광명로 198 (옥동) 옥동삼성1차아파트 상가동 302-1호", tel: "054-843-8214", fax: "054-843-8214" }, // [cite: 10]
-    { name: "울산BP", addr: "울산 남구 돋질로239번길 4-4 (달동) 2층", tel: "052-254-3016", fax: "052-264-7016" }, // [cite: 10]
+    { name: "울산BP", addr: "울산 남구 돋질로 239번길 4-4 (달동) 2층", tel: "052-254-3016", fax: "052-264-7016" }, // [cite: 10]
     { name: "부산연제BP", addr: "부산 부산진구 양연로 4 (양정동) 4층", tel: "051-852-2016", fax: "051-852-3016" }, // [cite: 10, 11]
     { name: "사상글로벌BP", addr: "부산 사상구 사상로 434 (모라동) 1층", tel: "051-325-6016", fax: "051-325-8016" }, // [cite: 11]
-    { name: "부산센텀BP", addr: "부산 동래구 연안로64번길 4 (안락동) 201호", tel: "051-717-0302", fax: "051-717-0405" }, // [cite: 11]
-    { name: "부산역BP", addr: "부산 동구 중앙대로308번길 3-5 (초량동) 세진빌딩 303호", tel: "051-464-8016", fax: "051-465-9016" }, // [cite: 11]
-    { name: "부산우정BP", addr: "부산 부산진구 부전로162번길 3 (부전동) 3층", tel: "010-8279-4320", fax: "051-803-3010" }, // [cite: 11]
-    { name: "가자부산BP", addr: "부산 연제구 중앙대로1075번길 16 (연산동) 2층", tel: "051-866-1543", fax: "051-866-1544" }, // [cite: 11]
+    { name: "부산센텀BP", addr: "부산 동래구 연안로 64번길 4 (안락동) 201호", tel: "051-717-0302", fax: "051-717-0405" }, // [cite: 11]
+    { name: "부산역BP", addr: "부산 동구 중앙대로 308번길 3-5 (초량동) 세진빌딩 303호", tel: "051-464-8016", fax: "051-465-9016" }, // [cite: 11]
+    { name: "부산우정BP", addr: "부산 부산진구 부전로 162번길 3 (부전동) 3층", tel: "010-8279-4320", fax: "051-803-3010" }, // [cite: 11]
+    { name: "가자부산BP", addr: "부산 연제구 중앙대로 1075번길 16 (연산동) 2층", tel: "051-866-1543", fax: "051-866-1544" }, // [cite: 11]
     { name: "부산광명BP", addr: "부산 연제구 반송로 9 (연산동) 4층", tel: "051-852-0898", fax: "051-852-0878" }, // [cite: 11, 12]
     { name: "부산 미래BP", addr: "부산 부산진구 범일로 175 (범천동) 2층", tel: "051-633-9956", fax: "051-633-9957" }, // [cite: 12]
     { name: "창원BP", addr: "경남 창원시 마산합포구 합포로 240 (산호동) 4층", tel: "055-291-2953", fax: "055-291-2954" }, // [cite: 12]
-    { name: "거제BP", addr: "경남 거제시 장평로8길 30 (장평동) 2층 201호", tel: "055-637-5760", fax: "055-637-5761" }, // [cite: 12]
-    { name: "양산홍익으뜸BP", addr: "경남 양산시 북안남3길 44 (북부동) 2층", tel: "055-385-5222", fax: "050-4099-8118" }, // [cite: 12]
+    { name: "거제BP", addr: "경남 거제시 장평로 8길 30 (장평동) 2층 201호", tel: "055-637-5760", fax: "055-637-5761" }, // [cite: 12]
+    { name: "양산홍익으뜸BP", addr: "경남 양산시 북안남 3길 44 (북부동) 2층", tel: "055-385-5222", fax: "050-4099-8118" }, // [cite: 12]
     { name: "김해BP", addr: "경남 김해시 김해대로 2389 (부원동) 3층", tel: "055-326-6016", fax: "055-323-8018" }, // [cite: 12]
     { name: "김해 이레BP", addr: "경남 김해시 가락로 26 (부원동) 부원프라자 7층", tel: "055-724-1850", fax: "055-724-1851" }, // [cite: 12, 13]
-    { name: "창원글로벌BP", addr: "경남 창원시 의창구 창원대로363번길 22-57 (팔용동) 1층 114호", tel: "055-237-9016", fax: "055-237-9016" }, // [cite: 13]
-    { name: "진주남강BP", addr: "경남 진주시 범골로54번길 30-9 (충무공동) 드림IT밸리 주1동 B601호", tel: "010-9309-6265", fax: "0504-166-6265" }, // [cite: 13]
-    { name: "올레BP", addr: "제주특별자치도 제주시 남성로 16 (용담1동) 1층", tel: "064-749-3016", fax: "064-749-3018" }, // [cite: 13]
+    { name: "창원글로벌BP", addr: "경남 창원시 의창구 창원대로 363번길 22-57 (팔용동) 1층 114호", tel: "055-237-9016", fax: "055-237-9016" }, // 
+    { name: "진주남강BP", addr: "경남 진주시 범골로 54번길 30-9 (충무공동) 드림IT밸리 주1동 B601호", tel: "010-9309-6265", fax: "0504-166-6265" }, // 
+    { name: "올레BP", addr: "제주특별자치도 제주시 남성로 16 (용담1동) 1층", tel: "064-749-3016", fax: "064-749-3018" }, // 
     { name: "제주우정BP", addr: "제주특별자치도 제주시 삼봉로 137 (도련일동) 101호", tel: "010-2700-8335", fax: "050-4161-8335" },
 ];
 let geoCache = {}, currentList = [], currentBP = null, map, marker;
@@ -320,7 +320,9 @@ function sync() {
     let now = new Date();
     let year = now.getFullYear();
     let month = String(now.getMonth() + 1).padStart(2, '0');
+    let today = now.getDate();
     let displayDate = resVal;
+
     const dayMatch = resVal.match(/^(\d{1,2})(.*)$/);
     if (dayMatch) {
         let inputDay = parseInt(dayMatch[1]);
