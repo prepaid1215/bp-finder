@@ -28,22 +28,27 @@
         .btn-fax-open { background: #475569; }
         .btn-sub-text { font-size: 10px; font-weight: 400; margin-top: 3px; opacity: 0.8; }
         #map-container { width: 100%; height: 200px; margin-top: 20px; border-radius: 16px; display: none; border: 1px solid var(--border); overflow: hidden; cursor: pointer; position: relative; }
-        #map-container::after { content: '📍 클릭 시 카카오맵으로 연결'; position: absolute; bottom: 8px; right: 8px; background: rgba(0,0,0,0.6); color: white; font-size: 10px; padding: 4px 8px; border-radius: 4px; z-index: 10; pointer-events: none; }
+        
         .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; overflow-y: auto; padding: 15px 10px; }
         .modal-overlay.open { display: block; }
         .modal-content { width: 100%; max-width: 650px; margin: 0 auto; background: var(--card); border-radius: 20px; padding: 20px; }
+        
+        /* 매출처 관리 섹션 */
+        .fav-section { background: var(--bg); padding: 12px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
+        .fav-header { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
+        .fav-header b { color: var(--accent); }
+        .fav-btn-save { padding: 4px 8px; background: var(--accent); border: none; border-radius: 6px; color: #fff; font-size: 11px; cursor: pointer; }
+        .fav-list { display: flex; flex-wrap: wrap; gap: 6px; max-height: 80px; overflow-y: auto; }
+        .fav-chip { background: var(--border); padding: 6px 12px; border-radius: 20px; font-size: 12px; color: #fff; cursor: pointer; position: relative; border: 1px solid transparent; }
+        .fav-chip:hover { border-color: var(--accent); }
+        .fav-chip .del { margin-left: 6px; color: #ef4444; font-weight: bold; }
+
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--bg); padding: 15px; border-radius: 14px; margin-bottom: 20px; }
         .grid-inputs input, .grid-inputs select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 12px; }
-        .preview-wrap { width: 100%; height: 550px; overflow: hidden; background: #444; border-radius: 12px; display: flex; justify-content: center; align-items: center; border: 2px solid #333; }
+        .preview-wrap { width: 100%; height: 500px; overflow: hidden; background: #444; border-radius: 12px; display: flex; justify-content: center; align-items: center; border: 2px solid #333; }
         
-        /* 캡처 영역 흑백 스타일 정의 */
-        #captureArea {
-            background: #fff; color: #000; padding: 40px; width: 800px;
-            font-family: 'Malgun Gothic', sans-serif;
-            transform: scale(0.46);
-            transform-origin: center center;
-            flex-shrink: 0;
-        }
+        /* 흑백 서류 스타일 */
+        #captureArea { background: #fff; color: #000; padding: 40px; width: 800px; font-family: 'Malgun Gothic', sans-serif; transform: scale(0.44); transform-origin: center center; flex-shrink: 0; }
         #captureArea header h1 { text-align: center; font-size: 32px; letter-spacing: 10px; border-bottom: 3px solid #000; display: inline-block; padding-bottom: 10px; margin: 0 0 30px 0; color: #000; width: 100%; }
         #captureArea table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 2px solid #000; }
         #captureArea th, #captureArea td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 14px; height: 45px; vertical-align: middle; color: #000; }
@@ -51,12 +56,6 @@
         #captureArea .val { font-weight: 900; font-size: 17px; color: #000; }
         #captureArea .section-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; text-align: left; color: #000; font-size: 18px; }
         #captureArea .section-title::before { content: '▶'; margin-right: 8px; font-size: 14px; }
-        .notice-area { border-top: 1px dashed #000; padding-top: 15px; text-align: left; }
-        .notice-area .title { font-weight: bold; font-size: 14px; margin-bottom: 8px; color: #000; }
-        .notice-list { list-style: none; padding: 0; margin: 0; }
-        .notice-list li { position: relative; padding-left: 15px; margin-bottom: 4px; font-size: 13px; line-height: 1.5; color: #000; }
-        .notice-list li::before { content: "▶"; position: absolute; left: 0; font-size: 10px; top: 2px; }
-        .highlight { color: #000; font-weight: 900; text-decoration: underline; } /* 빨간색 제거 및 강조 */
         .footer { border-top: 4px solid #000; margin-top: 20px; padding-top: 10px; text-align: right; }
         .logo-main { font-style: italic; font-weight: bold; font-size: 22px; color: #333; margin: 0; }
         .logo-sub { font-weight: bold; font-size: 16px; color: #000; margin: -5px 0 0 0; }
@@ -83,6 +82,14 @@
 
 <div class="modal-overlay" id="faxModal">
     <div class="modal-content">
+        <div class="fav-section">
+            <div class="fav-header">
+                <span>⭐ <b>자주 쓰는 매출처</b> (클릭시 즉시 입력)</span>
+                <button class="fav-btn-save" onclick="addFavSales()">현재 정보 저장</button>
+            </div>
+            <div id="fav-list" class="fav-list"></div>
+        </div>
+
         <div class="grid-inputs">
             <select id="in_type" onchange="sync()"><option value="선불">선불</option><option value="후불">후불</option></select>
             <select id="in_cat" onchange="sync()"><option value="신규개통">신규개통</option><option value="번호이동">번호이동</option></select>
@@ -101,6 +108,7 @@
             <input type="text" id="in_agent_center" placeholder="소속 센터" oninput="sync()">
             <input type="text" id="in_agent_tel" placeholder="요청자 연락처" oninput="sync()">
         </div>
+        
         <div class="preview-wrap">
             <div id="captureArea">
                 <header><h1>센 터 방 문 &nbsp; 개 통 &nbsp; 요 청 서</h1></header>
@@ -124,14 +132,6 @@
                     <tr><th rowspan="2">개통 처리 정보</th><th>개통 센터</th><th>개통 확정 번호</th></tr>
                     <tr><td class="val" id="v_bp" style="font-size:18px;">-</td><td class="val">-</td></tr>
                 </table>
-                <div class="notice-area">
-                    <div class="title">※ 개통 시 주의사항</div>
-                    <ul class="notice-list">
-                        <li>방문 개통 명의자 본인 확인 후 <span class="highlight">개통 본인확인서(필수)</span>를 반드시 작성하여 주세요.</li>
-                        <li>다회선 개통 요청 시 개통 의뢰 회원에게 내용 확인 후 개통 진행해주세요.</li>
-                        <li>부정영업이 의심이 되는 경우 개통을 거부할 수 있습니다.<br><span style="color:#333; font-size:12px; padding-left:15px;">- 본인 실사용 외 타인 판매, 양도, 불법 스팸, 보이스피싱 등</span></li>
-                    </ul>
-                </div>
                 <div class="footer"><p class="logo-main">N telecom</p><p class="logo-sub">앤텔레콤</p></div>
             </div>
         </div>
@@ -217,8 +217,7 @@ const DATA = [
     { name: "김해 이레BP", addr: "경남 김해시 가락로 26 (부원동) 부원프라자 7층", tel: "055-724-1850", fax: "055-724-1851" },
     { name: "창원글로벌BP", addr: "경남 창원시 의창구 창원대로 363번길 22-57 (팔용동) 1층 114호", tel: "055-237-9016", fax: "055-237-9016" },
     { name: "진주남강BP", addr: "경남 진주시 범골로 54번길 30-9 (충무공동) 드림IT밸리 주1동 B601호", tel: "010-9309-6265", fax: "0504-166-6265" },
-    { name: "올레BP", addr: "제주특별자치도 제주시 남성로 16 (용담1동) 1층", tel: "064-749-3016", fax: "064-749-3018" },
-    { name: "제주우정BP", addr: "제주특별자치도 제주시 삼봉로 137 (도련일동) 101호", tel: "010-2700-8335", fax: "050-4161-8335" },
+    { name: "올레BP", addr: "제주특별자치도 제주시 남성로 16 (용담1동) 1층", tel: "064-749-3016", fax: "064-749-3018" }
 ];
 let geoCache = {}, currentList = [], currentBP = null, map, marker;
 
@@ -229,13 +228,55 @@ const ALL_INPUTS = [
 ];
 
 window.onload = () => {
+    // 자동 저장된 요청자/매출자 정보 복구
     ALL_INPUTS.forEach(id => {
         const val = localStorage.getItem(id);
         const el = document.getElementById(id);
         if(val && el) el.value = val;
     });
+    renderFavSales(); // 자주 쓰는 매출처 목록 출력
     sync();
 };
+
+// --- 자주 쓰는 매출처 관리 로직 ---
+function renderFavSales() {
+    const list = JSON.parse(localStorage.getItem('fav_sales_list') || '[]');
+    const box = document.getElementById('fav-list');
+    box.innerHTML = list.length ? '' : '<span style="font-size:11px;color:#475569;">등록된 매출처가 없습니다.</span>';
+    
+    list.forEach((item, idx) => {
+        const chip = document.createElement('div');
+        chip.className = 'fav-chip';
+        chip.innerHTML = `${item.name} <span class="del" onclick="delFavSales(event, ${idx})">×</span>`;
+        chip.onclick = () => {
+            document.getElementById('in_s_no').value = item.no;
+            document.getElementById('in_s_name').value = item.name;
+            sync();
+        };
+        box.appendChild(chip);
+    });
+}
+
+function addFavSales() {
+    const no = document.getElementById('in_s_no').value.trim();
+    const name = document.getElementById('in_s_name').value.trim();
+    if(!no || !name) return alert("매출 회원번호와 성명을 입력 후 버튼을 눌러주세요.");
+    
+    let list = JSON.parse(localStorage.getItem('fav_sales_list') || '[]');
+    if(list.some(i => i.no === no)) return alert("이미 등록된 번호입니다.");
+    
+    list.push({no, name});
+    localStorage.setItem('fav_sales_list', JSON.stringify(list));
+    renderFavSales();
+}
+
+function delFavSales(e, idx) {
+    e.stopPropagation();
+    let list = JSON.parse(localStorage.getItem('fav_sales_list') || '[]');
+    list.splice(idx, 1);
+    localStorage.setItem('fav_sales_list', JSON.stringify(list));
+    renderFavSales();
+}
 
 function run() {
     kakao.maps.load(() => {
@@ -374,7 +415,7 @@ function openFax(i) {
     document.getElementById('v_bp').innerText = currentBP.name;
     document.getElementById('faxModal').classList.add('open');
 
-    // 명의자 정보 및 예약 정보 초기화
+    // 명의자 정보만 초기화하여 신규 입력을 유도
     ['in_name', 'in_birth', 'in_tel', 'in_res', 'in_note'].forEach(id => {
         document.getElementById(id).value = "";
         localStorage.removeItem(id);
@@ -416,7 +457,7 @@ async function saveImage() {
 }
 
 function copySMS() {
-    const res = document.getElementById('v_res').innerText; // 예: "2026년 04월 15일 오전 2시"
+    const res = document.getElementById('v_res').innerText;
     const name = document.getElementById('in_name').value || "고객";
     const device = document.getElementById('in_device').value || "-";
     const mang = document.getElementById('in_mang').value;
@@ -424,26 +465,20 @@ function copySMS() {
     const agentName = document.getElementById('in_agent').value || "-";
     const agentTel = (document.getElementById('in_agent_tel').value || "-").replace(/-/g, '.');
 
-    // 1. 숫자만 추출 (parts[0]:년, [1]:월, [2]:일, [3]:시)
     const parts = res.match(/\d+/g);
     const isAM = res.includes("오전") ? "오전" : "오후";
-    let formattedRes = res; // 변환 실패 시 기본값
+    let formattedRes = res;
 
     if (parts && parts.length >= 3) {
         const year = parts[0];
-        const month = parseInt(parts[1]); // 04 -> 4
-        const day = parseInt(parts[2]);   // 15 -> 15
+        const month = parseInt(parts[1]);
+        const day = parseInt(parts[2]);
         const hour = parts[3] || "";
-
-        // 요일 계산을 위한 Date 객체 생성
         const dateObj = new Date(year, month - 1, day);
         const dayOfWeek = dateObj.toLocaleDateString('ko-KR', { weekday: 'short' });
-
-        // 2. 형식 재조합: "4월 15일 (수) 오전 2시"
         formattedRes = `${month}월 ${day}일 (${dayOfWeek}) ${isAM} ${hour}시`;
     }
 
-    // 3. 전체 문자열 구성
     const smsText = `■앤텔레콤 지점방문 예약증
 
 방문일시 : ${formattedRes}
@@ -456,7 +491,6 @@ function copySMS() {
 담당자 : ${agentName} / ${agentTel}
 주소 : ${currentBP.addr}`;
 
-    // 4. 클립보드 복사
     navigator.clipboard.writeText(smsText).then(() => {
         alert("✅ 예약 문자가 클립보드에 복사되었습니다.");
     });
