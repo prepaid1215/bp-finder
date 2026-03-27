@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>앤텔레콤 BP FINDER Pro</title>
+    <title>앤텔레콤 BP FINDER Pro - B&W Edition</title>
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e27b685233912bfd3431eb5deab591b5&libraries=services&autoload=false"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
@@ -47,7 +47,7 @@
         .grid-inputs input, .grid-inputs select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 12px; }
         .preview-wrap { width: 100%; height: 500px; overflow: hidden; background: #444; border-radius: 12px; display: flex; justify-content: center; align-items: center; border: 2px solid #333; }
         
-        /* 흑백 서류 스타일 */
+        /* 흑백 서류 스타일 (이미지 출력용) */
         #captureArea { background: #fff; color: #000; padding: 40px; width: 800px; font-family: 'Malgun Gothic', sans-serif; transform: scale(0.44); transform-origin: center center; flex-shrink: 0; }
         #captureArea header h1 { text-align: center; font-size: 32px; letter-spacing: 10px; border-bottom: 3px solid #000; display: inline-block; padding-bottom: 10px; margin: 0 0 30px 0; color: #000; width: 100%; }
         #captureArea table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 2px solid #000; }
@@ -56,8 +56,16 @@
         #captureArea .val { font-weight: 900; font-size: 17px; color: #000; }
         #captureArea .section-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; text-align: left; color: #000; font-size: 18px; }
         #captureArea .section-title::before { content: '▶'; margin-right: 8px; font-size: 14px; }
-        .footer { border-top: 4px solid #000; margin-top: 20px; padding-top: 10px; text-align: right; }
-        .logo-main { font-style: italic; font-weight: bold; font-size: 22px; color: #333; margin: 0; }
+        
+        /* 주의사항 흑백 최적화 */
+        .notice-section { text-align: left; border-top: 1px solid #000; padding-top: 15px; margin-top: 20px; color: #000; }
+        .notice-section h3 { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; }
+        .notice-section p { font-size: 14px; margin: 5px 0; line-height: 1.5; }
+        .notice-section .bold-under { color: #000; font-weight: 900; text-decoration: underline; } /* 흑백에서 강조를 위해 밑줄 추가 */
+        .notice-section .sub-bullet { margin-left: 15px; font-size: 13px; color: #000; }
+
+        .footer { border-top: 4px solid #000; margin-top: 10px; padding-top: 10px; text-align: right; }
+        .logo-main { font-style: italic; font-weight: bold; font-size: 22px; color: #000; margin: 0; }
         .logo-sub { font-weight: bold; font-size: 16px; color: #000; margin: -5px 0 0 0; }
 
         .modal-action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
@@ -132,6 +140,15 @@
                     <tr><th rowspan="2">개통 처리 정보</th><th>개통 센터</th><th>개통 확정 번호</th></tr>
                     <tr><td class="val" id="v_bp" style="font-size:18px;">-</td><td class="val">-</td></tr>
                 </table>
+
+                <div class="notice-section">
+                    <h3>※ 개통 시 주의사항</h3>
+                    <p>▶ 방문 개통 명의자 본인 확인 후 <span class="bold-under">개통 본인확인서(필수)</span>를 반드시 작성하여 주세요.</p>
+                    <p>▶ 다회선 개통 요청 시 개통 의뢰 회원에게 내용 확인 후 개통 진행해주세요.</p>
+                    <p>▶ 부정영업이 의심이 되는 경우 개통을 거부할 수 있습니다.</p>
+                    <p class="sub-bullet">- 본인 실사용 외 타인 판매, 양도, 불법 스팸, 보이스피싱 등</p>
+                </div>
+
                 <div class="footer"><p class="logo-main">N telecom</p><p class="logo-sub">앤텔레콤</p></div>
             </div>
         </div>
@@ -228,17 +245,15 @@ const ALL_INPUTS = [
 ];
 
 window.onload = () => {
-    // 자동 저장된 요청자/매출자 정보 복구
     ALL_INPUTS.forEach(id => {
         const val = localStorage.getItem(id);
         const el = document.getElementById(id);
         if(val && el) el.value = val;
     });
-    renderFavSales(); // 자주 쓰는 매출처 목록 출력
+    renderFavSales();
     sync();
 };
 
-// --- 자주 쓰는 매출처 관리 로직 ---
 function renderFavSales() {
     const list = JSON.parse(localStorage.getItem('fav_sales_list') || '[]');
     const box = document.getElementById('fav-list');
@@ -261,10 +276,8 @@ function addFavSales() {
     const no = document.getElementById('in_s_no').value.trim();
     const name = document.getElementById('in_s_name').value.trim();
     if(!no || !name) return alert("매출 회원번호와 성명을 입력 후 버튼을 눌러주세요.");
-    
     let list = JSON.parse(localStorage.getItem('fav_sales_list') || '[]');
     if(list.some(i => i.no === no)) return alert("이미 등록된 번호입니다.");
-    
     list.push({no, name});
     localStorage.setItem('fav_sales_list', JSON.stringify(list));
     renderFavSales();
@@ -372,7 +385,6 @@ function sync() {
         const el = document.getElementById(id);
         if(el) localStorage.setItem(id, el.value);
     });
-
     const type = document.getElementById('in_type').value;
     document.getElementById('v_type_check').innerHTML = (type==='선불'?'☑ 선불 □ 후불':'□ 선불 ☑ 후불');
     const cat = document.getElementById('in_cat').value;
@@ -414,13 +426,10 @@ function openFax(i) {
     currentBP = currentList[i];
     document.getElementById('v_bp').innerText = currentBP.name;
     document.getElementById('faxModal').classList.add('open');
-
-    // 명의자 정보만 초기화하여 신규 입력을 유도
     ['in_name', 'in_birth', 'in_tel', 'in_res', 'in_note'].forEach(id => {
         document.getElementById(id).value = "";
         localStorage.removeItem(id);
     });
-
     sync();
 }
 
@@ -440,6 +449,8 @@ async function saveImage() {
             clonedArea.style.transform = "none";
             clonedArea.style.position = "relative";
             clonedArea.style.margin = "0";
+            // 혹시 남아있을 수 있는 컬러 요소를 위해 강제 흑백 필터 적용 (안전장치)
+            clonedArea.style.filter = "grayscale(100%)";
         }
     });
 
