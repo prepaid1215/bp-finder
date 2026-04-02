@@ -83,10 +83,115 @@
         .save-btn { grid-column: span 2; padding: 15px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
         .sms-btn { padding: 12px; background: #ea580c; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
         .close-btn { padding: 12px; background: #444; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
+  
+    
+    /* 상단 공지 알림창 (기본 숨김) */
+.toast-welcome {
+    position: fixed;
+    top: -80px; 
+    left: 50%;
+    transform: translateX(-50%);
+    background: #3b82f6; /* 파란색 강조 */
+    color: white;
+    padding: 15px 30px;
+    border-radius: 30px;
+    font-size: 14px;
+    font-weight: bold;
+    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
+    z-index: 10000;
+    cursor: pointer;
+    transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* 통통 튀는 느낌의 애니메이션 */
+}
+
+/* 알림창이 내려온 상태 */
+.toast-welcome.show {
+    top: 20px; 
+}
+
+/* 공지사항 팝업 배경 (어둡게) */
+.msg-modal-overlay {
+    display: none; 
+    position: fixed;
+    inset: 0;
+    background: rgba(0,0,0,0.7);
+    z-index: 10001;
+    align-items: center;
+    justify-content: center;
+}
+
+/* 팝업 열림 상태 */
+.msg-modal-overlay.open {
+    display: flex;
+}
+
+/* 팝업 본문 박스 */
+.msg-modal-content {
+    background: #1e293b;
+    color: #f8fafc;
+    width: 90%;
+    max-width: 400px;
+    padding: 25px;
+    border-radius: 20px;
+    text-align: center;
+    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
+}
+
+.msg-modal-content h3 {
+    margin-top: 0;
+    color: #60a5fa;
+    margin-bottom: 15px;
+}
+
+.msg-modal-content p {
+    font-size: 14px;
+    line-height: 1.6;
+    margin-bottom: 25px;
+    color: #cbd5e1;
+    text-align: left;
+    word-break: keep-all;
+}
+
+/* 팝업 닫기 버튼 */
+.msg-close-btn {
+    width: 100%;
+    padding: 14px;
+    background: #3b82f6;
+    color: white;
+    border: none;
+    border-radius: 12px;
+    font-weight: bold;
+    font-size: 16px;
+    cursor: pointer;
+}
+.msg-close-btn:hover {
+    background: #2563eb;
+}
+
+
+        
+    
     </style>
 </head>
 <body>
 
+    <div id="welcome-toast" class="toast-welcome" onclick="openMessagePopup()">
+    🔔 새로운 공지사항이 있습니다. (클릭하여 확인)
+</div>
+
+<div id="message-modal" class="msg-modal-overlay">
+    <div class="msg-modal-content">
+        <h3>📢 공지사항</h3>
+        <p>
+            안녕하세요, 하루입니다.<br><br>
+            업데이트가 됐는데 확인중<br>
+            서류 작성시 마지막에 미리보기 서류를 클릭하여 수정이 가능하게 했습니다.<br><br>
+            항상 이용해 주셔서 감사합니다!
+        </p>
+        <button class="msg-close-btn" onclick="closeMessagePopup()">확인</button>
+    </div>
+</div>
+
+    
 <div class="app">
     <h2>앤텔레콤 BP FINDER</h2>
     <div class="search-box">
@@ -517,6 +622,47 @@ function copySMS() {
         alert("✅ 예약 문자가 클립보드에 복사되었습니다.");
     });
 }
+
+
+
+
+let welcomeToastTimer;
+
+// 페이지가 켜지면 실행되는 로직
+window.addEventListener('DOMContentLoaded', () => {
+    const toast = document.getElementById('welcome-toast');
+    
+    // 1. 접속 후 0.5초 뒤에 알림창이 스르륵 내려옴
+    setTimeout(() => {
+        toast.classList.add('show');
+    }, 500);
+
+    // 2. 5초 동안 클릭 안 하면 다시 위로 올라가서 사라짐
+    welcomeToastTimer = setTimeout(() => {
+        toast.classList.remove('show');
+    }, 5500);
+});
+
+// 알림창을 클릭했을 때 실행되는 함수
+function openMessagePopup() {
+    const toast = document.getElementById('welcome-toast');
+    
+    // 알림창이 자동으로 사라지는 타이머를 취소하고 즉시 위로 숨김
+    clearTimeout(welcomeToastTimer);
+    toast.classList.remove('show');
+    
+    // 준비해둔 공지사항 팝업을 화면에 띄움
+    document.getElementById('message-modal').classList.add('open');
+}
+
+// 팝업의 '확인' 버튼을 눌렀을 때 닫는 함수
+function closeMessagePopup() {
+    document.getElementById('message-modal').classList.remove('open');
+}
+
+
+    
+    
 </script>
 </body>
 </html>
