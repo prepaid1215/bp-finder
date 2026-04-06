@@ -33,7 +33,6 @@
         .modal-overlay.open { display: block; }
         .modal-content { width: 100%; max-width: 650px; margin: 0 auto; background: var(--card); border-radius: 20px; padding: 20px; }
         
-        /* 매출처 관리 섹션 */
         .fav-section { background: var(--bg); padding: 12px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
         .fav-header { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
         .fav-header b { color: var(--accent); }
@@ -47,32 +46,21 @@
         .grid-inputs input, .grid-inputs select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 12px; }
         .preview-wrap { width: 100%; height: 500px; overflow: hidden; background: #444; border-radius: 12px; display: flex; justify-content: center; align-items: center; border: 2px solid #333; }
         
-        /* 흑백 서류 스타일 (이미지 출력용) */
         #captureArea { background: #fff; color: #000; padding: 40px; width: 800px; font-family: 'Malgun Gothic', sans-serif; transform: scale(0.44); transform-origin: center center; flex-shrink: 0; }
         #captureArea header h1 { text-align: center; font-size: 32px; letter-spacing: 10px; border-bottom: 3px solid #000; display: inline-block; padding-bottom: 10px; margin: 0 0 30px 0; color: #000; width: 100%; }
         #captureArea table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 2px solid #000; }
         #captureArea th, #captureArea td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 14px; height: 45px; vertical-align: middle; color: #000; }
         #captureArea th { background-color: #f2f2f2; font-weight: bold; }
-#captureArea .val { 
-    font-weight: 900; 
-    font-size: 17px; 
-    color: #000; 
-    outline: none; /* 클릭 시 기본으로 생기는 파란 테두리 제거 */
-    cursor: text; /* 마우스를 올리면 글자 입력 커서로 변경 */
-    transition: background 0.2s; 
-}
-#captureArea .val:hover { background-color: #f1f5f9; } /* 마우스 올렸을 때 배경색 */
-#captureArea .val:focus { background-color: #e2e8f0; } /* 클릭해서 수정 중일 때 배경색 */
-#captureArea .val:hover { background-color: #f1f5f9; }
-#captureArea .val:focus { background-color: #e2e8f0; }
+        #captureArea .val { font-weight: 900; font-size: 17px; color: #000; outline: none; cursor: text; transition: background 0.2s; }
+        #captureArea .val:hover { background-color: #f1f5f9; }
+        #captureArea .val:focus { background-color: #e2e8f0; }
         #captureArea .section-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; text-align: left; color: #000; font-size: 18px; }
         #captureArea .section-title::before { content: '▶'; margin-right: 8px; font-size: 14px; }
         
-        /* 주의사항 흑백 최적화 */
         .notice-section { text-align: left; border-top: 1px solid #000; padding-top: 15px; margin-top: 20px; color: #000; }
         .notice-section h3 { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; }
         .notice-section p { font-size: 14px; margin: 5px 0; line-height: 1.5; }
-        .notice-section .bold-under { color: #000; font-weight: 900; text-decoration: underline; } /* 흑백에서 강조를 위해 밑줄 추가 */
+        .notice-section .bold-under { color: #000; font-weight: 900; text-decoration: underline; }
         .notice-section .sub-bullet { margin-left: 15px; font-size: 13px; color: #000; }
 
         .footer { border-top: 4px solid #000; margin-top: 10px; padding-top: 10px; text-align: right; }
@@ -84,115 +72,34 @@
         .sms-btn { padding: 12px; background: #ea580c; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
         .close-btn { padding: 12px; background: #444; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
   
-    
-    /* 상단 공지 알림창 (기본 숨김) */
-.toast-welcome {
-    position: fixed;
-    top: -80px; 
-    left: 50%;
-    transform: translateX(-50%);
-    background: #3b82f6; /* 파란색 강조 */
-    color: white;
-    padding: 15px 30px;
-    border-radius: 30px;
-    font-size: 14px;
-    font-weight: bold;
-    box-shadow: 0 5px 20px rgba(0,0,0,0.5);
-    z-index: 10000;
-    cursor: pointer;
-    transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); /* 통통 튀는 느낌의 애니메이션 */
-}
-
-/* 알림창이 내려온 상태 */
-.toast-welcome.show {
-    top: 20px; 
-}
-
-/* 공지사항 팝업 배경 (어둡게) */
-.msg-modal-overlay {
-    display: none; 
-    position: fixed;
-    inset: 0;
-    background: rgba(0,0,0,0.7);
-    z-index: 10001;
-    align-items: center;
-    justify-content: center;
-}
-
-/* 팝업 열림 상태 */
-.msg-modal-overlay.open {
-    display: flex;
-}
-
-/* 팝업 본문 박스 */
-.msg-modal-content {
-    background: #1e293b;
-    color: #f8fafc;
-    width: 90%;
-    max-width: 400px;
-    padding: 25px;
-    border-radius: 20px;
-    text-align: center;
-    box-shadow: 0 10px 30px rgba(0,0,0,0.5);
-}
-
-.msg-modal-content h3 {
-    margin-top: 0;
-    color: #60a5fa;
-    margin-bottom: 15px;
-}
-
-.msg-modal-content p {
-    font-size: 14px;
-    line-height: 1.6;
-    margin-bottom: 25px;
-    color: #cbd5e1;
-    text-align: left;
-    word-break: keep-all;
-}
-
-/* 팝업 닫기 버튼 */
-.msg-close-btn {
-    width: 100%;
-    padding: 14px;
-    background: #3b82f6;
-    color: white;
-    border: none;
-    border-radius: 12px;
-    font-weight: bold;
-    font-size: 16px;
-    cursor: pointer;
-}
-.msg-close-btn:hover {
-    background: #2563eb;
-}
-
-
-        
-    
+        .toast-welcome { position: fixed; top: -80px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 15px 30px; border-radius: 30px; font-size: 14px; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 10000; cursor: pointer; transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
+        .toast-welcome.show { top: 20px; }
+        .msg-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center; }
+        .msg-modal-overlay.open { display: flex; }
+        .msg-modal-content { background: #1e293b; color: #f8fafc; width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
+        .msg-modal-content h3 { margin-top: 0; color: #60a5fa; margin-bottom: 15px; }
+        .msg-modal-content p { font-size: 14px; line-height: 1.6; margin-bottom: 25px; color: #cbd5e1; text-align: left; word-break: keep-all; }
+        .msg-close-btn { width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
     </style>
 </head>
 <body>
 
-    <div id="welcome-toast" class="toast-welcome" onclick="openMessagePopup()">
+<div id="welcome-toast" class="toast-welcome" onclick="openMessagePopup()">
     🔔 새로운 공지사항이 있습니다. (클릭하여 확인)
 </div>
 
 <div id="message-modal" class="msg-modal-overlay">
     <div class="msg-modal-content">
         <h3>📢 공지사항</h3>
-<p>
-    안녕하세요 하루입니다.<br><br>
-    업데이트가 됐는데 확인할 방법이 없어서..<br>
-    서류 작성 시 마지막 미리보기에서 수정이 가능하게 되었습니다.<br>
-    대구bp 센터 이사로 주소 업데이트가 되었습니다.<br><br>
-    항상 이용해주셔서 감사합니다.
-</p>
+        <p>
+            안녕하세요 하루입니다.<br><br>
+            몇몇 주소가 나오지 않는 것을 수정하였습니다.<br><br>
+            항상 이용해주셔서 감사합니다.
+        </p>
         <button class="msg-close-btn" onclick="closeMessagePopup()">확인</button>
     </div>
 </div>
 
-    
 <div class="app">
     <h2>앤텔레콤 BP FINDER</h2>
     <div class="search-box">
@@ -239,24 +146,24 @@
                 <header><h1>센 터 방 문 &nbsp; 개 통 &nbsp; 요 청 서</h1></header>
                 <div style="text-align:right; margin-bottom:15px; font-weight:bold; font-size:16px;"><span id="v_type_check">☑ 선불 □ 후불</span> / <span id="v_cat_check">☑ 신규개통 □ 번호이동</span></div>
                 <div class="section-title">개통 관련 기재란</div>
-<table>
-    <tr><th rowspan="2" style="width:20%">매출자 정보</th><th style="width:40%">회원번호</th><th style="width:40%">회원명</th></tr>
-    <tr><td class="val" id="v_s_no" contenteditable="true">-</td><td class="val" id="v_s_name" contenteditable="true">-</td></tr>
-    <tr><th>명의자 성명</th><th>명의자 생년월일</th><th>명의자 연락번호</th></tr>
-    <tr><td class="val" id="v_name" contenteditable="true">-</td><td class="val" id="v_birth" contenteditable="true">-</td><td class="val" id="v_tel" contenteditable="true">-</td></tr>
-    <tr><th>통신망 선택</th><th>가입 요금제</th><th>방문 예약 시간</th></tr>
-    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan" contenteditable="true">-</td><td class="val" id="v_res" contenteditable="true" style="font-weight:900;">-</td></tr>
-    <tr><th>비고</th><td colspan="2" class="val" id="v_note" contenteditable="true" style="text-align:left; font-weight:normal;">-</td></tr>
-</table>
-<div class="section-title">요청 회원 및 센터 기재란</div>
-<table>
-    <tr><th rowspan="4" style="width:20%">요청 회원 정보</th><th style="width:40%">회원번호</th><th style="width:40%">회원명</th></tr>
-    <tr><td class="val" id="v_agent_no_out" contenteditable="true">-</td><td class="val" id="v_agent_out" contenteditable="true">-</td></tr>
-    <tr><th>소속 센터 / 활동 지역</th><th>연락번호</th></tr>
-    <tr><td class="val" id="v_agent_center_out" contenteditable="true">-</td><td class="val" id="v_agent_tel_out" contenteditable="true">-</td></tr>
-    <tr><th rowspan="2">개통 처리 정보</th><th>개통 센터</th><th>개통 확정 번호</th></tr>
-    <tr><td class="val" id="v_bp" contenteditable="true" style="font-size:18px;">-</td><td class="val" contenteditable="true">-</td></tr>
-</table>
+                <table>
+                    <tr><th rowspan="2" style="width:20%">매출자 정보</th><th style="width:40%">회원번호</th><th style="width:40%">회원명</th></tr>
+                    <tr><td class="val" id="v_s_no" contenteditable="true">-</td><td class="val" id="v_s_name" contenteditable="true">-</td></tr>
+                    <tr><th>명의자 성명</th><th>명의자 생년월일</th><th>명의자 연락번호</th></tr>
+                    <tr><td class="val" id="v_name" contenteditable="true">-</td><td class="val" id="v_birth" contenteditable="true">-</td><td class="val" id="v_tel" contenteditable="true">-</td></tr>
+                    <tr><th>통신망 선택</th><th>가입 요금제</th><th>방문 예약 시간</th></tr>
+                    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan" contenteditable="true">-</td><td class="val" id="v_res" contenteditable="true" style="font-weight:900;">-</td></tr>
+                    <tr><th>비고</th><td colspan="2" class="val" id="v_note" contenteditable="true" style="text-align:left; font-weight:normal;">-</td></tr>
+                </table>
+                <div class="section-title">요청 회원 및 센터 기재란</div>
+                <table>
+                    <tr><th rowspan="4" style="width:20%">요청 회원 정보</th><th style="width:40%">회원번호</th><th style="width:40%">회원명</th></tr>
+                    <tr><td class="val" id="v_agent_no_out" contenteditable="true">-</td><td class="val" id="v_agent_out" contenteditable="true">-</td></tr>
+                    <tr><th>소속 센터 / 활동 지역</th><th>연락번호</th></tr>
+                    <tr><td class="val" id="v_agent_center_out" contenteditable="true">-</td><td class="val" id="v_agent_tel_out" contenteditable="true">-</td></tr>
+                    <tr><th rowspan="2">개통 처리 정보</th><th>개통 센터</th><th>개통 확정 번호</th></tr>
+                    <tr><td class="val" id="v_bp" contenteditable="true" style="font-size:18px;">-</td><td class="val" contenteditable="true">-</td></tr>
+                </table>
 
                 <div class="notice-section">
                     <h3>※ 개통 시 주의사항</h3>
@@ -453,16 +360,25 @@ function run() {
 async function startCalculation(uLat, uLng, addr) {
     document.getElementById('loading').style.display = 'block';
     const geocoder = new kakao.maps.services.Geocoder();
+    
     const withCoords = await Promise.all(DATA.map(async (bp) => {
-        let coords = geoCache[bp.addr] || await new Promise(res => geocoder.addressSearch(bp.addr, (r, s) => s === 'OK' ? res({y:r[0].y, x:r[0].x}) : res(null)));
+        // [수정] 주소에서 괄호 및 층/호수 정보를 제거하여 검색 성공률을 높임
+        const searchAddr = bp.addr.split('(')[0].split(/\s?\d+층/)[0].trim();
+        
+        let coords = geoCache[searchAddr] || await new Promise(res => {
+            geocoder.addressSearch(searchAddr, (r, s) => s === 'OK' ? res({y:r[0].y, x:r[0].x}) : res(null));
+        });
+        
         if(coords) {
-            geoCache[bp.addr] = coords;
+            geoCache[searchAddr] = coords;
             const dLat = (coords.y-uLat)*Math.PI/180, dLng = (coords.x-uLng)*Math.PI/180;
             const a = Math.sin(dLat/2)**2 + Math.cos(uLat*Math.PI/180)*Math.cos(coords.y*Math.PI/180)*Math.sin(dLng/2)**2;
             return {...bp, lat: coords.y, lng: coords.x, dist: 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))};
         }
+        console.warn(`[검색실패] ${bp.name}: ${searchAddr}`);
         return null;
     }));
+    
     currentList = withCoords.filter(b => b).sort((a,b) => a.dist - b.dist).slice(0,5);
     document.getElementById('loading').style.display = 'none';
     renderCards(addr);
@@ -470,6 +386,7 @@ async function startCalculation(uLat, uLng, addr) {
 
 function renderCards(addr) {
     let h = `<div style="font-size:12px;color:#94a3b8;margin:15px 0 5px;">📍 [${addr}] 인근 지점</div>`;
+    if(currentList.length === 0) h += `<div style="padding:20px;text-align:center;color:var(--text-sub);">인근 지점을 찾을 수 없습니다.</div>`;
     h += currentList.map((c, i) => `
         <div class="res-card" onclick="updateMap(${i})">
             <div class="card-name">${c.name} (${c.dist.toFixed(1)}km)</div>
@@ -479,7 +396,8 @@ function renderCards(addr) {
                 <button class="btn-fax-open" onclick="event.stopPropagation(); openFax(${i});"><span>📠 서류작성</span><span class="btn-sub-text">FAX: ${c.fax}</span></button>
             </div>
         </div>`).join('');
-    document.getElementById('out').innerHTML = h; updateMap(0);
+    document.getElementById('out').innerHTML = h; 
+    if(currentList.length > 0) updateMap(0);
 }
 
 function updateMap(i) {
@@ -566,7 +484,6 @@ async function saveImage() {
             clonedArea.style.transform = "none";
             clonedArea.style.position = "relative";
             clonedArea.style.margin = "0";
-            // 혹시 남아있을 수 있는 컬러 요소를 위해 강제 흑백 필터 적용 (안전장치)
             clonedArea.style.filter = "grayscale(100%)";
         }
     });
@@ -624,46 +541,23 @@ function copySMS() {
     });
 }
 
-
-
-
 let welcomeToastTimer;
-
-// 페이지가 켜지면 실행되는 로직
 window.addEventListener('DOMContentLoaded', () => {
     const toast = document.getElementById('welcome-toast');
-    
-    // 1. 접속 후 0.5초 뒤에 알림창이 스르륵 내려옴
-    setTimeout(() => {
-        toast.classList.add('show');
-    }, 500);
-
-    // 2. 5초 동안 클릭 안 하면 다시 위로 올라가서 사라짐
-    welcomeToastTimer = setTimeout(() => {
-        toast.classList.remove('show');
-    }, 5500);
+    setTimeout(() => { toast.classList.add('show'); }, 500);
+    welcomeToastTimer = setTimeout(() => { toast.classList.remove('show'); }, 5500);
 });
 
-// 알림창을 클릭했을 때 실행되는 함수
 function openMessagePopup() {
     const toast = document.getElementById('welcome-toast');
-    
-    // 알림창이 자동으로 사라지는 타이머를 취소하고 즉시 위로 숨김
     clearTimeout(welcomeToastTimer);
     toast.classList.remove('show');
-    
-    // 준비해둔 공지사항 팝업을 화면에 띄움
     document.getElementById('message-modal').classList.add('open');
 }
 
-// 팝업의 '확인' 버튼을 눌렀을 때 닫는 함수
 function closeMessagePopup() {
     document.getElementById('message-modal').classList.remove('open');
 }
-
-
-    
-    
 </script>
 </body>
 </html>
