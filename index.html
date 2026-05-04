@@ -260,7 +260,8 @@ const DATA = [
     { name: "진주남강BP", addr: "경남 진주시 범골로 54번길 30-9 (충무공동) 드림IT밸리 주1동 B601호", tel: "010-9309-6265", fax: "0504-166-6265" },
     { name: "올레BP", addr: "제주특별자치도 제주시 남성로 16 (용담1동) 1층", tel: "064-749-3016", fax: "064-749-3018" }
 ];
-let geoCache = {}, currentList = [], currentBP = null, map, marker;
+let geoCache = JSON.parse(localStorage.getItem('bp_geo_cache') || '{}');
+let currentList = [], currentBP = null, map, marker;
 
 const ALL_INPUTS = [
     'in_type', 'in_cat', 'in_s_no', 'in_s_name', 'in_name', 'in_birth', 'in_tel',
@@ -369,9 +370,11 @@ async function startCalculation(uLat, uLng, addr) {
             geocoder.addressSearch(searchAddr, (r, s) => s === 'OK' ? res({y:r[0].y, x:r[0].x}) : res(null));
         });
         
-        if(coords) {
-            geoCache[searchAddr] = coords;
-            const dLat = (coords.y-uLat)*Math.PI/180, dLng = (coords.x-uLng)*Math.PI/180;
+if(coords) {
+    geoCache[searchAddr] = coords;
+    localStorage.setItem('bp_geo_cache', JSON.stringify(geoCache));
+
+    const dLat = (coords.y-uLat)*Math.PI/180, dLng = (coords.x-uLng)*Math.PI/180;
             const a = Math.sin(dLat/2)**2 + Math.cos(uLat*Math.PI/180)*Math.cos(coords.y*Math.PI/180)*Math.sin(dLng/2)**2;
             return {...bp, lat: coords.y, lng: coords.x, dist: 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a))};
         }
