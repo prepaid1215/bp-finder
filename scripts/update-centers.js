@@ -162,6 +162,38 @@ async function main() {
     );
   });
 
+    const MIN_CENTER_COUNT = 50;
+  let previousCount = 0;
+
+  if (fs.existsSync(OUTPUT_FILE)) {
+    try {
+      const previousData = JSON.parse(
+        fs.readFileSync(OUTPUT_FILE, "utf8")
+      );
+
+      previousCount = Number(previousData.count || 0);
+    } catch (error) {
+      console.warn("기존 centers.json 확인 실패");
+    }
+  }
+
+  // 센터가 50개 미만이면 기존 파일 유지
+  if (uniqueCenters.length < MIN_CENTER_COUNT) {
+    throw new Error(
+      `센터 수 이상 감지: ${uniqueCenters.length}개. 기존 파일을 유지합니다.`
+    );
+  }
+
+  // 기존보다 30% 이상 감소하면 기존 파일 유지
+  if (
+    previousCount > 0 &&
+    uniqueCenters.length < previousCount * 0.7
+  ) {
+    throw new Error(
+      `센터 수 급감 감지: ${previousCount}개 → ${uniqueCenters.length}개. 기존 파일을 유지합니다.`
+    );
+  }
+  
   const output = {
     updatedAt: new Date().toISOString(),
     source: PAGE_URL,
