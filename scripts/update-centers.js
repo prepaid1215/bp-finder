@@ -1,91 +1,197 @@
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
-const cheerio = require("cheerio");
 
-const SOURCE_URL =
-  "https://info.n-telecom.co.kr/products/center_info.jsp";
+const API_URL =
+  "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx";
 
-const OUTPUT_PATH = path.join(
+const PAGE_URL =
+  "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx";
+
+const OUTPUT_FILE = path.join(
   process.cwd(),
   "data",
   "centers.json"
 );
 
-function cleanText(value = "") {
-  return value
+const REGIONS = [
+  { code: "J01", name: "서울" },
+  { code: "J06", name: "경기" },
+  { code: "J03", name: "인천" },
+  { code: "J07", name: "강원" },
+  { code: "J04", name: "대전" },
+  { code: "J15", name: "광주" },
+  { code: "J11", name: "전남" },
+  { code: "J10", name: "전북" },
+  { code: "J09", name: "충남" },
+  { code: "J08", name: "충북" },
+  { code: "J05", name: "대구" },
+  { code: "J12", name: "경북" },
+  { code: "J16", name: "울산" },
+  { code: "J02", name: "부산" },
+  { code: "J13", name: "경남" },
+  { code: "J14", name: "제주" }
+];
+
+function clean(value) {
+  return String(value ?? "")
     .replace(/\u00a0/g, " ")
     .replace(/\s+/g, " ")
     .trim();
 }
 
-async function main() {
-  const response = await axios.get(SOURCE_URL, {
-    timeout: 30000,
-    responseType: "arraybuffer",
-    headers: {
-      "User-Agent":
-        "Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 Chrome/126 Safari/537.36",
-      Referer: "https://info.n-telecom.co.kr/"
+function normalizeCenter(item, region) {
+  return {
+    id: clean(item.CNT_CD),
+    name: clean(item.CNT_NAME),
+    regionCode: region.code,
+    region: region.name,
+    phone: clean(item.TEL),
+    fax: clean(item.FAX),
+    address1: clean(item.ADDR1),
+    address2: clean(item.ADDR2),
+    address: clean(`${item.ADDR1 ?? ""} ${item.ADDR2 ?? ""}`),
+    latitude: clean(item.CNT_X),
+    longitude: clean(item.CNT_Y),
+    isCenter: clean(item.CENTERYN) === "Y"
+  };
+}
+
+async function fetchRegion(region) {
+  const payload = {
+    header: [
+      {
+        type: "01"
+      }
+    ],
+    body: [
+      {
+        area_cd: region.code,
+        agnm: "",
+        key: ""
+      }
+    ]
+  };
+
+  const response = await axios.post(
+    API_URL,
+    JSON.stringify(payload),
+    {
+      timeout: 30000,
+      headers: {
+        "Content-Type":
+          "application/x-www-form-urlencoded; charset=UTF-8",
+        "User-Agent":
+          "Mozilla/5.0 (Windows NT 10.0; Win64; x64) " +
+          "AppleWebKit/537.36 Chrome/126.0 Safari/537.36",
+        Referer: PAGE_URL,
+        Origin: "https://lgusobija.n-telecom.co.kr",
+        "X-Requested-With": "XMLHttpRequest",
+        Accept: "application/json, text/javascript, */*; q=0.01"
+      }
     }
-  });
+  );
 
-  const html = Buffer.from(response.data).toString("utf8");
-  const $ = cheerio.load(html);
+  const result =
+    typeof response.data === "string"
+      ? JSON.parse(response.data)
+      : response.data;
 
-  const centers = [];
-
-  $("table tbody tr, table tr").each((_, row) => {
-    const cells = $(row)
-      .find("th, td")
-      .map((__, cell) => cleanText($(cell).text()))
-      .get()
-      .filter(Boolean);
-
-    if (cells.length < 2) return;
-
-    const combined = cells.join(" | ");
-
-    if (
-      combined.includes("센터명") ||
-      combined.includes("지역") &&
-      combined.includes("주소")
-    ) {
-      return;
-    }
-
-    centers.push({
-      values: cells
-    });
-  });
-
-  if (centers.length === 0) {
+  if (!result || result.RESULT !== "Y") {
     throw new Error(
-      "센터정보를 찾지 못했습니다. 원본 페이지 구조가 다르거나 요청이 차단되었습니다."
+      `${region.name} 조회 실패: ${
+        result?.RESULTMSG || result?.RESULT || "응답 오류"
+      }`
     );
   }
 
-  const output = {
-    updatedAt: new Date().toISOString(),
-    source: SOURCE_URL,
-    count: centers.length,
-    centers
-  };
+  const rows = Array.isArray(result.DATA)
+    ? result.DATA
+    : [];
 
-  fs.mkdirSync(path.dirname(OUTPUT_PATH), {
-    recursive: true
+  return rows.map((item) =>
+    normalizeCenter(item, region)
+  );
+}
+
+async function main() {
+  const allCenters = [];
+
+  for (const region of REGIONS) {
+    console.log(`${region.name} 조회 중...`);
+
+    const centers = await fetchRegion(region);
+
+    console.log(
+      `${region.name}: ${centers.length}개`
+    );
+
+    allCenters.push(...centers);
+
+    await new Promise((resolve) =>
+      setTimeout(resolve, 300)
+    );
+  }
+
+  const uniqueCenters = Array.from(
+    new Map(
+      allCenters.map((center) => [
+        center.id ||
+          `${center.name}|${center.phone}|${center.address}`,
+        center
+      ])
+    ).values()
+  );
+
+  uniqueCenters.sort((a, b) => {
+    const regionCompare =
+      REGIONS.findIndex(
+        (region) => region.code === a.regionCode
+      ) -
+      REGIONS.findIndex(
+        (region) => region.code === b.regionCode
+      );
+
+    if (regionCompare !== 0) {
+      return regionCompare;
+    }
+
+    return a.name.localeCompare(
+      b.name,
+      "ko-KR"
+    );
   });
 
+  const output = {
+    updatedAt: new Date().toISOString(),
+    source: PAGE_URL,
+    api: API_URL,
+    count: uniqueCenters.length,
+    centers: uniqueCenters
+  };
+
+  fs.mkdirSync(
+    path.dirname(OUTPUT_FILE),
+    {
+      recursive: true
+    }
+  );
+
   fs.writeFileSync(
-    OUTPUT_PATH,
+    OUTPUT_FILE,
     JSON.stringify(output, null, 2),
     "utf8"
   );
 
-  console.log(`${centers.length}개 행을 저장했습니다.`);
+  console.log(
+    `완료: 총 ${uniqueCenters.length}개 센터 저장`
+  );
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  console.error("센터정보 업데이트 실패");
+  console.error(
+    error.response?.data || error.message
+  );
   process.exit(1);
 });
