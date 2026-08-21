@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-08-20T17:34:27.239Z",
+  "updatedAt": "2026-08-21T17:33:38.271Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
   "count": 81,
@@ -109,11 +109,11 @@
       "region": "서울",
       "phone": "02-851-3858",
       "fax": "02-851-3858",
-      "address1": "서울 구로구 구로중앙로14길 61 (구로동)",
-      "address2": "3층",
-      "address": "서울 구로구 구로중앙로14길 61 (구로동) 3층",
-      "latitude": "37.4948152",
-      "longitude": "126.8935873",
+      "address1": "서울 구로구 도림천로 344 (구로동, 대림2차우성아파트)",
+      "address2": "정현웨딩홀 지하 1층 110호",
+      "address": "서울 구로구 도림천로 344 (구로동, 대림2차우성아파트) 정현웨딩홀 지하 1층 110호",
+      "latitude": "37.4941",
+      "longitude": "126.8939",
       "isCenter": false
     },
     {
