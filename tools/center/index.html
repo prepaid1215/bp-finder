@@ -33,6 +33,10 @@
         #map-container { width: 100%; height: 330px; margin-top: 20px; border-radius: 16px; display: none; border: 1px solid var(--border); overflow: hidden; position: relative; }
         #map-actions { display: none; align-items: center; justify-content: space-between; gap: 8px; margin-top: 9px; }
         .map-link-btn { border: 0; border-radius: 9px; background: #2563eb; color: #fff; padding: 9px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
+        .map-copy-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
+        .map-copy-btns button { min-height: 46px; padding: 11px 8px; border: 0; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; touch-action: manipulation; }
+        .naver-copy-btn { background: #03c75a; }
+        .kakao-copy-btn { background: #fee500; color: #191919 !important; }
         #boundary-status { color: var(--text-sub); font-size: 11px; text-align: right; line-height: 1.35; }
         #boundary-credit { display: none; margin-top: 6px; color: #64748b; font-size: 9px; line-height: 1.4; text-align: right; }
         .rank-marker-wrap { position: relative; width: 36px; height: 45px; cursor: pointer; }
@@ -261,6 +265,11 @@
                     <span id="v_bp_addr">주소</span>
                 </div>
             </div>
+        </div>
+
+        <div class="map-copy-btns" aria-label="지도 링크 복사">
+            <button type="button" class="naver-copy-btn" onclick="copyMapLink('naver')">N 네이버지도 복사</button>
+            <button type="button" class="kakao-copy-btn" onclick="copyMapLink('kakao')">K 카카오지도 복사</button>
         </div>
 
         <div class="modal-action-btns">
@@ -710,6 +719,40 @@ function openKakaoMap() {
     window.open(url, '_blank');
 }
 
+async function copyToClipboard(text) {
+    if (navigator.clipboard && window.isSecureContext) {
+        await navigator.clipboard.writeText(text);
+        return;
+    }
+    const textarea = document.createElement('textarea');
+    textarea.value = text;
+    textarea.setAttribute('readonly', '');
+    textarea.style.position = 'fixed';
+    textarea.style.left = '-9999px';
+    document.body.appendChild(textarea);
+    textarea.select();
+    const copied = document.execCommand('copy');
+    textarea.remove();
+    if (!copied) throw new Error('클립보드 복사 실패');
+}
+
+async function copyMapLink(provider) {
+    if (!currentBP) return alert('센터를 먼저 선택해 주세요.');
+    const name = currentBP.name;
+    const address = currentBP.addr;
+    const query = encodeURIComponent(name + ' ' + address);
+    const url = provider === 'naver'
+        ? 'https://map.naver.com/p/search/' + query
+        : 'https://map.kakao.com/link/map/' + encodeURIComponent(name) + ',' + currentBP.lat + ',' + currentBP.lng;
+    const service = provider === 'naver' ? '네이버지도' : '카카오지도';
+    try {
+        await copyToClipboard(name + '\n' + address + '\n' + url);
+        alert('✅ ' + service + ' 링크와 센터 주소를 복사했습니다.');
+    } catch (error) {
+        alert('복사하지 못했습니다. 다시 눌러 주세요.');
+    }
+}
+
 function sync() {
     ALL_INPUTS.forEach(id => {
         const el = document.getElementById(id);
@@ -838,9 +881,13 @@ function openFax(i) {
 }
 
 function notifyParentModal(open) {
-    if (window.parent !== window) window.parent.postMessage({ type: 'bp-finder:modal', open }, '*');
+    if (window.parent === window) return;
+    try {
+        const parentNav = window.parent.document.querySelector('.nav');
+        if (parentNav) parentNav.classList.toggle('modal-hidden', Boolean(open));
+    } catch (error) {}
+    window.parent.postMessage({ type: 'bp-finder:modal', open }, '*');
 }
-
 function fitPreview(wrapperId, contentId, naturalWidth) {
     const wrapper = document.getElementById(wrapperId);
     const content = document.getElementById(contentId);

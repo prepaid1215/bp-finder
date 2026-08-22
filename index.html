@@ -20,7 +20,10 @@
     .two{width:240px;height:240px;background:#9ce3cb;bottom:-130px;left:-110px}
     .app{width:100%;min-height:100dvh;position:relative;z-index:1;background:rgba(249,250,252,.95);padding:18px 18px calc(92px + env(safe-area-inset-bottom))}
     .nav{position:fixed;z-index:20;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 24px);max-width:616px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px;border:1px solid rgba(214,219,230,.8);border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 16px 42px rgba(22,32,59,.2);backdrop-filter:blur(20px)}
-    .nav.modal-hidden{display:none}
+    .nav.modal-hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
+    .pull-refresh{position:fixed;z-index:60;top:max(10px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-18px);opacity:0;pointer-events:none;padding:8px 14px;border-radius:999px;background:rgba(17,24,39,.9);color:#fff;font-size:12px;font-weight:800;box-shadow:0 8px 24px rgba(17,24,39,.25);transition:opacity .18s ease,transform .18s ease}
+    .pull-refresh.show{opacity:1;transform:translate(-50%,0)}
+    .pull-refresh.ready{background:#2563eb}
     .nav button{min-height:57px;border:0;border-radius:15px;background:transparent;color:#8790a2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:750}
     .nav button i{font-style:normal;font-size:20px;line-height:1}
     .nav button.active{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 7px 16px rgba(49,87,213,.3)}
@@ -38,6 +41,7 @@
   </style>
 </head>
 <body>
+  <div class="pull-refresh" id="pullRefresh" role="status" aria-live="polite">↓ 당겨서 새로고침</div>
   <main class="site-bg">
     <div class="ambient one"></div><div class="ambient two"></div>
     <section class="app">
@@ -50,7 +54,7 @@
     </section>
   </main>
   <script>
-    const VERSION="20260822-5";
+    const VERSION="20260822-6";
     const TOOLS={
       center:{title:"가까운 센터 찾기",eyebrow:"BP FINDER",description:"지역을 입력하면 가까운 공식 센터를 거리순으로 보여드려요.",src:"./tools/center/index.html"},
       esim:{title:"eSIM 모델명 만들기",eyebrow:"DEVICE TOOL",description:"기종과 용량을 선택해 앤텔레콤 입력용 모델명을 완성하세요.",src:"./tools/esim/index.html"},
@@ -59,6 +63,9 @@
     const frame=document.getElementById("toolFrame");
     const nav=document.querySelector(".nav");
     const buttons=[...document.querySelectorAll("[data-tool]")];
+    const pullRefresh=document.getElementById("pullRefresh");
+    let modalObserver;
+    let removePullHandlers=()=>{};
     let current="";
     function renderTool(name){
       if(!TOOLS[name])name="center";
@@ -71,6 +78,69 @@
     window.addEventListener("message",event=>{
       if(event.source!==frame.contentWindow||event.data?.type!=="bp-finder:modal")return;
       nav.classList.toggle("modal-hidden",Boolean(event.data.open));
+    });
+    function resetPullIndicator(){
+      pullRefresh.classList.remove("show","ready");
+      pullRefresh.textContent="↓ 당겨서 새로고침";
+    }
+    function refreshCurrentTool(){
+      const name=current||"center";
+      pullRefresh.classList.add("show","ready");
+      pullRefresh.textContent="새로고침 중…";
+      frame.src=TOOLS[name].src+"?v="+VERSION+"&refresh="+Date.now();
+    }
+    function bindPullRefresh(){
+      removePullHandlers();
+      const doc=frame.contentDocument;
+      if(!doc)return;
+      let startY=null;
+      let ready=false;
+      const modalOpen=()=>doc.getElementById("faxModal")?.classList.contains("open");
+      const atTop=()=>Math.max(doc.scrollingElement?.scrollTop||0,doc.documentElement?.scrollTop||0,doc.body?.scrollTop||0)<=0;
+      const onStart=event=>{
+        if(event.touches.length!==1||modalOpen()||!atTop()){startY=null;return}
+        startY=event.touches[0].clientY;
+        ready=false;
+      };
+      const onMove=event=>{
+        if(startY===null||!event.touches.length)return;
+        const distance=event.touches[0].clientY-startY;
+        if(distance<=12){resetPullIndicator();return}
+        pullRefresh.classList.add("show");
+        ready=distance>=72;
+        pullRefresh.classList.toggle("ready",ready);
+        pullRefresh.textContent=ready?"놓으면 새로고침":"↓ 당겨서 새로고침";
+      };
+      const onEnd=()=>{
+        const shouldRefresh=ready;
+        startY=null;
+        ready=false;
+        if(shouldRefresh)refreshCurrentTool();else resetPullIndicator();
+      };
+      doc.addEventListener("touchstart",onStart,{passive:true});
+      doc.addEventListener("touchmove",onMove,{passive:true});
+      doc.addEventListener("touchend",onEnd,{passive:true});
+      doc.addEventListener("touchcancel",onEnd,{passive:true});
+      removePullHandlers=()=>{
+        doc.removeEventListener("touchstart",onStart);
+        doc.removeEventListener("touchmove",onMove);
+        doc.removeEventListener("touchend",onEnd);
+        doc.removeEventListener("touchcancel",onEnd);
+      };
+    }
+    frame.addEventListener("load",()=>{
+      modalObserver?.disconnect();
+      nav.classList.remove("modal-hidden");
+      resetPullIndicator();
+      bindPullRefresh();
+      try{
+        const modal=frame.contentDocument?.getElementById("faxModal");
+        if(!modal)return;
+        const syncModal=()=>nav.classList.toggle("modal-hidden",modal.classList.contains("open"));
+        modalObserver=new MutationObserver(syncModal);
+        modalObserver.observe(modal,{attributes:true,attributeFilter:["class"]});
+        syncModal();
+      }catch(error){}
     });
     window.addEventListener("hashchange",()=>renderTool(location.hash.slice(1)));
     renderTool(location.hash.slice(1)||"center");
