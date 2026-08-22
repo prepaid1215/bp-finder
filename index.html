@@ -20,6 +20,7 @@
     .two{width:240px;height:240px;background:#9ce3cb;bottom:-130px;left:-110px}
     .app{width:100%;min-height:100dvh;position:relative;z-index:1;background:rgba(249,250,252,.95);padding:18px 18px calc(92px + env(safe-area-inset-bottom))}
     .nav{position:fixed;z-index:20;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 24px);max-width:616px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px;border:1px solid rgba(214,219,230,.8);border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 16px 42px rgba(22,32,59,.2);backdrop-filter:blur(20px)}
+    .nav.modal-hidden{display:none}
     .nav button{min-height:57px;border:0;border-radius:15px;background:transparent;color:#8790a2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:750}
     .nav button i{font-style:normal;font-size:20px;line-height:1}
     .nav button.active{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 7px 16px rgba(49,87,213,.3)}
@@ -49,22 +50,28 @@
     </section>
   </main>
   <script>
-    const VERSION="20260822-3";
+    const VERSION="20260822-4";
     const TOOLS={
       center:{title:"가까운 센터 찾기",eyebrow:"BP FINDER",description:"지역을 입력하면 가까운 공식 센터를 거리순으로 보여드려요.",src:"./tools/center/index.html"},
       esim:{title:"eSIM 모델명 만들기",eyebrow:"DEVICE TOOL",description:"기종과 용량을 선택해 앤텔레콤 입력용 모델명을 완성하세요.",src:"./tools/esim/index.html"},
       delivery:{title:"당일유심 배송조회",eyebrow:"USIM DELIVERY",description:"주소와 접수 시간을 기준으로 당일 배송 가능 여부를 확인하세요.",src:"./tools/delivery/index.html"}
     };
     const frame=document.getElementById("toolFrame");
+    const nav=document.querySelector(".nav");
     const buttons=[...document.querySelectorAll("[data-tool]")];
     let current="";
     function renderTool(name){
       if(!TOOLS[name])name="center";
+      nav.classList.remove("modal-hidden");
       const tool=TOOLS[name];
       buttons.forEach(button=>{const active=button.dataset.tool===name;button.classList.toggle("active",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current")});
       if(current!==name){frame.src=tool.src+"?v="+VERSION;frame.title=tool.title;current=name}
     }
     buttons.forEach(button=>button.addEventListener("click",()=>{location.hash=button.dataset.tool}));
+    window.addEventListener("message",event=>{
+      if(event.source!==frame.contentWindow||event.data?.type!=="bp-finder:modal")return;
+      nav.classList.toggle("modal-hidden",Boolean(event.data.open));
+    });
     window.addEventListener("hashchange",()=>renderTool(location.hash.slice(1)));
     renderTool(location.hash.slice(1)||"center");
   </script>
