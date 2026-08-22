@@ -33,10 +33,6 @@
         #map-container { width: 100%; height: 330px; margin-top: 20px; border-radius: 16px; display: none; border: 1px solid var(--border); overflow: hidden; position: relative; }
         #map-actions { display: none; align-items: center; justify-content: space-between; gap: 8px; margin-top: 9px; }
         .map-link-btn { border: 0; border-radius: 9px; background: #2563eb; color: #fff; padding: 9px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
-        .map-copy-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 12px; }
-        .map-copy-btns button { min-height: 46px; padding: 11px 8px; border: 0; border-radius: 10px; color: #fff; font-size: 13px; font-weight: 800; cursor: pointer; touch-action: manipulation; }
-        .naver-copy-btn { background: #03c75a; }
-        .kakao-copy-btn { background: #fee500; color: #191919 !important; }
         #boundary-status { color: var(--text-sub); font-size: 11px; text-align: right; line-height: 1.35; }
         #boundary-credit { display: none; margin-top: 6px; color: #64748b; font-size: 9px; line-height: 1.4; text-align: right; }
         .rank-marker-wrap { position: relative; width: 36px; height: 45px; cursor: pointer; }
@@ -275,18 +271,13 @@
             </div>
         </div>
 
-        <div class="map-copy-btns" aria-label="지도 링크 복사">
-            <button type="button" class="naver-copy-btn" onclick="copyMapLink('naver')">N 네이버지도 복사</button>
-            <button type="button" class="kakao-copy-btn" onclick="copyMapLink('kakao')">K 카카오지도 복사</button>
-        </div>
-
         <div class="modal-action-btns">
             <button class="save-btn" onclick="saveImage()">📄 서류 이미지 저장</button>
             <button class="map-save-btn" onclick="saveMapImage()">🗺️ 센터지도 이미지 저장</button>
             <div class="sms-map-choice" role="radiogroup" aria-label="예약문자에 포함할 지도 선택">
                 <span>지도 선택</span>
-                <label><input type="radio" name="sms_map_provider" value="naver" checked> 네이버</label>
-                <label><input type="radio" name="sms_map_provider" value="kakao"> 카카오</label>
+                <label><input type="radio" name="sms_map_provider" value="naver" checked> 네이버 지도</label>
+                <label><input type="radio" name="sms_map_provider" value="kakao"> 카카오 지도</label>
             </div>
             <button type="button" class="sms-btn" onclick="copySMS(true)">💬 예약문자 복사<span>선택 지도 포함</span></button>
             <button type="button" class="sms-btn no-map" onclick="copySMS(false)">💬 예약문자 복사<span>지도 미포함</span></button>
