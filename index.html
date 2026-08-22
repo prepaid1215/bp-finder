@@ -19,30 +19,20 @@
     .one{width:270px;height:270px;background:#a5b9ff;top:-120px;right:-120px}
     .two{width:240px;height:240px;background:#9ce3cb;bottom:-130px;left:-110px}
     .app{width:100%;min-height:100dvh;position:relative;z-index:1;background:rgba(249,250,252,.95);padding:18px 18px calc(92px + env(safe-area-inset-bottom))}
-    .header{height:52px;display:flex;align-items:center;gap:11px}
-    .logo{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;color:#fff;font-size:20px;font-weight:900;font-style:italic;background:linear-gradient(145deg,#496fee,#253fa8);box-shadow:0 7px 18px rgba(49,87,213,.26)}
-    .brand{display:flex;flex-direction:column;line-height:1.05}
-    .brand strong{font-size:15px;letter-spacing:-.3px}.brand strong span{color:var(--blue)}
-    .brand small{color:var(--muted);font-size:10px;margin-top:5px}
-    .private{margin-left:auto;color:var(--blue);background:var(--soft);border:1px solid #d9e0ff;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800}
-    .heading{padding:22px 2px 14px}
-    .heading span{display:block;color:var(--blue);font-size:9px;font-weight:900;letter-spacing:1.5px;margin-bottom:6px}
-    .heading h1{margin:0;font-size:24px;letter-spacing:-1px;line-height:1.2}
-    .heading p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.45;word-break:keep-all}
     .nav{position:fixed;z-index:20;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 24px);max-width:616px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px;border:1px solid rgba(214,219,230,.8);border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 16px 42px rgba(22,32,59,.2);backdrop-filter:blur(20px)}
     .nav button{min-height:57px;border:0;border-radius:15px;background:transparent;color:#8790a2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:750}
     .nav button i{font-style:normal;font-size:20px;line-height:1}
     .nav button.active{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 7px 16px rgba(49,87,213,.3)}
-    .frame{height:calc(100dvh - 176px);min-height:520px;margin:0 -18px;overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
+    .frame{height:100dvh;min-height:520px;margin:-18px -18px 0;overflow:hidden;border:0;background:#fff}
     iframe{display:block;width:100%;height:100%;border:0;background:#fff}
     .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:12px;pointer-events:none}
     @media(min-width:680px){
       .site-bg{padding:28px 0}.app{width:640px;min-height:calc(100dvh - 56px);margin:0 auto;padding:24px 30px 38px;border:1px solid rgba(255,255,255,.8);border-radius:30px;box-shadow:0 24px 70px rgba(34,44,74,.15)}
       .nav{position:sticky;top:14px;bottom:auto;transform:none;width:100%;max-width:none;margin-top:20px;background:rgba(241,243,247,.92);box-shadow:0 7px 20px rgba(22,32,59,.07)}
       .nav button{min-height:52px;flex-direction:row;font-size:11px;gap:7px}.nav button i{font-size:17px}
-      .heading{padding-top:27px}.frame{height:760px;min-height:640px;margin:0;border:1px solid var(--line);border-radius:22px;box-shadow:0 8px 24px rgba(33,43,74,.06)}
+      .frame{height:760px;min-height:640px;margin:20px 0 0;border:1px solid var(--line);border-radius:22px;box-shadow:0 8px 24px rgba(33,43,74,.06)}
     }
-    @media(max-width:370px){.app{padding-left:13px;padding-right:13px}.brand small{display:none}.frame{margin-left:-13px;margin-right:-13px}}
+    @media(max-width:370px){.app{padding-left:13px;padding-right:13px}.frame{margin-left:-13px;margin-right:-13px}}
     @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.01ms!important}}
   </style>
 </head>
@@ -50,22 +40,16 @@
   <main class="site-bg">
     <div class="ambient one"></div><div class="ambient two"></div>
     <section class="app">
-      <header class="header">
-        <div class="logo" aria-hidden="true">B</div>
-        <div class="brand"><strong>BP FINDER<span>+</span></strong><small>앤텔레콤 모바일 업무 도구</small></div>
-        <span class="private">검색 비노출</span>
-      </header>
       <nav class="nav" aria-label="업무 도구 선택">
         <button type="button" data-tool="center"><i aria-hidden="true">⌖</i>센터 찾기</button>
         <button type="button" data-tool="esim"><i aria-hidden="true">▣</i>eSIM 모델명</button>
         <button type="button" data-tool="delivery"><i aria-hidden="true">▤</i>당일유심</button>
       </nav>
-      <div class="heading"><span id="eyebrow"></span><h1 id="toolTitle"></h1><p id="toolDescription"></p></div>
       <div class="frame"><iframe id="toolFrame" title="BP FINDER 센터 찾기" allow="geolocation; clipboard-read; clipboard-write"></iframe></div>
     </section>
   </main>
   <script>
-    const VERSION="20260822-1";
+    const VERSION="20260822-2";
     const TOOLS={
       center:{title:"가까운 센터 찾기",eyebrow:"BP FINDER",description:"지역을 입력하면 가까운 공식 센터를 거리순으로 보여드려요.",src:"./tools/center/index.html"},
       esim:{title:"eSIM 모델명 만들기",eyebrow:"DEVICE TOOL",description:"기종과 용량을 선택해 앤텔레콤 입력용 모델명을 완성하세요.",src:"./tools/esim/index.html"},
@@ -78,9 +62,6 @@
       if(!TOOLS[name])name="center";
       const tool=TOOLS[name];
       buttons.forEach(button=>{const active=button.dataset.tool===name;button.classList.toggle("active",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current")});
-      document.getElementById("eyebrow").textContent=tool.eyebrow;
-      document.getElementById("toolTitle").textContent=tool.title;
-      document.getElementById("toolDescription").textContent=tool.description;
       if(current!==name){frame.src=tool.src+"?v="+VERSION;frame.title=tool.title;current=name}
     }
     buttons.forEach(button=>button.addEventListener("click",()=>{location.hash=button.dataset.tool}));

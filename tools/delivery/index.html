@@ -132,12 +132,43 @@
     .search-card {
       position: relative;
       z-index: 3;
-      margin-top: 18px;
+      margin-top: 0;
       padding: 22px;
       border: 1px solid rgba(16,35,63,.08);
       border-radius: 24px;
       background: var(--card);
       box-shadow: var(--shadow);
+    }
+
+    .compact-head {
+      margin-bottom: 18px;
+      padding-bottom: 16px;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .compact-head h1 {
+      margin: 0;
+      color: var(--navy);
+      font-size: 21px;
+      line-height: 1.35;
+      letter-spacing: -.6px;
+    }
+
+    .compact-head p {
+      margin: 4px 0 0;
+      color: var(--sub);
+      font-size: 12px;
+    }
+
+    .compact-promo {
+      display: inline-flex;
+      margin-top: 10px;
+      padding: 5px 9px;
+      border-radius: 999px;
+      color: var(--pink-dark);
+      background: #fff0f7;
+      font-size: 11px;
+      font-weight: 800;
     }
 
     /* 프로모션 카드가 없을 때만 히어로와 검색창을 겹쳐 표시 */
@@ -256,7 +287,7 @@
 
     .result-card {
       display: none;
-      margin-top: 18px;
+      margin-top: 18;
       padding: 22px;
       border: 1px solid var(--line);
       border-radius: 22px;
@@ -596,7 +627,6 @@
 
     @media (max-width: 540px) {
       .page { width: min(100% - 18px, 720px); padding-top: 12px; }
-      .hero { border-radius: 22px; padding: 24px 20px 31px; }
       .search-card, .section, .result-card, .promo-card { border-radius: 19px; padding: 18px; }
       .input-row { grid-template-columns: 1fr; }
       .search-btn { min-height: 48px; }
@@ -606,31 +636,17 @@
       .timeline-row { grid-template-columns: 92px 1fr; }
       .tracking-wrap { align-items: stretch; flex-direction: column; }
       .tracking-btn { text-align: center; }
-      .hero-promo { width: 100%; }
     }
   </style>
 </head>
 <body>
   <main class="page">
-    <section class="hero">
-      <div class="brand" id="brandName">59만모바일 당일유심</div>
-      <div class="hero-promo">8월 프로모션 <strong>USIM 5,500원 무료</strong></div>
-      <h1>당일유심 배송<br>가능지역 조회</h1>
-      <p>주소를 입력하면 배송 권역과 개통완료 마감시간을 기준으로 당일 배송 가능 여부를 확인합니다.</p>
-    </section>
-
-    <section class="promo-card" aria-label="2026년 8월 USIM 비용 지원 이벤트">
-      <span class="promo-badge">2026년 8월 이벤트</span>
-      <h2>8월 당일배송 개통 시<br>USIM 비용 5,500원 무료</h2>
-      <p>N플랫폼 당일 배송으로 010 신규 또는 MNP 번호이동을 개통하면 USIM 결제 금액을 무료로 지원합니다.</p>
-      <div class="promo-price"><del>5,500원</del><strong>무료</strong><span>배송비 3,700원 별도</span></div>
-      <div class="promo-meta">
-        <div><b>이벤트 기간</b>2026.08.01 ~ 2026.08.31</div>
-        <div><b>지원 대상</b>당일배송 010 신규·MNP 번호이동</div>
-      </div>
-    </section>
-
     <section class="search-card">
+      <div class="compact-head">
+        <h1>당일유심 배송 가능지역 조회</h1>
+        <p>주소와 개통완료 시간을 기준으로 배송 가능 여부를 확인합니다.</p>
+        <span class="compact-promo">8월 프로모션 · USIM 5,500원 무료 · 배송비 별도</span>
+      </div>
       <div class="label">
         <span>배송받을 주소</span>
         <small>도로명·지번 모두 가능</small>
