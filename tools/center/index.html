@@ -108,8 +108,13 @@
         .modal-action-btns { position: sticky; bottom: 0; z-index: 30; display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; padding: 12px 0 calc(12px + env(safe-area-inset-bottom)); border-top: 1px solid var(--border); background: var(--card); }
         .save-btn { padding: 15px 8px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
         .map-save-btn { padding: 15px 8px; background: #2563eb; color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
-        .sms-btn { padding: 12px; background: #ea580c; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
-        .close-btn { padding: 12px; background: #444; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
+        .sms-map-choice { grid-column: 1 / -1; display: grid; grid-template-columns: auto 1fr 1fr; gap: 7px; align-items: center; padding: 8px 10px; border: 1px solid var(--border); border-radius: 10px; background: var(--bg); font-size: 12px; font-weight: 800; }
+        .sms-map-choice label { display: flex; align-items: center; justify-content: center; gap: 5px; min-height: 34px; padding: 6px 8px; border: 1px solid var(--border); border-radius: 8px; background: var(--card); cursor: pointer; }
+        .sms-map-choice input { accent-color: var(--accent); }
+        .sms-btn { padding: 12px; background: #ea580c; color: #fff; border: none; border-radius: 10px; cursor: pointer; font-weight: 800; }
+        .sms-btn span { display: block; margin-top: 3px; font-size: 11px; opacity: .9; }
+        .sms-btn.no-map { background: #64748b; }
+        .close-btn { grid-column: 1 / -1; padding: 12px; background: #444; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
   
         .toast-welcome { position: fixed; top: -80px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 15px 30px; border-radius: 30px; font-size: 14px; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 10000; cursor: pointer; transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
         .toast-welcome.show { top: 20px; }
@@ -275,7 +280,13 @@
         <div class="modal-action-btns">
             <button class="save-btn" onclick="saveImage()">📄 서류 이미지 저장</button>
             <button class="map-save-btn" onclick="saveMapImage()">🗺️ 센터지도 이미지 저장</button>
-            <button class="sms-btn" onclick="copySMS()">💬 소비자 예약문자 복사</button>
+            <div class="sms-map-choice" role="radiogroup" aria-label="예약문자에 포함할 지도 선택">
+                <span>지도 선택</span>
+                <label><input type="radio" name="sms_map_provider" value="naver" checked> 네이버</label>
+                <label><input type="radio" name="sms_map_provider" value="kakao"> 카카오</label>
+            </div>
+            <button type="button" class="sms-btn" onclick="copySMS(true)">💬 예약문자 복사<span>선택 지도 포함</span></button>
+            <button type="button" class="sms-btn no-map" onclick="copySMS(false)">💬 예약문자 복사<span>지도 미포함</span></button>
             <button class="close-btn" onclick="closeFax()">닫기</button>
         </div>
     </div>
@@ -736,23 +747,49 @@ async function copyToClipboard(text) {
     if (!copied) throw new Error('클립보드 복사 실패');
 }
 
+function getRoadSearchTerm(address) {
+    const cleaned = String(address || '')
+        .replace(/\([^)]*\)/g, ' ')
+        .replace(/[,，]/g, ' ')
+        .replace(/\s+/g, ' ')
+        .trim();
+    const roadMatch = cleaned.match(/([가-힣A-Za-z0-9·.-]+(?:대로|로|길)(?:\s*\d+번길)?)\s*(\d+(?:-\d+)?)/);
+    if (roadMatch) {
+        return (roadMatch[1] + ' ' + roadMatch[2]).replace(/\s+/g, ' ').trim();
+    }
+    return cleaned
+        .replace(/\s+\d+(?:층|호).*$/g, '')
+        .replace(/\s+/g, ' ')
+        .trim();
+}
+
+function getMapLinks(bp) {
+    const searchTerm = getRoadSearchTerm(bp.addr);
+    const query = encodeURIComponent(searchTerm);
+    return {
+        searchTerm: searchTerm,
+        naver: 'https://map.naver.com/p/search/' + query,
+        kakao: 'https://map.kakao.com/link/search/' + query
+    };
+}
+
+function getSelectedSmsMapProvider() {
+    const selected = document.querySelector('input[name="sms_map_provider"]:checked');
+    return selected ? selected.value : 'naver';
+}
+
 async function copyMapLink(provider) {
     if (!currentBP) return alert('센터를 먼저 선택해 주세요.');
-    const name = currentBP.name;
-    const address = currentBP.addr;
-    const query = encodeURIComponent(name + ' ' + address);
-    const url = provider === 'naver'
-        ? 'https://map.naver.com/p/search/' + query
-        : 'https://map.kakao.com/link/map/' + encodeURIComponent(name) + ',' + currentBP.lat + ',' + currentBP.lng;
+    const links = getMapLinks(currentBP);
+    const url = provider === 'naver' ? links.naver : links.kakao;
     const service = provider === 'naver' ? '네이버지도' : '카카오지도';
     try {
-        await copyToClipboard(name + '\n' + address + '\n' + url);
-        alert('✅ ' + service + ' 링크와 센터 주소를 복사했습니다.');
+        await copyToClipboard(url);
+        alert('✅ ' + service + ' 링크를 복사했습니다. (' + links.searchTerm + ')');
     } catch (error) {
         alert('복사하지 못했습니다. 다시 눌러 주세요.');
     }
 }
-
 function sync() {
     ALL_INPUTS.forEach(id => {
         const el = document.getElementById(id);
@@ -1047,7 +1084,7 @@ async function saveMapImage() {
     alert('✅ 고화질 센터지도 이미지 저장 완료');
 }
 
-async function copySMS() {
+async function copySMS(includeMap) {
     if (!currentBP) return alert('센터를 먼저 선택해 주세요.');
     const res = document.getElementById('v_res').innerText;
     const name = document.getElementById('in_name').value || "고객";
@@ -1070,10 +1107,7 @@ async function copySMS() {
         formattedRes = month + '월 ' + day + '일 (' + dayOfWeek + ') ' + isAM + ' ' + hour + '시';
     }
 
-    const mapQuery = encodeURIComponent(currentBP.name + ' ' + currentBP.addr);
-    const naverMapUrl = 'https://map.naver.com/p/search/' + mapQuery;
-    const kakaoMapUrl = 'https://map.kakao.com/link/map/' + encodeURIComponent(currentBP.name) + ',' + currentBP.lat + ',' + currentBP.lng;
-    const smsText = [
+    const smsLines = [
         '■앤텔레콤 지점방문 예약증',
         '',
         '방문일시 : ' + formattedRes,
@@ -1084,17 +1118,24 @@ async function copySMS() {
         '준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원',
         '개통지점 : ' + currentBP.name,
         '담당자 : ' + agentName + ' / ' + agentTel,
-        '주소 : ' + currentBP.addr,
-        '',
-        '네이버지도로 열기 : ' + naverMapUrl,
-        '카카오지도로 열기 : ' + kakaoMapUrl
-    ].join('\n');
+        '주소 : ' + currentBP.addr
+    ];
+
+    let selectedService = '';
+    if (includeMap) {
+        const provider = getSelectedSmsMapProvider();
+        const links = getMapLinks(currentBP);
+        selectedService = provider === 'naver' ? '네이버지도' : '카카오지도';
+        smsLines.push('', selectedService + '로 열기 : ' + links[provider]);
+    }
 
     try {
-        await copyToClipboard(smsText);
-        alert("✅ 지도 링크가 포함된 예약 문자를 복사했습니다.");
+        await copyToClipboard(smsLines.join('\n'));
+        alert(includeMap
+            ? '✅ ' + selectedService + ' 링크가 포함된 예약 문자를 복사했습니다.'
+            : '✅ 지도 링크 없는 예약 문자를 복사했습니다.');
     } catch (error) {
-        alert("예약 문자를 복사하지 못했습니다. 다시 눌러 주세요.");
+        alert('예약 문자를 복사하지 못했습니다. 다시 눌러 주세요.');
     }
 }
 let welcomeToastTimer;
