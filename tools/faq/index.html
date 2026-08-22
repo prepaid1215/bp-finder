@@ -1,0 +1,776 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<title>앤텔레콤 개통 실무 FAQ</title>
+<style>
+  :root{
+    --navy:#12244a;
+    --navy-2:#1c3568;
+    --blue:#2f6bff;
+    --blue-light:#e8f0ff;
+    --cream:#fbfaf7;
+    --line:#e6e6e0;
+    --ink:#1f2430;
+    --sub:#6b7280;
+    --amber:#f2a900;
+    --green:#1a9c5c;
+    --green-light:#e6f7ee;
+  }
+  *{box-sizing:border-box;}
+  body{
+    margin:0;
+    background:var(--cream);
+    color:var(--ink);
+    font-family:"Pretendard","Apple SD Gothic Neo","Malgun Gothic",sans-serif;
+    -webkit-font-smoothing:antialiased;
+  }
+  .wrap{max-width:920px;margin:0 auto;padding:28px 20px 80px;}
+
+  header{margin-bottom:22px;}
+  .top-row{display:flex;justify-content:space-between;align-items:flex-start;gap:12px;}
+  .badge{
+    display:inline-block;
+    font-size:12px;
+    font-weight:700;
+    color:var(--blue);
+    background:var(--blue-light);
+    padding:4px 10px;
+    border-radius:999px;
+    letter-spacing:.02em;
+    margin-bottom:10px;
+  }
+  h1{
+    font-size:26px;
+    font-weight:800;
+    color:var(--navy);
+    margin:0 0 6px;
+    letter-spacing:-0.02em;
+  }
+  .desc{color:var(--sub);font-size:14px;line-height:1.5;margin:0;}
+
+  .add-btn{
+    flex-shrink:0;
+    background:var(--navy);
+    color:#fff;
+    border:none;
+    border-radius:10px;
+    padding:11px 16px;
+    font-size:13.5px;
+    font-weight:700;
+    cursor:pointer;
+    display:flex;
+    align-items:center;
+    gap:6px;
+    white-space:nowrap;
+  }
+  .add-btn:hover{background:var(--navy-2);}
+
+  .searchbox{
+    margin-top:20px;
+    position:relative;
+  }
+  .searchbox input{
+    width:100%;
+    padding:15px 16px 15px 44px;
+    font-size:15px;
+    border:2px solid var(--navy);
+    border-radius:12px;
+    background:#fff;
+    outline:none;
+    font-family:inherit;
+  }
+  .searchbox input:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-light);}
+  .searchbox svg{
+    position:absolute;left:15px;top:50%;transform:translateY(-50%);
+    color:var(--sub);
+  }
+
+  .filters{
+    display:flex;
+    gap:8px;
+    flex-wrap:wrap;
+    margin-top:14px;
+  }
+  .filter-group{display:flex;flex-direction:column;gap:6px;flex:1;min-width:130px;}
+  .filter-group label{font-size:11px;font-weight:700;color:var(--sub);}
+  .filter-group select{
+    padding:9px 10px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    background:#fff;
+    font-size:13px;
+    font-family:inherit;
+    color:var(--ink);
+  }
+
+  .meta-row{
+    display:flex;
+    justify-content:space-between;
+    align-items:center;
+    margin-top:18px;
+    margin-bottom:10px;
+  }
+  .count{font-size:13px;color:var(--sub);}
+  .count b{color:var(--navy);}
+  .reset-btn{
+    font-size:12px;
+    color:var(--blue);
+    background:none;
+    border:none;
+    cursor:pointer;
+    font-weight:600;
+    padding:4px 8px;
+  }
+  .reset-btn:hover{text-decoration:underline;}
+
+  .list{display:flex;flex-direction:column;gap:10px;}
+  .card{
+    background:#fff;
+    border:1px solid var(--line);
+    border-radius:12px;
+    overflow:hidden;
+    transition:border-color .15s;
+  }
+  .card:hover{border-color:var(--blue);}
+  .card-head{
+    padding:14px 16px;
+    cursor:pointer;
+    display:flex;
+    justify-content:space-between;
+    align-items:flex-start;
+    gap:12px;
+  }
+  .tags{display:flex;gap:5px;flex-wrap:wrap;margin-bottom:6px;}
+  .tag{
+    font-size:10.5px;
+    font-weight:700;
+    padding:2px 8px;
+    border-radius:999px;
+  }
+  .tag.center{background:#f0f0f0;color:#555;}
+  .tag.cat{background:var(--blue-light);color:var(--blue);}
+  .tag.sub{background:#fff4de;color:#9a6b00;}
+  .q{font-size:14.5px;font-weight:700;color:var(--navy);line-height:1.45;margin:0;}
+  .chev{
+    flex-shrink:0;
+    color:var(--sub);
+    transition:transform .15s;
+    margin-top:2px;
+  }
+  .card.open .chev{transform:rotate(180deg);}
+  .card-body{
+    max-height:0;
+    overflow:hidden;
+    transition:max-height .2s ease;
+  }
+  .card.open .card-body{max-height:800px;}
+  .a{
+    padding:0 16px 16px;
+    font-size:13.5px;
+    line-height:1.7;
+    color:#333;
+    white-space:pre-line;
+    border-top:1px solid var(--line);
+    margin-top:2px;
+    padding-top:12px;
+  }
+  .a-actions{
+    padding:0 16px 14px;
+  }
+  .edit-link{
+    font-size:12px;
+    color:var(--blue);
+    background:none;
+    border:none;
+    cursor:pointer;
+    font-weight:600;
+    padding:0;
+  }
+  .edit-link:hover{text-decoration:underline;}
+
+  .empty{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--sub);
+  }
+  .empty svg{margin-bottom:12px;opacity:.4;}
+  .loading{
+    text-align:center;
+    padding:60px 20px;
+    color:var(--sub);
+    font-size:14px;
+  }
+
+  footer{
+    margin-top:34px;
+    text-align:center;
+    font-size:12px;
+    color:var(--sub);
+    line-height:1.6;
+  }
+
+  /* 모달 */
+  .modal-overlay{
+    display:none;
+    position:fixed;
+    inset:0;
+    background:rgba(18,36,74,0.45);
+    z-index:100;
+    align-items:flex-start;
+    justify-content:center;
+    padding:24px 16px;
+    overflow-y:auto;
+  }
+  .modal-overlay.open{display:flex;}
+  .modal{
+    background:#fff;
+    border-radius:16px;
+    max-width:520px;
+    width:100%;
+    padding:24px;
+    margin-top:20px;
+  }
+  .modal h2{
+    font-size:18px;
+    font-weight:800;
+    color:var(--navy);
+    margin:0 0 4px;
+  }
+  .modal .modal-desc{
+    font-size:13px;
+    color:var(--sub);
+    margin:0 0 18px;
+    line-height:1.5;
+  }
+  .type-toggle{
+    display:flex;
+    gap:8px;
+    margin-bottom:18px;
+  }
+  .type-toggle button{
+    flex:1;
+    padding:10px;
+    border-radius:10px;
+    border:2px solid var(--line);
+    background:#fff;
+    font-size:13px;
+    font-weight:700;
+    color:var(--sub);
+    cursor:pointer;
+    font-family:inherit;
+  }
+  .type-toggle button.active{
+    border-color:var(--navy);
+    color:var(--navy);
+    background:var(--blue-light);
+  }
+  .field{margin-bottom:14px;}
+  .field label{
+    display:block;
+    font-size:12.5px;
+    font-weight:700;
+    color:var(--navy);
+    margin-bottom:6px;
+  }
+  .field input[type=text],
+  .field select,
+  .field textarea{
+    width:100%;
+    padding:10px 12px;
+    border-radius:8px;
+    border:1px solid var(--line);
+    font-size:13.5px;
+    font-family:inherit;
+    color:var(--ink);
+    outline:none;
+  }
+  .field input[type=text]:focus,
+  .field select:focus,
+  .field textarea:focus{border-color:var(--blue);box-shadow:0 0 0 3px var(--blue-light);}
+  .field textarea{resize:vertical;min-height:70px;line-height:1.5;}
+  .field-row{display:flex;gap:8px;}
+  .field-row .field{flex:1;}
+  .original-picker{
+    max-height:160px;
+    overflow-y:auto;
+    border:1px solid var(--line);
+    border-radius:8px;
+    margin-top:6px;
+  }
+  .original-picker .op-item{
+    padding:8px 10px;
+    font-size:12.5px;
+    border-bottom:1px solid var(--line);
+    cursor:pointer;
+  }
+  .original-picker .op-item:last-child{border-bottom:none;}
+  .original-picker .op-item:hover{background:var(--blue-light);}
+  .original-picker .op-item.picked{background:var(--green-light);}
+  .picked-label{
+    font-size:12px;
+    color:var(--green);
+    font-weight:700;
+    margin-top:6px;
+  }
+  .modal-actions{
+    display:flex;
+    gap:8px;
+    margin-top:20px;
+  }
+  .btn{
+    flex:1;
+    padding:12px;
+    border-radius:10px;
+    font-size:14px;
+    font-weight:700;
+    cursor:pointer;
+    border:none;
+    font-family:inherit;
+  }
+  .btn-cancel{background:#f0f0f0;color:var(--sub);}
+  .btn-submit{background:var(--navy);color:#fff;}
+  .btn-submit:disabled{opacity:.5;cursor:default;}
+  .modal-close{
+    position:absolute;
+    top:16px;right:16px;
+    background:none;border:none;cursor:pointer;color:var(--sub);
+  }
+  .modal{position:relative;}
+
+  .success-view{text-align:center;padding:30px 10px;}
+  .success-view svg{color:var(--green);margin-bottom:12px;}
+  .success-view h3{font-size:16px;color:var(--navy);margin:0 0 8px;}
+  .success-view p{font-size:13px;color:var(--sub);line-height:1.6;margin:0 0 18px;}
+
+  @media (max-width:520px){
+    .wrap{padding:20px 14px 128px;}
+    .top-row{flex-direction:column;align-items:stretch;}
+    .add-btn{width:100%;justify-content:center;}
+    .filters{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:6px;}
+    .filter-group{min-width:0;}
+    .filter-group select{width:100%;padding:9px 6px;font-size:12px;}
+    .modal-overlay{padding:12px;align-items:flex-start;}
+    .modal{margin-top:8px;padding:22px 16px 28px;max-height:calc(100dvh - 24px);}
+    .field-row{flex-direction:column;gap:0;}
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+  <header>
+    <div class="top-row">
+      <div>
+        <span class="badge">개통업무 FAQ</span>
+        <h1>개통업무 FAQ 검색</h1>
+        <p class="desc">개통전·개통중·개통후 실무 질문을 검색하거나 카테고리로 찾아보세요.</p>
+      </div>
+      <button class="add-btn" id="openAddBtn">
+        <svg width="15" height="15" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+        질문 등록
+      </button>
+    </div>
+
+    <div class="searchbox">
+      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+      <input type="text" id="searchInput" placeholder="질문, 답변, 키워드로 검색">
+    </div>
+
+    <div class="filters">
+      <div class="filter-group">
+        <label>대분류</label>
+        <select id="catFilter"><option value="">전체</option></select>
+      </div>
+      <div class="filter-group">
+        <label>중분류</label>
+        <select id="subFilter"><option value="">전체</option></select>
+      </div>
+      <div class="filter-group">
+        <label>센터</label>
+        <select id="centerFilter"><option value="">전체</option></select>
+      </div>
+    </div>
+  </header>
+
+  <div class="meta-row">
+    <div class="count"><b id="resultCount">0</b>건의 답변</div>
+    <button class="reset-btn" id="resetBtn">필터 초기화</button>
+  </div>
+
+  <div id="loadingState" class="loading">데이터 불러오는 중...</div>
+  <div class="list" id="list"></div>
+  <div class="empty" id="emptyState" style="display:none;">
+    <svg width="40" height="40" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5"><circle cx="11" cy="11" r="8"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+    <div>검색 결과가 없습니다. 다른 키워드로 시도하거나<br>새 질문을 등록해보세요.</div>
+  </div>
+
+  <footer>
+    비상그룹 앤텔레콤 업무 매뉴얼 기반 · 새로운 질문/수정요청은 우측 상단 버튼으로 등록해주세요<br>
+    등록된 내용은 담당 리더 검토 후 공개됩니다 · 본 도구는 참고용이며, 최신 정책은 앤텔레콤 멤버십/고객센터(1899-7700)를 통해 재확인하시기 바랍니다.
+  </footer>
+</div>
+
+<!-- 등록 모달 -->
+<div class="modal-overlay" id="modalOverlay">
+  <div class="modal">
+    <button class="modal-close" id="modalCloseBtn">
+      <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><line x1="18" y1="6" x2="6" y2="18"/><line x1="6" y1="6" x2="18" y2="18"/></svg>
+    </button>
+
+    <div id="formView">
+      <h2>질문 등록 / 수정요청</h2>
+      <p class="modal-desc">등록하신 내용은 검토 후 공개됩니다. 실무에 바로 필요한 답이 있다면 담당 센터에 먼저 문의해주세요.</p>
+
+      <div class="type-toggle">
+        <button type="button" class="type-btn active" data-type="신규">신규 질문 등록</button>
+        <button type="button" class="type-btn" data-type="수정요청">기존 답변 수정요청</button>
+      </div>
+
+      <div id="originalPickerWrap" style="display:none;">
+        <div class="field">
+          <label>수정할 기존 질문 선택</label>
+          <input type="text" id="originalSearch" placeholder="질문 키워드로 검색해서 선택">
+          <div class="original-picker" id="originalPicker"></div>
+          <div class="picked-label" id="pickedLabel" style="display:none;"></div>
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>작성 센터</label>
+          <select id="fCenter">
+            <option value="">선택</option>
+            <option>남양주</option><option>마포</option><option>부산</option>
+            <option>부천</option><option>제주</option><option>대구/포항</option>
+            <option>기타</option>
+          </select>
+        </div>
+        <div class="field">
+          <label>제출자 이름</label>
+          <input type="text" id="fSubmitter" placeholder="예: 홍길동">
+        </div>
+      </div>
+
+      <div class="field-row">
+        <div class="field">
+          <label>대분류</label>
+          <input type="text" id="fCat" placeholder="예: 개통전">
+        </div>
+        <div class="field">
+          <label>중분류</label>
+          <input type="text" id="fSub" placeholder="예: 유심구매">
+        </div>
+      </div>
+
+      <div class="field">
+        <label>소분류 (선택)</label>
+        <input type="text" id="fDetail" placeholder="세부 상황이 있다면 입력">
+      </div>
+
+      <div class="field">
+        <label>질문</label>
+        <textarea id="fQ" placeholder="질문 내용을 입력하세요"></textarea>
+      </div>
+
+      <div class="field">
+        <label>답변</label>
+        <textarea id="fA" placeholder="답변 내용을 입력하세요" style="min-height:110px;"></textarea>
+      </div>
+
+      <div class="modal-actions">
+        <button class="btn btn-cancel" id="cancelBtn">취소</button>
+        <button class="btn btn-submit" id="submitBtn">제출하기</button>
+      </div>
+    </div>
+
+    <div id="successView" class="success-view" style="display:none;">
+      <svg width="44" height="44" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="10"/><polyline points="8 12 11 15 16 9"/></svg>
+      <h3>제출 완료</h3>
+      <p>담당 리더 검토 후 승인되면 검색 결과에 노출됩니다.<br>검토까지 시간이 걸릴 수 있어요.</p>
+      <button class="btn btn-submit" id="closeSuccessBtn" style="flex:none;padding:10px 24px;">닫기</button>
+    </div>
+  </div>
+</div>
+
+<script>
+// ---- 설정 ----
+const APPS_SCRIPT_URL = 'https://script.google.com/macros/s/AKfycbyp6fRUrBLcpSoLUEETxMiEsj-5gFBioMFKVslqeySMs4M1fpqSlGy4EcI0n6UbOufhYg/exec';
+
+let DATA = [];
+
+// ---- DOM ----
+const listEl = document.getElementById('list');
+const emptyEl = document.getElementById('emptyState');
+const loadingEl = document.getElementById('loadingState');
+const countEl = document.getElementById('resultCount');
+const searchInput = document.getElementById('searchInput');
+const catFilter = document.getElementById('catFilter');
+const subFilter = document.getElementById('subFilter');
+const centerFilter = document.getElementById('centerFilter');
+const resetBtn = document.getElementById('resetBtn');
+
+function uniq(arr){ return [...new Set(arr)].filter(Boolean).sort(); }
+
+function fillSelect(sel, values){
+  const cur = sel.value;
+  sel.innerHTML = '<option value="">전체</option>';
+  values.forEach(v=>{
+    const opt = document.createElement('option');
+    opt.value = v; opt.textContent = v;
+    sel.appendChild(opt);
+  });
+  if(values.includes(cur)) sel.value = cur;
+}
+
+function updateFilterOptions(){
+  fillSelect(catFilter, uniq(DATA.map(d=>d.cat)));
+  const cat = catFilter.value;
+  const pool = cat ? DATA.filter(d=>d.cat===cat) : DATA;
+  fillSelect(subFilter, uniq(pool.map(d=>d.sub)));
+  fillSelect(centerFilter, uniq(DATA.map(d=>d.center)));
+}
+
+function render(){
+  const q = searchInput.value.trim().toLowerCase();
+  const cat = catFilter.value;
+  const sub = subFilter.value;
+  const center = centerFilter.value;
+
+  const filtered = DATA.filter(d=>{
+    if(cat && d.cat!==cat) return false;
+    if(sub && d.sub!==sub) return false;
+    if(center && d.center!==center) return false;
+    if(q){
+      const hay = (d.q+' '+d.a+' '+(d.detail||'')+' '+d.cat+' '+d.sub).toLowerCase();
+      if(!hay.includes(q)) return false;
+    }
+    return true;
+  });
+
+  countEl.textContent = filtered.length;
+  listEl.innerHTML = '';
+
+  if(filtered.length===0){
+    emptyEl.style.display='block';
+    return;
+  }
+  emptyEl.style.display='none';
+
+  filtered.forEach((d)=>{
+    const card = document.createElement('div');
+    card.className='card';
+    card.innerHTML = `
+      <div class="card-head">
+        <div style="flex:1;">
+          <div class="tags">
+            <span class="tag center">${escapeHtml(d.center)}</span>
+            <span class="tag cat">${escapeHtml(d.cat)}</span>
+            ${d.sub?`<span class="tag sub">${escapeHtml(d.sub)}${d.detail?' · '+escapeHtml(d.detail):''}</span>`:''}
+          </div>
+          <p class="q">${escapeHtml(d.q)}</p>
+        </div>
+        <svg class="chev" width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><polyline points="6 9 12 15 18 9"/></svg>
+      </div>
+      <div class="card-body">
+        <div class="a">${escapeHtml(d.a)}</div>
+        <div class="a-actions">
+          <button class="edit-link" data-editid="${d.id}">이 답변 수정요청하기</button>
+        </div>
+      </div>
+    `;
+    card.querySelector('.card-head').addEventListener('click', ()=>{
+      card.classList.toggle('open');
+    });
+    card.querySelector('.edit-link').addEventListener('click', (ev)=>{
+      ev.stopPropagation();
+      openModal('수정요청', d);
+    });
+    listEl.appendChild(card);
+  });
+}
+
+function escapeHtml(str){
+  if(str===undefined||str===null) return '';
+  return String(str)
+    .replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;');
+}
+
+searchInput.addEventListener('input', render);
+catFilter.addEventListener('change', ()=>{ updateFilterOptions(); render(); });
+subFilter.addEventListener('change', render);
+centerFilter.addEventListener('change', render);
+resetBtn.addEventListener('click', ()=>{
+  searchInput.value='';
+  catFilter.value='';
+  centerFilter.value='';
+  updateFilterOptions();
+  subFilter.value='';
+  render();
+});
+
+// ---- 데이터 로드 ----
+function loadData(){
+  loadingEl.style.display='block';
+  fetch(APPS_SCRIPT_URL)
+    .then(res=>res.json())
+    .then(data=>{
+      DATA = data;
+      loadingEl.style.display='none';
+      updateFilterOptions();
+      render();
+    })
+    .catch(err=>{
+      loadingEl.textContent = '데이터를 불러오지 못했습니다. 새로고침 해주세요.';
+      console.error(err);
+    });
+}
+loadData();
+
+// ---- 등록/수정요청 모달 ----
+const modalOverlay = document.getElementById('modalOverlay');
+const openAddBtn = document.getElementById('openAddBtn');
+const modalCloseBtn = document.getElementById('modalCloseBtn');
+const cancelBtn = document.getElementById('cancelBtn');
+const formView = document.getElementById('formView');
+const successView = document.getElementById('successView');
+const closeSuccessBtn = document.getElementById('closeSuccessBtn');
+const typeBtns = document.querySelectorAll('.type-btn');
+const originalPickerWrap = document.getElementById('originalPickerWrap');
+const originalPicker = document.getElementById('originalPicker');
+const originalSearch = document.getElementById('originalSearch');
+const pickedLabel = document.getElementById('pickedLabel');
+const submitBtn = document.getElementById('submitBtn');
+
+const fCenter = document.getElementById('fCenter');
+const fSubmitter = document.getElementById('fSubmitter');
+const fCat = document.getElementById('fCat');
+const fSub = document.getElementById('fSub');
+const fDetail = document.getElementById('fDetail');
+const fQ = document.getElementById('fQ');
+const fA = document.getElementById('fA');
+
+let currentType = '신규';
+let pickedOriginal = null;
+
+function resetForm(){
+  fCenter.value=''; fSubmitter.value=''; fCat.value=''; fSub.value='';
+  fDetail.value=''; fQ.value=''; fA.value='';
+  pickedOriginal = null;
+  pickedLabel.style.display='none';
+  originalSearch.value='';
+  originalPicker.innerHTML='';
+  formView.style.display='block';
+  successView.style.display='none';
+  submitBtn.disabled=false;
+  submitBtn.textContent='제출하기';
+}
+
+function setType(type){
+  currentType = type;
+  typeBtns.forEach(b=>b.classList.toggle('active', b.dataset.type===type));
+  originalPickerWrap.style.display = type==='수정요청' ? 'block' : 'none';
+}
+
+function openModal(type, prefillOriginal){
+  resetForm();
+  setType(type || '신규');
+  if(prefillOriginal){
+    pickOriginal(prefillOriginal);
+  }
+  modalOverlay.classList.add('open');
+  window.parent.postMessage({type:'bp-finder:modal', open:true}, '*');
+}
+
+function closeModal(){
+  modalOverlay.classList.remove('open');
+  window.parent.postMessage({type:'bp-finder:modal', open:false}, '*');
+}
+
+openAddBtn.addEventListener('click', ()=> openModal('신규'));
+modalCloseBtn.addEventListener('click', closeModal);
+cancelBtn.addEventListener('click', closeModal);
+closeSuccessBtn.addEventListener('click', closeModal);
+modalOverlay.addEventListener('click', (e)=>{ if(e.target===modalOverlay) closeModal(); });
+
+typeBtns.forEach(btn=>{
+  btn.addEventListener('click', ()=> setType(btn.dataset.type));
+});
+
+function pickOriginal(d){
+  pickedOriginal = d;
+  pickedLabel.style.display='block';
+  pickedLabel.textContent = '선택됨: ' + d.q;
+  fCenter.value = d.center || '';
+  fCat.value = d.cat || '';
+  fSub.value = d.sub || '';
+  fDetail.value = d.detail || '';
+  fQ.value = d.q || '';
+  fA.value = d.a || '';
+}
+
+function renderOriginalPicker(){
+  const q = originalSearch.value.trim().toLowerCase();
+  const pool = q ? DATA.filter(d => (d.q+' '+d.a).toLowerCase().includes(q)) : DATA.slice(0,30);
+  originalPicker.innerHTML='';
+  pool.slice(0,30).forEach(d=>{
+    const item = document.createElement('div');
+    item.className = 'op-item' + (pickedOriginal && pickedOriginal.id===d.id ? ' picked' : '');
+    item.textContent = `[${d.center}] ${d.q}`;
+    item.addEventListener('click', ()=>{
+      pickOriginal(d);
+      renderOriginalPicker();
+    });
+    originalPicker.appendChild(item);
+  });
+}
+originalSearch.addEventListener('input', renderOriginalPicker);
+originalPickerWrap.addEventListener('click', (e)=>{
+  if(e.target===originalSearch && originalPicker.innerHTML==='') renderOriginalPicker();
+});
+document.getElementById('originalSearch').addEventListener('focus', renderOriginalPicker);
+
+submitBtn.addEventListener('click', ()=>{
+  if(!fQ.value.trim() || !fA.value.trim()){
+    alert('질문과 답변은 필수 입력입니다.');
+    return;
+  }
+  if(currentType==='수정요청' && !pickedOriginal){
+    alert('수정할 기존 항목을 선택해주세요.');
+    return;
+  }
+  submitBtn.disabled = true;
+  submitBtn.textContent = '제출 중...';
+
+  const payload = {
+    type: currentType,
+    center: fCenter.value,
+    cat: fCat.value,
+    sub: fSub.value,
+    detail: fDetail.value,
+    q: fQ.value.trim(),
+    a: fA.value.trim(),
+    submitter: fSubmitter.value.trim(),
+    originalId: pickedOriginal ? pickedOriginal.id : ''
+  };
+
+  fetch(APPS_SCRIPT_URL, {
+    method: 'POST',
+    mode: 'no-cors',
+    headers: {'Content-Type':'text/plain'},
+    body: JSON.stringify(payload)
+  }).then(()=>{
+    formView.style.display='none';
+    successView.style.display='block';
+  }).catch(err=>{
+    console.error(err);
+    submitBtn.disabled=false;
+    submitBtn.textContent='제출하기';
+    alert('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
+  });
+});
+</script>
+</body>
+</html>

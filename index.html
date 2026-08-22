@@ -19,7 +19,7 @@
     .one{width:270px;height:270px;background:#a5b9ff;top:-120px;right:-120px}
     .two{width:240px;height:240px;background:#9ce3cb;bottom:-130px;left:-110px}
     .app{width:100%;min-height:100dvh;position:relative;z-index:1;background:rgba(249,250,252,.95);padding:18px 18px calc(92px + env(safe-area-inset-bottom))}
-    .nav{position:fixed;z-index:20;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 24px);max-width:616px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px;border:1px solid rgba(214,219,230,.8);border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 16px 42px rgba(22,32,59,.2);backdrop-filter:blur(20px)}
+    .nav{position:fixed;z-index:20;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 24px);max-width:616px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px;border:1px solid rgba(214,219,230,.8);border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 16px 42px rgba(22,32,59,.2);backdrop-filter:blur(20px)}
     .nav.modal-hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
     .pull-refresh{position:fixed;z-index:60;top:max(10px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-18px);opacity:0;pointer-events:none;padding:8px 14px;border-radius:999px;background:rgba(17,24,39,.9);color:#fff;font-size:12px;font-weight:800;box-shadow:0 8px 24px rgba(17,24,39,.25);transition:opacity .18s ease,transform .18s ease}
     .pull-refresh.show{opacity:1;transform:translate(-50%,0)}
@@ -49,16 +49,18 @@
         <button type="button" data-tool="center"><i aria-hidden="true">⌖</i>센터 찾기</button>
         <button type="button" data-tool="esim"><i aria-hidden="true">▣</i>eSIM 모델명</button>
         <button type="button" data-tool="delivery"><i aria-hidden="true">▤</i>당일유심</button>
+        <button type="button" data-tool="faq"><i aria-hidden="true">?</i>개통 FAQ</button>
       </nav>
       <div class="frame"><iframe id="toolFrame" title="BP FINDER 센터 찾기" allow="geolocation; clipboard-read; clipboard-write"></iframe></div>
     </section>
   </main>
   <script>
-    const VERSION="20260822-17";
+    const VERSION="20260822-18";
     const TOOLS={
       center:{title:"가까운 센터 찾기",eyebrow:"BP FINDER",description:"지역을 입력하면 가까운 공식 센터를 거리순으로 보여드려요.",src:"./tools/center/index.html"},
       esim:{title:"eSIM 모델명 만들기",eyebrow:"DEVICE TOOL",description:"기종과 용량을 선택해 앤텔레콤 입력용 모델명을 완성하세요.",src:"./tools/esim/index.html"},
-      delivery:{title:"당일유심 배송조회",eyebrow:"USIM DELIVERY",description:"주소와 접수 시간을 기준으로 당일 배송 가능 여부를 확인하세요.",src:"./tools/delivery/index.html"}
+      delivery:{title:"당일유심 배송조회",eyebrow:"USIM DELIVERY",description:"주소와 접수 시간을 기준으로 당일 배송 가능 여부를 확인하세요.",src:"./tools/delivery/index.html"},
+      faq:{title:"개통업무 FAQ 검색",eyebrow:"OPENING FAQ",description:"개통 실무 질문과 답변을 검색하거나 등록하세요.",src:"./tools/faq/index.html"}
     };
     const frame=document.getElementById("toolFrame");
     const nav=document.querySelector(".nav");
