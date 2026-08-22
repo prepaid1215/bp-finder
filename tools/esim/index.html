@@ -1,0 +1,1136 @@
+<!doctype html>
+<html lang="ko">
+<head>
+<meta charset="utf-8">
+<meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta http-equiv="Cache-Control" content="no-cache,no-store,must-revalidate">
+<meta http-equiv="Pragma" content="no-cache">
+<meta http-equiv="Expires" content="0">
+
+<title>eSIM 단말모델명 생성기</title>
+
+<style>
+:root{
+  --bg:#edf4fb;
+  --card:#fff;
+  --text:#243447;
+  --muted:#6b7f93;
+  --line:#d7e4f0;
+  --accent:#4f8fcf;
+  --accent2:#356da8;
+  --soft:#f7fbff;
+}
+*{box-sizing:border-box;-webkit-tap-highlight-color:transparent}
+html,body{
+  margin:0;
+  background:var(--bg);
+  color:var(--text);
+  font-family:-apple-system,BlinkMacSystemFont,"Segoe UI","Noto Sans KR",Arial,sans-serif;
+}
+body{padding-bottom:40px}
+button,input{font:inherit}
+button{cursor:pointer;touch-action:manipulation}
+.wrap{max-width:520px;margin:0 auto;padding:0 14px}
+
+.header{padding:calc(env(safe-area-inset-top) + 16px) 0 10px}
+h1{margin:0;font-size:23px;font-weight:900}
+.sub{margin:7px 0 0;color:var(--muted);font-size:13px;line-height:1.5}
+.version{margin-top:6px;color:#8aa0b5;font-size:11px}
+
+.tabs{
+  display:grid;
+  grid-template-columns:1fr 1fr 1fr;
+  gap:8px;
+  margin-top:15px;
+}
+.tab{
+  min-height:48px;
+  padding:8px 6px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:#51697f;
+  font-size:13px;
+  font-weight:900;
+}
+.tab.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+
+.card{
+  margin-top:14px;
+  padding:16px;
+  background:var(--card);
+  border:1px solid #e2edf7;
+  border-radius:18px;
+}
+.step{
+  display:flex;
+  align-items:center;
+  gap:10px;
+  margin-bottom:12px;
+}
+.num{
+  width:29px;
+  height:29px;
+  flex:0 0 29px;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  border-radius:50%;
+  background:var(--accent);
+  color:#fff;
+  font-size:13px;
+  font-weight:900;
+}
+.step strong{font-size:16px}
+.step small{
+  display:block;
+  margin-top:2px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.4;
+}
+
+.guide{
+  padding:13px;
+  border-radius:14px;
+  background:#f4f9fe;
+  color:#60758a;
+  font-size:13px;
+  line-height:1.65;
+}
+
+.photo-box{
+  margin-top:13px;
+  padding:15px;
+  border:1px dashed #8bb8df;
+  border-radius:16px;
+  background:var(--soft);
+}
+.photo-btn{
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  width:100%;
+  min-height:58px;
+  border:0;
+  border-radius:14px;
+  background:var(--accent);
+  color:#fff;
+  font-size:16px;
+  font-weight:900;
+}
+.photo-input{display:none}
+.preview{display:none;margin-top:13px}
+.preview img{
+  display:block;
+  width:100%;
+  max-height:450px;
+  object-fit:contain;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+}
+.photo-info{
+  margin-top:8px;
+  color:var(--muted);
+  font-size:12px;
+  text-align:center;
+}
+.remove{
+  width:100%;
+  min-height:44px;
+  margin-top:10px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:#526a80;
+  font-weight:800;
+}
+
+.category-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:9px;
+}
+.cat-btn{
+  min-height:48px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:#40566d;
+  font-size:14px;
+  font-weight:900;
+}
+.cat-btn.active{
+  background:#eaf3fc;
+  border-color:#8bb8df;
+  color:#315e88;
+}
+
+.model-list{
+  display:grid;
+  grid-template-columns:1fr;
+  gap:9px;
+}
+.model-btn{
+  min-height:56px;
+  padding:12px 14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:var(--text);
+  text-align:left;
+  font-weight:900;
+}
+.model-btn.active{
+  background:#edf6fe;
+  border:2px solid var(--accent);
+  padding:11px 13px;
+}
+
+.state-grid{
+  display:grid;
+  grid-template-columns:repeat(4,1fr);
+  gap:8px;
+}
+.state-btn{
+  min-height:50px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fff;
+  color:var(--text);
+  font-size:13px;
+  font-weight:900;
+}
+.state-btn.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+
+.storage-grid{
+  display:grid;
+  grid-template-columns:repeat(3,1fr);
+  gap:9px;
+}
+.storage-btn{
+  min-height:54px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:var(--text);
+  font-weight:900;
+}
+.storage-btn.active{
+  background:var(--accent);
+  border-color:var(--accent);
+  color:#fff;
+}
+
+.note{
+  margin-top:10px;
+  padding:11px 12px;
+  border-radius:12px;
+  background:#f4f9fe;
+  color:#60758a;
+  font-size:12px;
+  line-height:1.55;
+}
+
+.input{
+  width:100%;
+  height:50px;
+  margin-top:10px;
+  padding:0 13px;
+  border:1px solid var(--line);
+  border-radius:13px;
+  background:#fff;
+  font-size:16px;
+}
+
+.result-card{
+  margin-top:14px;
+  padding:16px;
+  border:1px solid #cfe0ee;
+  border-radius:18px;
+  background:#f9fcff;
+}
+.result-label{
+  color:var(--muted);
+  font-size:12px;
+  font-weight:800;
+}
+.result{
+  min-height:31px;
+  margin-top:6px;
+  font-size:20px;
+  font-weight:900;
+  word-break:break-all;
+}
+.selected-info{
+  margin-top:8px;
+  color:#60758a;
+  font-size:12px;
+}
+.copy{
+  width:100%;
+  height:56px;
+  margin-top:12px;
+  border:0;
+  border-radius:15px;
+  background:linear-gradient(135deg,var(--accent),var(--accent2));
+  color:#fff;
+  font-size:17px;
+  font-weight:900;
+}
+.copy:disabled{opacity:.35}
+.status{
+  min-height:18px;
+  margin-top:6px;
+  color:var(--muted);
+  font-size:12px;
+  text-align:right;
+}
+.reset{
+  width:100%;
+  height:48px;
+  margin-top:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+  color:#526a80;
+  font-weight:900;
+}
+
+.hidden{display:none!important}
+
+@media(max-width:420px){
+  .category-grid{grid-template-columns:repeat(3,1fr)}
+  .state-grid{grid-template-columns:repeat(2,1fr)}
+  .tabs{gap:6px}
+  .tab{font-size:12px}
+}
+</style>
+</head>
+
+<body>
+
+<header class="header">
+  <div class="wrap">
+    <h1>eSIM 단말모델명 생성기</h1>
+    <p class="sub">사진으로 확인하거나 아이폰·갤럭시를 직접 선택하세요.</p>
+    <div class="version">업데이트 2026-08-19 · v5</div>
+
+    <div class="tabs">
+      <button class="tab active" data-tab="photo">사진으로 확인</button>
+      <button class="tab" data-tab="iphone">아이폰 직접 선택</button>
+      <button class="tab" data-tab="galaxy">갤럭시 직접 선택</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+
+<!-- 사진 탭 -->
+<section id="photoTab">
+
+  <div class="card">
+    <div class="step">
+      <div class="num">1</div>
+      <div>
+        <strong>정보 화면 사진 첨부</strong>
+        <small>기종을 잘 모르겠다면 사진부터 첨부하세요.</small>
+      </div>
+    </div>
+
+    <div class="guide">
+      <b>아이폰</b><br>
+      설정 → 일반 → 정보 화면을 캡처해 주세요.<br><br>
+
+      <b>갤럭시</b><br>
+      설정 → 휴대전화 정보 화면을 캡처해 주세요.<br><br>
+
+      모델명과 모델번호가 보이도록 캡처하면 확인하기 쉽습니다.
+    </div>
+
+    <div class="photo-box">
+      <label for="modelPhoto" class="photo-btn">
+        사진 첨부하기
+      </label>
+
+      <input
+        type="file"
+        id="modelPhoto"
+        class="photo-input"
+        accept="image/*">
+
+      <div class="preview" id="photoPreview">
+        <img id="previewImage" alt="첨부 사진 미리보기">
+
+        <div class="photo-info" id="photoInfo"></div>
+
+        <button
+          type="button"
+          class="remove"
+          id="photoRemove">
+          사진 다시 선택
+        </button>
+      </div>
+    </div>
+  </div>
+
+</section>
+
+
+<!-- 직접 선택 탭 -->
+<section id="directTab" class="hidden">
+
+  <div class="card">
+    <div class="step">
+      <div class="num">1</div>
+      <div>
+        <strong id="brandTitle">아이폰 시리즈 선택</strong>
+        <small>사용 중인 휴대폰 시리즈를 선택하세요.</small>
+      </div>
+    </div>
+
+    <div class="category-grid" id="seriesGrid"></div>
+  </div>
+
+
+  <div class="card hidden" id="modelCard">
+    <div class="step">
+      <div class="num">2</div>
+      <div>
+        <strong>기종 선택</strong>
+        <small>사용 중인 정확한 기종을 선택하세요.</small>
+      </div>
+    </div>
+
+    <div class="model-list" id="modelList"></div>
+  </div>
+
+
+  <div class="card hidden" id="stateCard">
+    <div class="step">
+      <div class="num">3</div>
+      <div>
+        <strong>단말 상태</strong>
+        <small>기본 모델명이 먼저 적용됩니다. 해당되는 경우만 변경하세요.</small>
+      </div>
+    </div>
+
+    <div class="state-grid">
+      <button class="state-btn active" data-state="basic">기본</button>
+      <button class="state-btn" data-state="refurb">리퍼</button>
+      <button class="state-btn" data-state="used">중고</button>
+      <button class="state-btn" data-state="overseas">해외폰</button>
+    </div>
+
+    <div class="note">
+      기본은 <b>ULK</b>로 생성됩니다.<br>
+      리퍼는 <b>R</b>, 중고는 <b>UD</b>, 해외폰은 <b>TAC</b>로 변경됩니다.
+    </div>
+
+    <div id="actualModelBox" class="hidden">
+      <div class="note">
+        리퍼·중고·해외폰은 실제 A모델번호가 다를 수 있습니다.<br>
+        설정 → 일반 → 정보 → 모델 번호를 한 번 눌러 확인한 값이 다르면 아래에 입력하세요.
+      </div>
+
+      <input
+        class="input"
+        id="actualModel"
+        placeholder="예: A3106">
+    </div>
+  </div>
+
+
+  <div class="card hidden" id="storageCard">
+    <div class="step">
+      <div class="num" id="storageStepNum">3</div>
+      <div>
+        <strong>저장용량 선택</strong>
+        <small>사용 중인 휴대폰 용량을 선택하세요.</small>
+      </div>
+    </div>
+
+    <div class="storage-grid" id="storageGrid"></div>
+  </div>
+
+
+  <div class="result-card">
+    <div class="result-label">
+      앤텔레콤 입력용 모델명
+    </div>
+
+    <div class="result" id="result">
+      기종과 용량을 선택하세요.
+    </div>
+
+    <div class="selected-info" id="selectedInfo"></div>
+
+    <button
+      class="copy"
+      id="copyBtn"
+      disabled>
+      모델명 복사
+    </button>
+
+    <div class="status" id="status"></div>
+  </div>
+
+  <button
+    type="button"
+    class="reset"
+    id="resetBtn">
+    처음부터 다시 선택
+  </button>
+
+</section>
+
+</main>
+
+
+<script>
+const $=id=>document.getElementById(id);
+
+const data={
+
+iphone:{
+  series:["17","16","15","14","13","12","11","XS·XR","SE"],
+
+  models:{
+
+    "17":[
+      ["iPhone 17","ULK-UIP17",["256","512"]],
+      ["iPhone 17 Air","ULK-UIPA",["256","512","1TB"]],
+      ["iPhone 17 Pro","ULK-UIP17PR",["256","512","1TB"]],
+      ["iPhone 17 Pro Max","ULK-UIP17PM",["256","512","1TB","2TB"]]
+    ],
+
+    "16":[
+      ["iPhone 16","ULK-UIP16",["128","256","512"]],
+      ["iPhone 16 Plus","ULK-UIP16PL",["128","256","512"]],
+      ["iPhone 16 Pro","ULK-UIP16PR",["128","256","512","1TB"]],
+      ["iPhone 16 Pro Max","ULK-UIP16PM",["256","512","1TB"]]
+    ],
+
+    "15":[
+      ["iPhone 15","A3090",["128","256","512"]],
+      ["iPhone 15 Plus","A3094",["128","256","512"]],
+      ["iPhone 15 Pro","A3102",["128","256","512","1TB"]],
+      ["iPhone 15 Pro Max","A3106",["256","512","1TB"]]
+    ],
+
+    "14":[
+      ["iPhone 14","A2882",["128","256","512"]],
+      ["iPhone 14 Plus","A2886",["128","256","512"]],
+      ["iPhone 14 Pro","A2890",["128","256","512","1TB"]],
+      ["iPhone 14 Pro Max","A2894",["128","256","512","1TB"]]
+    ],
+
+    "13":[
+      ["iPhone 13 mini","A2628",["128","256","512"]],
+      ["iPhone 13","A2633",["128","256","512"]],
+      ["iPhone 13 Pro","A2638",["128","256","512","1TB"]],
+      ["iPhone 13 Pro Max","A2643",["128","256","512","1TB"]]
+    ],
+
+    "12":[
+      ["iPhone 12 mini","A2399",["64","128","256"]],
+      ["iPhone 12","A2403",["64","128","256"]],
+      ["iPhone 12 Pro","A2407",["128","256","512"]],
+      ["iPhone 12 Pro Max","A2411",["128","256","512"]]
+    ],
+
+    "11":[
+      ["iPhone 11","A2221",["64","128","256"]],
+      ["iPhone 11 Pro","A2215",["64","256","512"]],
+      ["iPhone 11 Pro Max","A2218",["64","256","512"]]
+    ],
+
+    "XS·XR":[
+      ["iPhone XR","A2105",["64","128","256"]],
+      ["iPhone XS","A2097",["64","256","512"]],
+      ["iPhone XS Max","A2101",["64","256","512"]]
+    ],
+
+    "SE":[
+      ["iPhone SE 3세대","A2783",["64","128","256"]],
+      ["iPhone SE 2세대","A2296",["64","128","256"]]
+    ]
+  }
+},
+
+galaxy:{
+  series:["S26","S25","S24","S23","S22","S21","S20","Z Fold","Z Flip"],
+
+  models:{
+
+    "S26":[
+      ["Galaxy S26","SM-S942N",["256","512"]],
+      ["Galaxy S26+","SM-S947N",["256","512"]],
+      ["Galaxy S26 Ultra","SM-S948N",["256","512","1TB"]]
+    ],
+
+    "S25":[
+      ["Galaxy S25","SM-S931N",["256","512"]],
+      ["Galaxy S25+","SM-S936N",["256","512"]],
+      ["Galaxy S25 Edge","SM-S937N",["256","512"]],
+      ["Galaxy S25 Ultra","SM-S938N",["256","512","1TB"]]
+    ],
+
+    "S24":[
+      ["Galaxy S24","SM-S921N",["256","512"]],
+      ["Galaxy S24+","SM-S926N",["256","512"]],
+      ["Galaxy S24 Ultra","SM-S928N",["256","512","1TB"]]
+    ],
+
+    "S23":[
+      ["Galaxy S23","SM-S911N",["256","512"]],
+      ["Galaxy S23+","SM-S916N",["256","512"]],
+      ["Galaxy S23 Ultra","SM-S918N",["256","512","1TB"]],
+      ["Galaxy S23 FE","SM-S711N",["256"]]
+    ],
+
+    "S22":[
+      ["Galaxy S22","SM-S901N",["256"]],
+      ["Galaxy S22+","SM-S906N",["256"]],
+      ["Galaxy S22 Ultra","SM-S908N",["256","512","1TB"]]
+    ],
+
+    "S21":[
+      ["Galaxy S21","SM-G991N",["256"]],
+      ["Galaxy S21+","SM-G996N",["256"]],
+      ["Galaxy S21 Ultra","SM-G998N",["256","512"]]
+    ],
+
+    "S20":[
+      ["Galaxy S20","SM-G981N",["128"]],
+      ["Galaxy S20+","SM-G986N",["256"]],
+      ["Galaxy S20 Ultra","SM-G988N",["256"]]
+    ],
+
+    "Z Fold":[
+      ["Galaxy Z Fold8","SM-F971N",["256","512","1TB"]],
+      ["Galaxy Z Fold7","SM-F966N",["256","512","1TB"]],
+      ["Galaxy Z Fold6","SM-F956N",["256","512","1TB"]],
+      ["Galaxy Z Fold5","SM-F946N",["256","512","1TB"]],
+      ["Galaxy Z Fold4","SM-F936N",["256","512","1TB"]],
+      ["Galaxy Z Fold3","SM-F926N",["256","512"]],
+      ["Galaxy Z Fold2","SM-F916N",["256"]]
+    ],
+
+    "Z Flip":[
+      ["Galaxy Z Flip8","SM-F776N",["256","512"]],
+      ["Galaxy Z Flip7","SM-F766N",["256","512"]],
+      ["Galaxy Z Flip6","SM-F741N",["256","512"]],
+      ["Galaxy Z Flip5","SM-F731N",["256","512"]],
+      ["Galaxy Z Flip4","SM-F721N",["256","512"]],
+      ["Galaxy Z Flip3","SM-F711N",["256"]]
+    ]
+  }
+}
+};
+
+
+let brand="iphone";
+let series="";
+let model=null;
+let storage="";
+let phoneState="basic";
+
+
+function isOldIphone(){
+  return brand==="iphone" && !["16","17"].includes(series);
+}
+
+
+function storageLabel(s){
+  return s.includes("TB") ? s : s+"GB";
+}
+
+
+function iphoneStorageCode(s){
+  if(s==="1TB") return "1T";
+  if(s==="2TB") return "2T";
+  return s;
+}
+
+
+function show(id,on=true){
+  $(id).classList.toggle("hidden",!on);
+}
+
+
+function scrollCard(id){
+  setTimeout(()=>{
+    $(id).scrollIntoView({
+      behavior:"smooth",
+      block:"start"
+    });
+  },60);
+}
+
+
+function openTab(tab){
+
+  document.querySelectorAll(".tab").forEach(btn=>{
+    btn.classList.toggle(
+      "active",
+      btn.dataset.tab===tab
+    );
+  });
+
+  if(tab==="photo"){
+    show("photoTab",true);
+    show("directTab",false);
+    return;
+  }
+
+  show("photoTab",false);
+  show("directTab",true);
+
+  brand=tab;
+
+  $("brandTitle").textContent=
+    brand==="iphone"
+      ? "아이폰 시리즈 선택"
+      : "갤럭시 시리즈 선택";
+
+  resetDirect();
+  renderSeries();
+}
+
+
+function resetDirect(){
+
+  series="";
+  model=null;
+  storage="";
+  phoneState="basic";
+
+  show("modelCard",false);
+  show("stateCard",false);
+  show("storageCard",false);
+  show("actualModelBox",false);
+
+  $("actualModel").value="";
+
+  document.querySelectorAll(".state-btn").forEach(btn=>{
+    btn.classList.toggle(
+      "active",
+      btn.dataset.state==="basic"
+    );
+  });
+
+  updateResult();
+}
+
+
+function renderSeries(){
+
+  const box=$("seriesGrid");
+  box.innerHTML="";
+
+  data[brand].series.forEach(item=>{
+
+    const btn=document.createElement("button");
+
+    btn.className=
+      "cat-btn"+
+      (series===item ? " active" : "");
+
+    btn.textContent=item;
+
+    btn.onclick=()=>{
+
+      series=item;
+      model=null;
+      storage="";
+      phoneState="basic";
+
+      renderSeries();
+      renderModels();
+
+      show("modelCard",true);
+      show("stateCard",false);
+      show("storageCard",false);
+      show("actualModelBox",false);
+
+      updateResult();
+      scrollCard("modelCard");
+    };
+
+    box.appendChild(btn);
+  });
+}
+
+
+function renderModels(){
+
+  const box=$("modelList");
+  box.innerHTML="";
+
+  const list=data[brand].models[series] || [];
+
+  list.forEach(item=>{
+
+    const btn=document.createElement("button");
+
+    btn.className=
+      "model-btn"+
+      (model===item ? " active" : "");
+
+    btn.textContent=item[0];
+
+    btn.onclick=()=>{
+
+      model=item;
+      storage="";
+      phoneState="basic";
+
+      $("actualModel").value="";
+
+      document.querySelectorAll(".state-btn").forEach(x=>{
+        x.classList.toggle(
+          "active",
+          x.dataset.state==="basic"
+        );
+      });
+
+      renderModels();
+
+      if(isOldIphone()){
+        show("stateCard",true);
+        $("storageStepNum").textContent="4";
+      }else{
+        show("stateCard",false);
+        $("storageStepNum").textContent="3";
+      }
+
+      show("actualModelBox",false);
+      show("storageCard",true);
+
+      renderStorage();
+      updateResult();
+
+      if(isOldIphone()){
+        scrollCard("stateCard");
+      }else{
+        scrollCard("storageCard");
+      }
+    };
+
+    box.appendChild(btn);
+  });
+}
+
+
+function renderStorage(){
+
+  const box=$("storageGrid");
+  box.innerHTML="";
+
+  if(!model) return;
+
+  model[2].forEach(item=>{
+
+    const btn=document.createElement("button");
+
+    btn.className=
+      "storage-btn"+
+      (storage===item ? " active" : "");
+
+    btn.textContent=storageLabel(item);
+
+    btn.onclick=()=>{
+
+      storage=item;
+
+      renderStorage();
+      updateResult();
+    };
+
+    box.appendChild(btn);
+  });
+}
+
+
+function getActualModel(){
+
+  const typed=
+    $("actualModel")
+      .value
+      .trim()
+      .toUpperCase()
+      .replace(/\s/g,"");
+
+  return typed || (model ? model[1] : "");
+}
+
+
+function updateResult(){
+
+  let value="";
+  let info="";
+
+  if(model){
+    info=model[0];
+
+    if(storage){
+      info+=" · "+storageLabel(storage);
+    }
+  }
+
+  if(
+    brand==="iphone" &&
+    model &&
+    storage
+  ){
+
+    if(
+      isOldIphone()
+    ){
+
+      const prefixes={
+        basic:"ULK",
+        refurb:"R",
+        used:"UD",
+        overseas:"TAC"
+      };
+
+      const actualModel=
+        getActualModel();
+
+      if(actualModel){
+
+        value=
+          prefixes[phoneState]+
+          "-"+
+          actualModel+
+          "-"+
+          iphoneStorageCode(storage);
+      }
+
+    }else{
+
+      value=
+        model[1]+
+        "-"+
+        iphoneStorageCode(storage);
+    }
+  }
+
+
+  if(
+    brand==="galaxy" &&
+    model &&
+    storage
+  ){
+
+    value=
+      "OMD-"+
+      model[1]+
+      storage;
+  }
+
+
+  $("result").textContent=
+    value ||
+    "기종과 용량을 선택하세요.";
+
+  $("selectedInfo").textContent=
+    info;
+
+  $("copyBtn").disabled=
+    !value;
+
+  $("copyBtn").dataset.value=
+    value;
+}
+
+
+document.querySelectorAll(".tab").forEach(btn=>{
+
+  btn.onclick=()=>{
+    openTab(btn.dataset.tab);
+  };
+
+});
+
+
+document.querySelectorAll(".state-btn").forEach(btn=>{
+
+  btn.onclick=()=>{
+
+    phoneState=
+      btn.dataset.state;
+
+    document.querySelectorAll(".state-btn").forEach(x=>{
+      x.classList.toggle(
+        "active",
+        x===btn
+      );
+    });
+
+    const special=
+      phoneState!=="basic";
+
+    show(
+      "actualModelBox",
+      special
+    );
+
+    updateResult();
+  };
+});
+
+
+$("actualModel").addEventListener(
+  "input",
+  updateResult
+);
+
+
+$("copyBtn").onclick=async()=>{
+
+  const value=
+    $("copyBtn").dataset.value;
+
+  if(!value) return;
+
+  try{
+
+    await navigator.clipboard.writeText(value);
+
+  }catch(e){
+
+    const temp=
+      document.createElement("textarea");
+
+    temp.value=value;
+
+    document.body.appendChild(temp);
+
+    temp.select();
+
+    document.execCommand("copy");
+
+    temp.remove();
+  }
+
+  $("copyBtn").textContent=
+    "복사 완료";
+
+  $("status").textContent=
+    "클립보드에 복사했습니다.";
+
+  setTimeout(()=>{
+
+    $("copyBtn").textContent=
+      "모델명 복사";
+
+    $("status").textContent="";
+
+  },1200);
+};
+
+
+$("resetBtn").onclick=()=>{
+
+  resetDirect();
+  renderSeries();
+
+  window.scrollTo({
+    top:0,
+    behavior:"smooth"
+  });
+};
+
+
+/* 사진 첨부 */
+const modelPhoto=$("modelPhoto");
+const preview=$("photoPreview");
+const previewImage=$("previewImage");
+const photoInfo=$("photoInfo");
+
+
+modelPhoto.addEventListener(
+  "change",
+  function(){
+
+    const file=
+      this.files &&
+      this.files[0];
+
+    if(!file) return;
+
+    if(
+      !file.type.startsWith("image/")
+    ){
+
+      alert(
+        "사진 파일만 첨부할 수 있습니다."
+      );
+
+      this.value="";
+      return;
+    }
+
+    if(
+      file.size >
+      15*1024*1024
+    ){
+
+      alert(
+        "15MB 이하 사진을 선택해 주세요."
+      );
+
+      this.value="";
+      return;
+    }
+
+    const reader=
+      new FileReader();
+
+    reader.onload=e=>{
+
+      previewImage.src=
+        e.target.result;
+
+      preview.style.display=
+        "block";
+
+      photoInfo.textContent=
+        "첨부됨: "+file.name;
+    };
+
+    reader.readAsDataURL(file);
+  }
+);
+
+
+$("photoRemove").onclick=()=>{
+
+  modelPhoto.value="";
+  previewImage.src="";
+  preview.style.display="none";
+  photoInfo.textContent="";
+};
+
+
+/* 시작 */
+openTab("photo");
+
+</script>
+
+</body>
+</html>

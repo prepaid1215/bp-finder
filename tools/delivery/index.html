@@ -1,0 +1,1177 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <meta name="description" content="주소를 입력해 개통 USIM 당일 배송 가능지역과 접수 마감 여부를 확인하고, 2026년 8월 USIM 비용 무료 이벤트를 안내합니다.">
+  <title>당일유심 배송 가능지역 조회 | 59만모바일</title>
+  <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e27b685233912bfd3431eb5deab591b5&libraries=services&autoload=false"></script>
+  <style>
+    :root {
+      --navy: #10233f;
+      --blue: #2267e8;
+      --blue-soft: #edf4ff;
+      --green: #16885e;
+      --green-soft: #eaf8f2;
+      --orange: #d96b13;
+      --orange-soft: #fff4e8;
+      --red: #c83b3b;
+      --red-soft: #fff0f0;
+      --pink: #e11d72;
+      --pink-dark: #a70f50;
+      --yellow: #ffe14f;
+      --ink: #172033;
+      --sub: #667085;
+      --line: #e5e9f0;
+      --bg: #f5f7fb;
+      --card: #ffffff;
+      --shadow: 0 16px 40px rgba(16, 35, 63, 0.10);
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      color: var(--ink);
+      background:
+        radial-gradient(circle at top left, rgba(34,103,232,.10), transparent 32%),
+        var(--bg);
+      font-family: Pretendard, "Malgun Gothic", Arial, sans-serif;
+      line-height: 1.6;
+    }
+
+    button, input { font: inherit; }
+    button { cursor: pointer; }
+
+    .page {
+      width: min(720px, calc(100% - 28px));
+      margin: 0 auto;
+      padding: 28px 0 54px;
+    }
+
+    .hero {
+      position: relative;
+      overflow: hidden;
+      border-radius: 28px;
+      padding: 28px;
+      color: #fff;
+      background: linear-gradient(135deg, #10233f 0%, #1f5fd1 75%, #3c81f3 100%);
+      box-shadow: var(--shadow);
+    }
+
+    .hero::after {
+      content: "";
+      position: absolute;
+      width: 190px;
+      height: 190px;
+      right: -60px;
+      top: -75px;
+      border-radius: 50%;
+      border: 34px solid rgba(255,255,255,.10);
+    }
+
+    .brand {
+      position: relative;
+      z-index: 1;
+      display: inline-flex;
+      align-items: center;
+      gap: 8px;
+      padding: 6px 11px;
+      border: 1px solid rgba(255,255,255,.35);
+      border-radius: 999px;
+      font-size: 12px;
+      font-weight: 800;
+      background: rgba(255,255,255,.10);
+    }
+
+    .hero h1 {
+      position: relative;
+      z-index: 1;
+      margin: 16px 0 8px;
+      font-size: clamp(27px, 6vw, 38px);
+      line-height: 1.25;
+      letter-spacing: -1.4px;
+    }
+
+    .hero-promo {
+      position: relative;
+      z-index: 2;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      gap: 8px;
+      width: fit-content;
+      margin-top: 15px;
+      padding: 9px 14px;
+      border: 2px solid rgba(255,255,255,.9);
+      border-radius: 14px;
+      color: #501027;
+      background: linear-gradient(135deg, var(--yellow), #fff4a8);
+      box-shadow: 0 8px 20px rgba(0,0,0,.18);
+      font-size: 14px;
+      font-weight: 950;
+      letter-spacing: -.3px;
+    }
+
+    .hero-promo strong {
+      color: var(--pink-dark);
+      font-size: 18px;
+    }
+
+    .hero p {
+      position: relative;
+      z-index: 1;
+      margin: 0;
+      color: rgba(255,255,255,.84);
+      font-size: 15px;
+      word-break: keep-all;
+    }
+
+    .search-card {
+      position: relative;
+      z-index: 3;
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid rgba(16,35,63,.08);
+      border-radius: 24px;
+      background: var(--card);
+      box-shadow: var(--shadow);
+    }
+
+    /* 프로모션 카드가 없을 때만 히어로와 검색창을 겹쳐 표시 */
+    .hero + .search-card { margin-top: -18px; }
+
+    .label {
+      display: flex;
+      justify-content: space-between;
+      gap: 10px;
+      margin-bottom: 9px;
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 800;
+    }
+
+    .label small {
+      color: var(--sub);
+      font-weight: 500;
+    }
+
+    .input-row {
+      display: grid;
+      grid-template-columns: 1fr auto;
+      gap: 8px;
+    }
+
+    #addressInput {
+      width: 100%;
+      min-width: 0;
+      padding: 15px 15px;
+      border: 1px solid #cfd6e3;
+      border-radius: 14px;
+      outline: none;
+      color: var(--ink);
+      background: #fff;
+      transition: .2s;
+    }
+
+    #addressInput:focus {
+      border-color: var(--blue);
+      box-shadow: 0 0 0 4px rgba(34,103,232,.11);
+    }
+
+    .search-btn {
+      min-width: 94px;
+      padding: 0 18px;
+      border: 0;
+      border-radius: 14px;
+      color: #fff;
+      font-weight: 800;
+      background: var(--blue);
+    }
+
+    .search-btn:disabled { opacity: .55; cursor: wait; }
+
+    .sub-actions {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      gap: 10px;
+      margin-top: 10px;
+      color: var(--sub);
+      font-size: 12px;
+    }
+
+    .location-btn {
+      padding: 7px 10px;
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--navy);
+      font-weight: 700;
+      background: #fff;
+    }
+
+    .holiday-check {
+      display: inline-flex;
+      align-items: center;
+      gap: 6px;
+      user-select: none;
+    }
+
+    .candidate-list {
+      display: none;
+      margin-top: 10px;
+      overflow: hidden;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fff;
+    }
+
+    .candidate-list.open { display: block; }
+
+    .candidate-item {
+      width: 100%;
+      padding: 13px 14px;
+      border: 0;
+      border-bottom: 1px solid var(--line);
+      text-align: left;
+      color: var(--ink);
+      background: #fff;
+    }
+
+    .candidate-item:last-child { border-bottom: 0; }
+    .candidate-item:hover { background: var(--blue-soft); }
+    .candidate-item strong { display: block; font-size: 14px; }
+    .candidate-item span { display: block; margin-top: 2px; color: var(--sub); font-size: 12px; }
+
+    .status-line {
+      display: none;
+      margin-top: 12px;
+      color: var(--sub);
+      font-size: 13px;
+      text-align: center;
+    }
+    .status-line.show { display: block; }
+
+    .result-card {
+      display: none;
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+      box-shadow: 0 10px 28px rgba(16,35,63,.07);
+    }
+
+    .result-card.show { display: block; animation: rise .25s ease-out; }
+    @keyframes rise { from { opacity: 0; transform: translateY(6px); } to { opacity: 1; transform: translateY(0); } }
+
+    .result-head {
+      display: flex;
+      align-items: flex-start;
+      gap: 13px;
+    }
+
+    .result-icon {
+      width: 42px;
+      height: 42px;
+      flex: 0 0 42px;
+      display: grid;
+      place-items: center;
+      border-radius: 50%;
+      color: #fff;
+      font-size: 22px;
+      font-weight: 900;
+    }
+
+    .available .result-icon { background: var(--green); }
+    .verify .result-icon { background: var(--orange); }
+    .unavailable .result-icon { background: var(--red); }
+
+    .result-title {
+      margin: 0;
+      font-size: 21px;
+      line-height: 1.35;
+      letter-spacing: -.5px;
+    }
+
+    .result-address {
+      margin-top: 4px;
+      color: var(--sub);
+      font-size: 13px;
+      word-break: keep-all;
+    }
+
+    .result-summary {
+      margin-top: 16px;
+      padding: 15px;
+      border-radius: 15px;
+      font-size: 14px;
+      font-weight: 700;
+      word-break: keep-all;
+    }
+
+    .available .result-summary { color: #126445; background: var(--green-soft); }
+    .verify .result-summary { color: #9a4a08; background: var(--orange-soft); }
+    .unavailable .result-summary { color: #9e3030; background: var(--red-soft); }
+
+    .detail-grid {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      gap: 10px;
+      margin-top: 14px;
+    }
+
+    .detail-box {
+      min-width: 0;
+      padding: 13px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      background: #fafbfd;
+    }
+
+    .detail-box b {
+      display: block;
+      margin-bottom: 3px;
+      color: var(--sub);
+      font-size: 11px;
+    }
+
+    .detail-box span {
+      display: block;
+      color: var(--navy);
+      font-size: 14px;
+      font-weight: 800;
+      word-break: keep-all;
+    }
+
+    .notice {
+      margin-top: 14px;
+      padding-top: 13px;
+      border-top: 1px dashed #d5dbe5;
+      color: var(--sub);
+      font-size: 12px;
+      word-break: keep-all;
+    }
+
+    .result-actions {
+      display: grid;
+      grid-template-columns: 1fr;
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .action-btn {
+      padding: 13px 10px;
+      border-radius: 13px;
+      font-weight: 800;
+      text-decoration: none;
+      text-align: center;
+    }
+
+    .action-primary { border: 0; color: #fff; background: var(--blue); }
+    .action-secondary { border: 1px solid #cfd6e3; color: var(--navy); background: #fff; }
+
+    .promo-card {
+      position: relative;
+      overflow: hidden;
+      margin-top: 18px;
+      padding: 22px;
+      border: 3px solid #ff4d91;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #fff0f7 0%, #fff9da 58%, #fff 100%);
+      box-shadow: 0 16px 36px rgba(225,29,114,.16);
+    }
+
+    .promo-badge {
+      display: inline-flex;
+      align-items: center;
+      padding: 5px 10px;
+      border-radius: 999px;
+      color: #fff;
+      background: linear-gradient(135deg, var(--pink), #ff5a37);
+      font-size: 11px;
+      font-weight: 900;
+    }
+
+    .promo-card::after {
+      content: '8월 한정';
+      position: absolute;
+      top: 18px;
+      right: -34px;
+      width: 130px;
+      padding: 6px 0;
+      color: #fff;
+      background: var(--pink);
+      text-align: center;
+      font-size: 11px;
+      font-weight: 900;
+      transform: rotate(38deg);
+      box-shadow: 0 4px 10px rgba(0,0,0,.12);
+    }
+
+    .promo-card h2 {
+      margin: 11px 0 7px;
+      color: var(--navy);
+      font-size: 21px;
+      letter-spacing: -.5px;
+    }
+
+    .promo-card p {
+      margin: 0;
+      color: #5f6673;
+      font-size: 13px;
+      word-break: keep-all;
+    }
+
+    .promo-price {
+      display: flex;
+      flex-wrap: wrap;
+      align-items: center;
+      gap: 8px;
+      margin-top: 14px;
+    }
+
+    .promo-price del { color: #8d95a3; font-size: 14px; }
+    .promo-price strong { color: var(--pink); font-size: 34px; line-height: 1; text-shadow: 0 2px 0 #fff; }
+    .promo-price span { color: var(--sub); font-size: 12px; }
+
+    .promo-meta {
+      display: grid;
+      grid-template-columns: repeat(2, minmax(0,1fr));
+      gap: 8px;
+      margin-top: 16px;
+    }
+
+    .promo-meta div {
+      padding: 11px 12px;
+      border-radius: 12px;
+      color: #5d6572;
+      background: rgba(255,255,255,.85);
+      font-size: 12px;
+    }
+
+    .promo-meta b { display: block; margin-bottom: 2px; color: var(--navy); font-size: 11px; }
+
+
+    .fee-highlight {
+      border: 2px solid #ff4d91;
+      background: #fff3f8;
+    }
+
+    .fee-highlight span {
+      color: var(--pink-dark);
+      font-size: 15px;
+    }
+
+    .tracking-card {
+      margin-top: 18px;
+      padding: 20px;
+      border: 1px solid #cfe3ff;
+      border-radius: 22px;
+      background: linear-gradient(135deg, #eef6ff 0%, #ffffff 78%);
+      box-shadow: 0 10px 28px rgba(34,103,232,.08);
+    }
+
+    .tracking-wrap {
+      display: flex;
+      align-items: center;
+      justify-content: space-between;
+      gap: 16px;
+    }
+
+    .tracking-copy b {
+      display: block;
+      color: var(--navy);
+      font-size: 17px;
+    }
+
+    .tracking-copy span {
+      display: block;
+      margin-top: 4px;
+      color: var(--sub);
+      font-size: 13px;
+      word-break: keep-all;
+    }
+
+    .tracking-btn {
+      flex: 0 0 auto;
+      padding: 12px 15px;
+      border-radius: 12px;
+      color: #fff;
+      background: var(--blue);
+      font-size: 13px;
+      font-weight: 900;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+
+    .section {
+      margin-top: 18px;
+      padding: 22px;
+      border: 1px solid var(--line);
+      border-radius: 22px;
+      background: var(--card);
+    }
+
+    .section h2 {
+      margin: 0 0 14px;
+      color: var(--navy);
+      font-size: 19px;
+      letter-spacing: -.4px;
+    }
+
+    .service-grid {
+      display: grid;
+      grid-template-columns: repeat(3, minmax(0,1fr));
+      gap: 9px;
+    }
+
+    .service-item {
+      padding: 14px 10px;
+      border-radius: 14px;
+      text-align: center;
+      background: #f6f8fc;
+    }
+
+    .service-item b { display: block; color: var(--sub); font-size: 11px; }
+    .service-item span { display: block; margin-top: 4px; color: var(--navy); font-size: 14px; font-weight: 900; }
+
+    .timeline {
+      display: grid;
+      gap: 10px;
+    }
+
+    .timeline-row {
+      display: grid;
+      grid-template-columns: 110px 1fr;
+      gap: 10px;
+      align-items: start;
+      padding: 12px 0;
+      border-bottom: 1px solid var(--line);
+    }
+
+    .timeline-row:last-child { border-bottom: 0; }
+    .timeline-row b { color: var(--navy); font-size: 13px; }
+    .timeline-row span { color: var(--sub); font-size: 13px; }
+
+    details.region-list {
+      margin-top: 10px;
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+
+    details.region-list summary {
+      padding: 14px;
+      color: var(--navy);
+      font-weight: 800;
+      cursor: pointer;
+      background: #fafbfd;
+    }
+
+    .region-body {
+      padding: 4px 14px 14px;
+      color: #4c566a;
+      font-size: 13px;
+    }
+
+    .region-row {
+      padding: 11px 0;
+      border-bottom: 1px solid var(--line);
+    }
+    .region-row:last-child { border-bottom: 0; }
+    .region-row b { display: block; color: var(--navy); }
+    .region-row span { display: block; margin-top: 2px; }
+
+    .footer-note {
+      margin-top: 18px;
+      padding: 0 6px;
+      color: #7b8495;
+      font-size: 11px;
+      text-align: center;
+      word-break: keep-all;
+    }
+
+    @media (max-width: 540px) {
+      .page { width: min(100% - 18px, 720px); padding-top: 12px; }
+      .hero { border-radius: 22px; padding: 24px 20px 31px; }
+      .search-card, .section, .result-card, .promo-card { border-radius: 19px; padding: 18px; }
+      .input-row { grid-template-columns: 1fr; }
+      .search-btn { min-height: 48px; }
+      .sub-actions { align-items: flex-start; }
+      .detail-grid, .result-actions { grid-template-columns: 1fr; }
+      .service-grid, .promo-meta { grid-template-columns: 1fr; }
+      .timeline-row { grid-template-columns: 92px 1fr; }
+      .tracking-wrap { align-items: stretch; flex-direction: column; }
+      .tracking-btn { text-align: center; }
+      .hero-promo { width: 100%; }
+    }
+  </style>
+</head>
+<body>
+  <main class="page">
+    <section class="hero">
+      <div class="brand" id="brandName">59만모바일 당일유심</div>
+      <div class="hero-promo">8월 프로모션 <strong>USIM 5,500원 무료</strong></div>
+      <h1>당일유심 배송<br>가능지역 조회</h1>
+      <p>주소를 입력하면 배송 권역과 개통완료 마감시간을 기준으로 당일 배송 가능 여부를 확인합니다.</p>
+    </section>
+
+    <section class="promo-card" aria-label="2026년 8월 USIM 비용 지원 이벤트">
+      <span class="promo-badge">2026년 8월 이벤트</span>
+      <h2>8월 당일배송 개통 시<br>USIM 비용 5,500원 무료</h2>
+      <p>N플랫폼 당일 배송으로 010 신규 또는 MNP 번호이동을 개통하면 USIM 결제 금액을 무료로 지원합니다.</p>
+      <div class="promo-price"><del>5,500원</del><strong>무료</strong><span>배송비 3,700원 별도</span></div>
+      <div class="promo-meta">
+        <div><b>이벤트 기간</b>2026.08.01 ~ 2026.08.31</div>
+        <div><b>지원 대상</b>당일배송 010 신규·MNP 번호이동</div>
+      </div>
+    </section>
+
+    <section class="search-card">
+      <div class="label">
+        <span>배송받을 주소</span>
+        <small>도로명·지번 모두 가능</small>
+      </div>
+      <div class="input-row">
+        <input id="addressInput" type="text" autocomplete="street-address" placeholder="예: 경기도 수원시 영통구 광교중앙로" aria-label="배송받을 주소">
+        <button id="searchBtn" class="search-btn" type="button">조회하기</button>
+      </div>
+      <div class="sub-actions">
+        <button id="locationBtn" class="location-btn" type="button">현재 위치로 확인</button>
+        <label class="holiday-check"><input id="holidayCheck" type="checkbox"> 오늘은 공휴일</label>
+      </div>
+      <div id="candidateList" class="candidate-list" aria-live="polite"></div>
+      <div id="statusLine" class="status-line" aria-live="polite"></div>
+    </section>
+
+    <section id="resultCard" class="result-card" aria-live="polite">
+      <div class="result-head">
+        <div id="resultIcon" class="result-icon">✓</div>
+        <div>
+          <h2 id="resultTitle" class="result-title"></h2>
+          <div id="resultAddress" class="result-address"></div>
+        </div>
+      </div>
+      <div id="resultSummary" class="result-summary"></div>
+      <div class="detail-grid">
+        <div class="detail-box"><b>권역 판정</b><span id="matchedRule">-</span></div>
+        <div class="detail-box"><b>예상 배송시간</b><span id="deliveryTime">-</span></div>
+        <div class="detail-box"><b>오늘 접수 마감</b><span id="cutoffTime">-</span></div>
+        <div class="detail-box"><b>배송비</b><span id="shippingFee">3,700원</span></div>
+        <div class="detail-box fee-highlight"><b>USIM 비용</b><span id="usimFee">8월 프로모션 무료</span></div>
+      </div>
+      <div id="resultNotice" class="notice"></div>
+      <div class="result-actions">
+        <button id="copyBtn" class="action-btn action-secondary" type="button">조회결과 복사</button>
+      </div>
+    </section>
+
+
+    <section class="tracking-card" aria-label="개통 유심 배송조회 안내">
+      <div class="tracking-wrap">
+        <div class="tracking-copy">
+          <b>개통된 유심 배송 현황 확인</b>
+          <span>개통 완료 후 두발히어로 카카오톡 안내를 통해 배송 현황을 확인할 수 있습니다.</span>
+        </div>
+        <a class="tracking-btn" href="https://check.doobalhero.kr/" target="_blank" rel="noopener">두발히어로 배송조회</a>
+      </div>
+    </section>
+
+    <section class="section">
+      <h2>서비스 이용 기준</h2>
+      <div class="service-grid">
+        <div class="service-item"><b>서비스 시작일</b><span>2026.06.17</span></div>
+        <div class="service-item"><b>USIM 비용</b><span><del>5,500원</del> → 무료</span></div>
+        <div class="service-item"><b>배송비</b><span>3,700원</span></div>
+      </div>
+      <div class="timeline" style="margin-top:12px">
+        <div class="timeline-row"><b>평일</b><span>오후 3시 이전 개통완료 시 당일 배송</span></div>
+        <div class="timeline-row"><b>토요일</b><span>오전 11시 이전 개통완료 시 당일 배송</span></div>
+        <div class="timeline-row"><b>일요일·공휴일</b><span>개통완료 건은 익영업일 배송</span></div>
+        <div class="timeline-row"><b>배송 소요</b><span>집하 기준 수도권 최대 5시간, 이외 지역 최대 9시간</span></div>
+        <div class="timeline-row"><b>권역 외 주소</b><span>당일 배송이 어려운 지역은 우체국 택배 발송</span></div>
+        <div class="timeline-row"><b>미개통 결제</b><span>USIM 결제 후 미개통 시 30분 이내 자동 결제 취소</span></div>
+      </div>
+      <div class="notice"><b>8월 이벤트:</b> 2026년 8월 1일부터 8월 31일까지 N플랫폼 당일배송으로 010 신규 또는 MNP 번호이동 개통 시 USIM 비용 5,500원이 무료입니다. 당일배송으로 개통할 때만 적용되며 배송비 3,700원은 별도입니다.</div>
+    </section>
+
+    <section class="section">
+      <h2>배송 가능지역 기준표</h2>
+      <details class="region-list">
+        <summary>전체 지역 목록 보기</summary>
+        <div class="region-body" id="regionBody"></div>
+      </details>
+    </section>
+
+    <p class="footer-note">접수 가능 권역은 우편번호 기준으로 운영될 수 있어 표시된 지역이라도 일부 주소는 배송이 제한될 수 있습니다. 최종 가능 여부는 신청 단계에서 다시 확인해야 합니다.</p>
+  </main>
+
+<script>
+  const CONFIG = {
+    brand: '59만모바일 당일유심',
+    trackingUrl: 'https://check.doobalhero.kr/',
+    shippingFee: 3700,
+    usimFee: 5500,
+    promoActive: true,
+    promoStart: '2026-08-01',
+    promoEnd: '2026-08-31',
+    weekdayCutoffHour: 15,
+    saturdayCutoffHour: 11
+  };
+
+  const DATA = {
+    fullProvinces: ['서울', '대전', '울산', '대구', '광주'],
+    fullCities: {
+      '경기': ['고양시', '성남시', '부천시', '안양시', '의정부시', '구리시'],
+      '충북': ['청주시'],
+      '경남': ['양산시', '김해시', '창원시'],
+      '경북': ['구미시', '경주시', '경산시', '포항시'],
+      '전북': ['전주시', '익산시', '완주군', '군산시'],
+      '전남': ['나주시', '순천시', '광양시', '여수시']
+    },
+    fullDistricts: {
+      '인천': ['부평구', '남동구', '동구', '미추홀구', '연수구'],
+      '경기 수원시': ['팔달구', '영통구'],
+      '부산': ['금정구', '동래구', '연제구', '수영구', '남구', '해운대구', '부산진구', '북구', '사상구', '동구', '중구', '서구', '영도구', '사하구']
+    },
+    partial: [
+      { province:'인천', city:'계양구', towns:['효성동','작전동','계산동','용종동','임학동','귤현동','동양동','박촌동','방축동','병방동','서운동'] },
+      { province:'인천', city:'서구', towns:['가정동','가좌동','검암동','경서동','공촌동','금곡동','당하동','마전동','백석동','불로동','석남동','신현동','심곡동','연희동','오류동','왕길동','원당동','청라동'] },
+      { province:'인천', city:'중구', towns:['경동','관동1가','내동','답동','도원동','북성동2가','북성동3가','사동','선린동','송월동1가','신생동','신흥동3가','인현동','전동','운서동','운남동','중산동'] },
+
+      { province:'경기', city:'광명시', towns:['광명동','철산동','하안동','소하동','일직동'] },
+      { province:'경기', city:'하남시', towns:['감이동','감일동','학암동','망월동','선동','덕풍동','풍산동','신장동','창우동'] },
+      { province:'경기', city:'과천시', towns:['관문동','중앙동','갈현동','과천동','문원동','부림동','별양동','원문동'] },
+      { province:'경기', city:'의왕시', towns:['청계동','포일동','학의동','내손동','오전동','고천동','왕곡동','삼동'] },
+      { province:'경기', city:'군포시', towns:['산본동','금정동','당동','당정동','대야미동','부곡동','도마교동'] },
+      { province:'경기', city:'파주시', towns:['금촌동','금릉동','다율동','당하동','동패동','목동동','문발동','야당동','와동동'] },
+      { province:'경기', city:'시흥시', towns:['거모동','군자동','능곡동','대야동','배곧동','신천동','은행동','장곡동','장현동','정왕동','하상동','하중동','월곶동','목감동'] },
+      { province:'경기', city:'김포시', towns:['감정동','걸포동','구래동','마산동','북변동','사우동','운양동','장기동','풍무동','고촌읍'] },
+      { province:'경기', city:'오산시', towns:['가수동','갈곶동','궐동','금암동','내삼미동','누읍동','수청동','오산동','원동'] },
+      { province:'경기', city:'남양주시', towns:['별내동','다산동','퇴계원리','청학리'] },
+      { province:'경기', city:'양주시', towns:['옥정동'] },
+      { province:'경기', city:'안산시 상록구', towns:['일동','본오동','사동','부곡동','월피동','성포동','이동','건건동'] },
+      { province:'경기', city:'안산시 단원구', towns:['고잔동','선부동','신길동','와동','원곡동','초지동'] },
+      { province:'경기', city:'수원시 장안구', towns:['이목동','파장동','연무동','영화동','조원동','송죽동','정자동','천천동','율전동'] },
+      { province:'경기', city:'수원시 권선구', towns:['당수동','입북동','구운동','금곡동','호매실동','탑동','서둔동','세류동','권선동','평동','고색동','오목천동','곡반정동'] },
+      { province:'경기', city:'용인시 기흥구', towns:['구갈동','농서동','동백동','마북동','보라동','보정동','상갈동','상하동','서천동','신갈동','언남동','영덕동','중동','청덕동'] },
+      { province:'경기', city:'용인시 수지구', towns:['동천동','상현동','성복동','신봉동','죽전동','풍덕천동'] },
+      { province:'경기', city:'용인시 처인구', towns:['고림동','김량장동','마평동','삼가동','역북동'] },
+      { province:'경기', city:'화성시', towns:['능동','목동','반송동','반월동','병점동','산척동','석우동','송동','신동','영천동','오산동','장지동','청계동'], label:'동탄신도시·병점 일부' },
+
+      { province:'세종', city:'세종시', towns:['고운동','나성동','다정동','대평동','도담동','반곡동','보람동','산울동','새롬동','소담동','아름동','어진동','조치원','집현동','한솔동','해밀동'] }
+    ],
+    verifyProvince: ['제주']
+  };
+
+  const REGION_DISPLAY = [
+    ['서울·경기 주요 도시', '서울 전지역, 고양·성남·부천·안양·의정부·구리 전지역'],
+    ['인천', '부평구·남동구·동구·미추홀구·연수구 전지역, 계양구·서구·중구 일부 동'],
+    ['경기 일부 지역', '광명·하남·과천·의왕·군포·파주·시흥·김포·오산·남양주·양주·안산·수원·용인·화성의 지정 동'],
+    ['충청', '청주시 전지역, 대전광역시 전지역, 세종시 지정 동'],
+    ['부산·울산', '부산 14개 구, 울산 전지역'],
+    ['대구·경북·경남', '대구 전지역, 구미·경주·경산·포항, 양산·김해·창원'],
+    ['호남', '광주 전지역, 전주·익산·완주·군산, 나주·순천·광양·여수'],
+    ['제주', '일부지역으로 최종 우편번호 확인 필요']
+  ];
+
+  const $ = (id) => document.getElementById(id);
+  let geocoder = null;
+  let places = null;
+  let lastResultText = '';
+
+  function normalize(text='') {
+    return text
+      .replace(/특별자치도|특별자치시|특별시|광역시/g, '')
+      .replace(/경기도/g, '경기')
+      .replace(/충청북도/g, '충북')
+      .replace(/충청남도/g, '충남')
+      .replace(/전북특별자치도|전라북도/g, '전북')
+      .replace(/전라남도/g, '전남')
+      .replace(/경상북도/g, '경북')
+      .replace(/경상남도/g, '경남')
+      .replace(/강원특별자치도|강원도/g, '강원')
+      .replace(/제주특별자치도/g, '제주')
+      .replace(/\s+/g, ' ')
+      .trim();
+  }
+
+  function compact(text='') { return normalize(text).replace(/\s/g, ''); }
+
+  function provinceOf(text='') {
+    const t = normalize(text);
+    const keys = ['서울','인천','경기','강원','충북','충남','세종','대전','전북','전남','광주','경북','경남','대구','부산','울산','제주'];
+    return keys.find(k => t.includes(k)) || '';
+  }
+
+  function inferAreaFromText(text) {
+    return {
+      full: normalize(text),
+      province: provinceOf(text),
+      city: '',
+      town: '',
+      source: 'manual'
+    };
+  }
+
+  function areaFromKakao(item) {
+    const a = item.address || {};
+    const r = item.road_address || {};
+    const full = r.address_name || a.address_name || item.address_name || '';
+    return {
+      full: normalize(full),
+      province: provinceOf(a.region_1depth_name || full),
+      city: normalize([a.region_2depth_name, a.region_3depth_name].filter(Boolean).join(' ')),
+      town: normalize([a.region_3depth_name, a.region_3depth_h_name].filter(Boolean).join(' ')),
+      source: 'kakao'
+    };
+  }
+
+  function hasAny(text, terms) {
+    const c = compact(text);
+    return terms.some(term => c.includes(compact(term)));
+  }
+
+  function checkCoverage(area) {
+    const text = normalize([area.full, area.city, area.town].join(' '));
+    const province = area.province || provinceOf(text);
+
+    if (!province) {
+      return { status:'verify', rule:'주소 행정구역 확인 필요', reason:'시·도 정보가 확인되지 않아 자동 판정하기 어렵습니다.' };
+    }
+
+    if (DATA.verifyProvince.includes(province)) {
+      return { status:'verify', rule:'제주 일부지역', reason:'제주도는 일부지역만 가능하여 우편번호 기준 최종 확인이 필요합니다.' };
+    }
+
+    if (DATA.fullProvinces.includes(province)) {
+      return { status:'available', rule:`${province} 전지역`, reason:'안내된 전지역 배송 권역에 포함됩니다.' };
+    }
+
+    const fullCities = DATA.fullCities[province] || [];
+    const matchedFullCity = fullCities.find(city => hasAny(text, [city]));
+    if (matchedFullCity) {
+      return { status:'available', rule:`${matchedFullCity} 전지역`, reason:'안내된 전지역 배송 권역에 포함됩니다.' };
+    }
+
+    if (province === '인천') {
+      const district = DATA.fullDistricts['인천'].find(x => hasAny(text, [x]));
+      if (district) return { status:'available', rule:`인천 ${district} 전지역`, reason:'안내된 전지역 배송 권역에 포함됩니다.' };
+    }
+
+    if (province === '경기' && hasAny(text, ['수원시'])) {
+      const district = DATA.fullDistricts['경기 수원시'].find(x => hasAny(text, [x]));
+      if (district) return { status:'available', rule:`수원시 ${district} 전지역`, reason:'안내된 전지역 배송 권역에 포함됩니다.' };
+    }
+
+    if (province === '부산') {
+      if (hasAny(text, ['강서구','기장군'])) return { status:'unavailable', rule:'부산 권역 외 지역', reason:'강서구와 기장군은 제공된 가능지역 목록에 포함되지 않습니다.' };
+      const district = DATA.fullDistricts['부산'].find(x => hasAny(text, [x]));
+      if (district) return { status:'available', rule:`부산 ${district}`, reason:'안내된 배송 가능 구에 포함됩니다.' };
+    }
+
+    const partialRules = DATA.partial.filter(rule => rule.province === province && hasAny(text, [rule.city]));
+    if (partialRules.length) {
+      for (const rule of partialRules) {
+        const town = rule.towns.find(t => hasAny(text, [t]));
+        if (town) {
+          return {
+            status:'available',
+            rule: rule.label ? `${rule.label} (${town})` : `${rule.city} ${town}`,
+            reason:'안내된 지정 동·읍·리에 포함됩니다.'
+          };
+        }
+      }
+
+      const hasTownInfo = area.source === 'kakao' && Boolean(area.town);
+      if (hasTownInfo) {
+        return { status:'unavailable', rule:'지정 동 외 지역', reason:'해당 시·구는 일부 동만 가능하며 현재 주소는 목록에서 확인되지 않습니다.' };
+      }
+      return { status:'verify', rule:'일부 동 가능지역', reason:'동·읍·리 정보가 부족해 우편번호 기준 확인이 필요합니다.' };
+    }
+
+    return { status:'unavailable', rule:'당일배송 권역 외', reason:'제공된 당일 배송 가능지역 목록에 포함되지 않습니다.' };
+  }
+
+  function scheduleInfo(province, coverageStatus) {
+    const now = new Date();
+    const day = now.getDay();
+    const hour = now.getHours();
+    const minute = now.getMinutes();
+    const isHoliday = $('holidayCheck').checked;
+    const isCapital = ['서울','인천','경기'].includes(province);
+    const deliveryTime = isCapital ? '집하 후 최대 5시간' : '집하 후 최대 9시간';
+
+    let cutoffLabel = '평일 15:00 / 토 11:00';
+    let todayEligible = false;
+    let timingMessage = '';
+
+    if (isHoliday || day === 0) {
+      timingMessage = '일요일·공휴일 개통완료 건은 익영업일 배송 대상입니다.';
+    } else if (day === 6) {
+      cutoffLabel = '오늘 11:00';
+      todayEligible = hour < CONFIG.saturdayCutoffHour;
+      timingMessage = todayEligible
+        ? '오늘 오전 11시 이전에 개통이 완료되면 당일 배송 접수가 가능합니다.'
+        : '토요일 오전 11시가 지나 익영업일 배송 대상입니다.';
+    } else {
+      cutoffLabel = '오늘 15:00';
+      todayEligible = hour < CONFIG.weekdayCutoffHour;
+      timingMessage = todayEligible
+        ? '오늘 오후 3시 이전에 개통이 완료되면 당일 배송 접수가 가능합니다.'
+        : '평일 오후 3시가 지나 익영업일 배송 대상입니다.';
+    }
+
+    if (coverageStatus !== 'available') todayEligible = false;
+    return { todayEligible, timingMessage, cutoffLabel, deliveryTime, nowText: `${hour}:${String(minute).padStart(2,'0')}` };
+  }
+
+  function renderResult(area, coverage) {
+    const schedule = scheduleInfo(area.province, coverage.status);
+    const card = $('resultCard');
+    card.className = `result-card show ${coverage.status}`;
+
+    const titleMap = {
+      available: schedule.todayEligible ? '당일 배송 가능지역입니다' : '배송 가능지역입니다',
+      verify: '주소 확인이 더 필요합니다',
+      unavailable: '당일 배송 가능지역이 아닙니다'
+    };
+    const iconMap = { available:'✓', verify:'!', unavailable:'×' };
+
+    $('resultIcon').textContent = iconMap[coverage.status];
+    $('resultTitle').textContent = titleMap[coverage.status];
+    $('resultAddress').textContent = area.full || '입력 주소';
+    $('matchedRule').textContent = coverage.rule;
+    $('deliveryTime').textContent = coverage.status === 'available' ? schedule.deliveryTime : (coverage.status === 'unavailable' ? '우체국 택배 발송' : '확인 후 안내');
+    $('cutoffTime').textContent = schedule.cutoffLabel;
+    $('shippingFee').textContent = `${CONFIG.shippingFee.toLocaleString()}원`;
+    $('usimFee').textContent = CONFIG.promoActive ? '5,500원 → 무료' : `${CONFIG.usimFee.toLocaleString()}원`;
+
+    let summary = coverage.reason;
+    if (coverage.status === 'available') summary += ` ${schedule.timingMessage}`;
+    if (coverage.status === 'unavailable') summary += ' 개통 후 우체국 택배 발송으로 진행할 수 있습니다.';
+    $('resultSummary').textContent = summary;
+
+    const promoNotice = CONFIG.promoActive
+      ? ' 2026년 8월 31일까지 당일배송 010 신규·MNP 번호이동 개통 시 USIM 비용 5,500원이 무료이며 배송비 3,700원은 별도입니다.'
+      : '';
+    $('resultNotice').textContent = coverage.status === 'available'
+      ? '표시 결과는 제공된 지역표 기준입니다. 실제 접수는 우편번호와 기사 배정 상황에 따라 제한될 수 있습니다.' + promoNotice
+      : '최종 배송 방식은 신청 주소의 우편번호와 접수 시점에 따라 확정됩니다.' + promoNotice;
+
+    lastResultText = [
+      '[당일유심 배송조회]',
+      `주소: ${area.full || '-'}`,
+      `결과: ${titleMap[coverage.status]}`,
+      `권역: ${coverage.rule}`,
+      `접수 마감: ${schedule.cutoffLabel}`,
+      `배송 안내: ${$('deliveryTime').textContent}`,
+      `USIM 비용: ${CONFIG.promoActive ? '5,500원 → 무료(2026.08.31까지)' : CONFIG.usimFee.toLocaleString() + '원'}`,
+      `배송비: ${CONFIG.shippingFee.toLocaleString()}원`,
+      '배송조회: 개통 완료 후 두발히어로 카카오톡 안내 또는 https://check.doobalhero.kr/ 에서 확인',
+      '주의: 우편번호와 기사 배정 상황에 따라 일부 주소는 제한될 수 있습니다.'
+    ].join('\n');
+
+    card.scrollIntoView({ behavior:'smooth', block:'nearest' });
+  }
+
+  function setStatus(text, show=true) {
+    $('statusLine').textContent = text;
+    $('statusLine').classList.toggle('show', show);
+  }
+
+  function clearCandidates() {
+    $('candidateList').innerHTML = '';
+    $('candidateList').classList.remove('open');
+  }
+
+  function addCandidate(label, sub, onClick) {
+    const btn = document.createElement('button');
+    btn.type = 'button';
+    btn.className = 'candidate-item';
+    const strong = document.createElement('strong');
+    strong.textContent = label;
+    const span = document.createElement('span');
+    span.textContent = sub || '';
+    btn.append(strong, span);
+    btn.addEventListener('click', onClick);
+    $('candidateList').appendChild(btn);
+  }
+
+  function handleKakaoResults(results) {
+    clearCandidates();
+    if (results.length === 1) {
+      const area = areaFromKakao(results[0]);
+      $('addressInput').value = area.full;
+      renderResult(area, checkCoverage(area));
+      setStatus('', false);
+      return;
+    }
+
+    results.slice(0, 8).forEach(item => {
+      const area = areaFromKakao(item);
+      addCandidate(area.full, '주소를 선택해 배송 가능 여부를 확인합니다.', () => {
+        $('addressInput').value = area.full;
+        clearCandidates();
+        setStatus('', false);
+        renderResult(area, checkCoverage(area));
+      });
+    });
+    $('candidateList').classList.add('open');
+    setStatus('검색된 주소 중 하나를 선택해 주세요.');
+  }
+
+  function searchAddress() {
+    const query = $('addressInput').value.trim();
+    if (!query) {
+      setStatus('배송받을 주소를 입력해 주세요.');
+      $('addressInput').focus();
+      return;
+    }
+
+    clearCandidates();
+    $('searchBtn').disabled = true;
+    setStatus('주소를 확인하고 있습니다.');
+
+    if (!geocoder) {
+      const area = inferAreaFromText(query);
+      renderResult(area, checkCoverage(area));
+      setStatus('카카오 주소 검색을 사용할 수 없어 입력 문구 기준으로 판정했습니다.');
+      $('searchBtn').disabled = false;
+      return;
+    }
+
+    geocoder.addressSearch(query, (results, status) => {
+      if (status === kakao.maps.services.Status.OK && results.length) {
+        handleKakaoResults(results);
+        $('searchBtn').disabled = false;
+        return;
+      }
+
+      places.keywordSearch(query, (placeResults, placeStatus) => {
+        if (placeStatus === kakao.maps.services.Status.OK && placeResults.length) {
+          clearCandidates();
+          placeResults.slice(0, 8).forEach(place => {
+            const address = place.road_address_name || place.address_name || place.place_name;
+            addCandidate(address, place.place_name, () => {
+              $('addressInput').value = address;
+              clearCandidates();
+              $('searchBtn').disabled = false;
+              searchAddress();
+            });
+          });
+          $('candidateList').classList.add('open');
+          setStatus('장소 검색 결과에서 주소를 선택해 주세요.');
+        } else {
+          const area = inferAreaFromText(query);
+          renderResult(area, checkCoverage(area));
+          setStatus('정확한 주소를 찾지 못해 입력 문구 기준으로 판정했습니다.');
+        }
+        $('searchBtn').disabled = false;
+      });
+    });
+  }
+
+  function useCurrentLocation() {
+    if (!navigator.geolocation) {
+      setStatus('현재 위치 기능을 지원하지 않는 브라우저입니다.');
+      return;
+    }
+    if (!geocoder) {
+      setStatus('카카오 지도 API가 준비되지 않아 현재 위치 주소를 확인할 수 없습니다.');
+      return;
+    }
+
+    setStatus('현재 위치를 확인하고 있습니다.');
+    navigator.geolocation.getCurrentPosition(
+      pos => {
+        geocoder.coord2Address(pos.coords.longitude, pos.coords.latitude, (results, status) => {
+          if (status === kakao.maps.services.Status.OK && results.length) {
+            const item = results[0];
+            const area = areaFromKakao(item);
+            $('addressInput').value = area.full;
+            renderResult(area, checkCoverage(area));
+            setStatus('', false);
+          } else {
+            setStatus('현재 위치의 주소를 확인하지 못했습니다.');
+          }
+        });
+      },
+      () => setStatus('위치 권한이 허용되지 않았거나 현재 위치를 확인하지 못했습니다.'),
+      { enableHighAccuracy:false, timeout:8000, maximumAge:300000 }
+    );
+  }
+
+  async function copyResult() {
+    if (!lastResultText) return;
+    try {
+      await navigator.clipboard.writeText(lastResultText);
+      const old = $('copyBtn').textContent;
+      $('copyBtn').textContent = '복사 완료';
+      setTimeout(() => $('copyBtn').textContent = old, 1400);
+    } catch (e) {
+      alert(lastResultText);
+    }
+  }
+
+  function appendRegionRow(name, desc) {
+    const row = document.createElement('div');
+    row.className = 'region-row';
+    const b = document.createElement('b');
+    b.textContent = name;
+    const span = document.createElement('span');
+    span.textContent = desc;
+    row.append(b, span);
+    $('regionBody').appendChild(row);
+  }
+
+  function renderRegionList() {
+    appendRegionRow('전지역 가능 시·도', DATA.fullProvinces.join(' / '));
+
+    Object.entries(DATA.fullCities).forEach(([province, cities]) => {
+      appendRegionRow(`${province} 전지역 가능 시·군`, cities.join(' / '));
+    });
+
+    Object.entries(DATA.fullDistricts).forEach(([area, districts]) => {
+      appendRegionRow(`${area} 가능 구`, districts.join(' / '));
+    });
+
+    DATA.partial.forEach(rule => {
+      appendRegionRow(`${rule.province} ${rule.city}${rule.label ? ` (${rule.label})` : ''}`, rule.towns.join(' / '));
+    });
+
+    appendRegionRow('제주', '일부지역 — 우편번호 기준 최종 확인 필요');
+  }
+
+  function init() {
+    $('brandName').textContent = CONFIG.brand;
+    $('shippingFee').textContent = `${CONFIG.shippingFee.toLocaleString()}원`;
+    renderRegionList();
+
+    $('searchBtn').addEventListener('click', searchAddress);
+    $('locationBtn').addEventListener('click', useCurrentLocation);
+    $('copyBtn').addEventListener('click', copyResult);
+    $('holidayCheck').addEventListener('change', () => {
+      if ($('resultCard').classList.contains('show')) searchAddress();
+    });
+    $('addressInput').addEventListener('keydown', e => {
+      if (e.key === 'Enter') searchAddress();
+    });
+
+    if (window.kakao && kakao.maps) {
+      kakao.maps.load(() => {
+        geocoder = new kakao.maps.services.Geocoder();
+        places = new kakao.maps.services.Places();
+      });
+    } else {
+      setStatus('카카오 지도 API를 불러오지 못했습니다. 입력 문구 기준 조회는 가능합니다.');
+    }
+  }
+
+  document.addEventListener('DOMContentLoaded', init);
+</script>
+</body>
+</html>

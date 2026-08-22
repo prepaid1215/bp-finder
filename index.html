@@ -1,844 +1,92 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="ko">
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>앤텔레콤 BP FINDER Pro - B&W Edition</title>
-    <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e27b685233912bfd3431eb5deab591b5&libraries=services&autoload=false"></script>
-    <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
-    <style>
-        :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text-main: #f8fafc; --text-sub: #94a3b8; --success: #10b981; --border: #334155; --input-bg: #0f172a; }
-        * { box-sizing: border-box; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
-        body { background: var(--bg); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
-        .app { width: 100%; max-width: 500px; background: var(--card); padding: 25px; border-radius: 24px; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        h2 { text-align: center; font-size: 22px; margin-bottom: 8px; color: #fff; font-weight: 800; }
-        #data-status { text-align: center; font-size: 11px; color: var(--text-sub); margin-bottom: 22px; min-height: 16px; }
-        .search-box { position: relative; margin-bottom: 15px; }
-        input[type=text]#q { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--input-bg); color: #fff; font-size: 16px; outline: none; transition: all 0.2s; }
-        .search-btn { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        #loc-list { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-top: 5px; display: none; position: absolute; width: 100%; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.6); max-height: 300px; overflow-y: auto; }
-        .loc-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; color: #fff; }
-        .loc-item:hover { background: #334155; }
-        #loading { display: none; text-align: center; font-size: 14px; color: var(--accent); margin: 15px 0; }
-        .res-card { background: #334155; padding: 18px; border-radius: 16px; margin-top: 12px; border-left: 5px solid var(--accent); transition: transform 0.2s; cursor: pointer; }
-        .card-name { font-weight: 700; font-size: 16px; color: #fff; }
-        .card-addr { font-size: 13px; color: var(--text-sub); margin: 6px 0 12px; line-height: 1.4; }
-        .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
-        .btn-call, .btn-fax-open { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 5px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; text-decoration: none; color: #fff; }
-        .btn-call { background: #2563eb; }
-        .btn-fax-open { background: #475569; }
-        .btn-sub-text { font-size: 10px; font-weight: 400; margin-top: 3px; opacity: 0.8; }
-        #map-container { width: 100%; height: 330px; margin-top: 20px; border-radius: 16px; display: none; border: 1px solid var(--border); overflow: hidden; position: relative; }
-        #map-actions { display: none; align-items: center; justify-content: space-between; gap: 8px; margin-top: 9px; }
-        .map-link-btn { border: 0; border-radius: 9px; background: #2563eb; color: #fff; padding: 9px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
-        #boundary-status { color: var(--text-sub); font-size: 11px; text-align: right; line-height: 1.35; }
-        #boundary-credit { display: none; margin-top: 6px; color: #64748b; font-size: 9px; line-height: 1.4; text-align: right; }
-        .rank-marker-wrap { position: relative; width: 36px; height: 45px; cursor: pointer; }
-        .rank-marker { position: absolute; left: 3px; top: 0; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: #2563eb; border: 3px solid #fff; box-shadow: 0 3px 10px rgba(0,0,0,.35); transition: .15s ease; }
-        .rank-marker span { position: absolute; inset: 0; display: flex; align-items: center; justify-content: center; transform: rotate(45deg); color: #fff; font-size: 13px; font-weight: 900; }
-        .rank-marker-wrap.active .rank-marker { width: 34px; height: 34px; left: 1px; top: -2px; background: #ef4444; box-shadow: 0 4px 14px rgba(239,68,68,.5); }
-        .search-point { width: 18px; height: 18px; border-radius: 50%; background: #111827; border: 4px solid #fff; box-shadow: 0 2px 8px rgba(0,0,0,.45); }
-        .search-label { background: rgba(15,23,42,.92); color: #fff; border: 1px solid #475569; border-radius: 7px; padding: 4px 7px; font-size: 10px; white-space: nowrap; }
-        
-        .modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.8); z-index: 999; overflow-y: auto; padding: 15px 10px; }
-        .modal-overlay.open { display: block; }
-        .modal-content { width: 100%; max-width: 650px; margin: 0 auto; background: var(--card); border-radius: 20px; padding: 20px; }
-        
-        .fav-section { background: var(--bg); padding: 12px; border-radius: 14px; margin-bottom: 12px; border: 1px solid var(--border); }
-        .fav-header { font-size: 12px; color: var(--text-sub); margin-bottom: 8px; display: flex; justify-content: space-between; align-items: center; }
-        .fav-header b { color: var(--accent); }
-        .fav-btn-save { padding: 4px 8px; background: var(--accent); border: none; border-radius: 6px; color: #fff; font-size: 11px; cursor: pointer; }
-        .fav-list { display: flex; flex-wrap: wrap; gap: 6px; max-height: 80px; overflow-y: auto; }
-        .fav-chip { background: var(--border); padding: 6px 12px; border-radius: 20px; font-size: 12px; color: #fff; cursor: pointer; position: relative; border: 1px solid transparent; }
-        .fav-chip:hover { border-color: var(--accent); }
-        .fav-chip .del { margin-left: 6px; color: #ef4444; font-weight: bold; }
-
-        .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--bg); padding: 15px; border-radius: 14px; margin-bottom: 20px; }
-        .grid-inputs input, .grid-inputs select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 12px; }
-        .preview-wrap { width: 100%; height: 500px; overflow: hidden; background: #444; border-radius: 12px; display: flex; justify-content: center; align-items: center; border: 2px solid #333; }
-        
-        #captureArea { background: #fff; color: #000; padding: 40px; width: 800px; font-family: 'Malgun Gothic', sans-serif; transform: scale(0.44); transform-origin: center center; flex-shrink: 0; }
-        #captureArea header h1 { text-align: center; font-size: 32px; letter-spacing: 10px; border-bottom: 3px solid #000; display: inline-block; padding-bottom: 10px; margin: 0 0 30px 0; color: #000; width: 100%; }
-        #captureArea table { width: 100%; border-collapse: collapse; margin-bottom: 25px; border: 2px solid #000; }
-        #captureArea th, #captureArea td { border: 1px solid #000; padding: 8px; text-align: center; font-size: 14px; height: 45px; vertical-align: middle; color: #000; }
-        #captureArea th { background-color: #f2f2f2; font-weight: bold; }
-        #captureArea .val { font-weight: 900; font-size: 17px; color: #000; outline: none; cursor: text; transition: background 0.2s; }
-        #captureArea .val:hover { background-color: #f1f5f9; }
-        #captureArea .val:focus { background-color: #e2e8f0; }
-        #captureArea .section-title { font-weight: bold; margin-bottom: 10px; display: flex; align-items: center; text-align: left; color: #000; font-size: 18px; }
-        #captureArea .section-title::before { content: '▶'; margin-right: 8px; font-size: 14px; }
-        
-        .notice-section { text-align: left; border-top: 1px solid #000; padding-top: 15px; margin-top: 20px; color: #000; }
-        .notice-section h3 { font-size: 16px; font-weight: bold; margin: 0 0 10px 0; }
-        .notice-section p { font-size: 14px; margin: 5px 0; line-height: 1.5; }
-        .notice-section .bold-under { color: #000; font-weight: 900; text-decoration: underline; }
-        .notice-section .sub-bullet { margin-left: 15px; font-size: 13px; color: #000; }
-
-        .footer { border-top: 4px solid #000; margin-top: 10px; padding-top: 10px; text-align: right; }
-        .logo-main { font-style: italic; font-weight: bold; font-size: 22px; color: #000; margin: 0; }
-        .logo-sub { font-weight: bold; font-size: 16px; color: #000; margin: -5px 0 0 0; }
-
-        .modal-action-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; margin-top: 15px; }
-        .save-btn { grid-column: span 2; padding: 15px; background: var(--success); color: #fff; border: none; border-radius: 10px; font-weight: 700; cursor: pointer; }
-        .sms-btn { padding: 12px; background: #ea580c; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
-        .close-btn { padding: 12px; background: #444; color: #fff; border: none; border-radius: 10px; cursor: pointer; }
-  
-        .toast-welcome { position: fixed; top: -80px; left: 50%; transform: translateX(-50%); background: #3b82f6; color: white; padding: 15px 30px; border-radius: 30px; font-size: 14px; font-weight: bold; box-shadow: 0 5px 20px rgba(0,0,0,0.5); z-index: 10000; cursor: pointer; transition: top 0.5s cubic-bezier(0.68, -0.55, 0.265, 1.55); }
-        .toast-welcome.show { top: 20px; }
-        .msg-modal-overlay { display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.7); z-index: 10001; align-items: center; justify-content: center; }
-        .msg-modal-overlay.open { display: flex; }
-        .msg-modal-content { background: #1e293b; color: #f8fafc; width: 90%; max-width: 400px; padding: 25px; border-radius: 20px; text-align: center; box-shadow: 0 10px 30px rgba(0,0,0,0.5); }
-        .msg-modal-content h3 { margin-top: 0; color: #60a5fa; margin-bottom: 15px; }
-        .msg-modal-content p { font-size: 14px; line-height: 1.6; margin-bottom: 25px; color: #cbd5e1; text-align: left; word-break: keep-all; }
-        .msg-close-btn { width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
-    </style>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="theme-color" content="#3157d5">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <meta name="referrer" content="strict-origin-when-cross-origin">
+  <title>BP FINDER+ | 앤텔레콤 모바일 업무 도구</title>
+  <style>
+    :root{--ink:#111827;--muted:#697386;--line:#e7eaf0;--blue:#3157d5;--blue2:#2446b9;--soft:#eef2ff}
+    *{box-sizing:border-box}
+    html{background:#eef1f7}
+    body{margin:0;color:var(--ink);font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
+    .site-bg{min-height:100dvh;position:relative;overflow:hidden;background:radial-gradient(circle at 10% 0%,#dfe7ff 0,transparent 34%),radial-gradient(circle at 90% 100%,#dcf8ed 0,transparent 30%),#eef1f7}
+    .ambient{position:fixed;border-radius:999px;filter:blur(60px);opacity:.46;pointer-events:none}
+    .one{width:270px;height:270px;background:#a5b9ff;top:-120px;right:-120px}
+    .two{width:240px;height:240px;background:#9ce3cb;bottom:-130px;left:-110px}
+    .app{width:100%;min-height:100dvh;position:relative;z-index:1;background:rgba(249,250,252,.95);padding:18px 18px calc(92px + env(safe-area-inset-bottom))}
+    .header{height:52px;display:flex;align-items:center;gap:11px}
+    .logo{width:38px;height:38px;border-radius:13px;display:grid;place-items:center;color:#fff;font-size:20px;font-weight:900;font-style:italic;background:linear-gradient(145deg,#496fee,#253fa8);box-shadow:0 7px 18px rgba(49,87,213,.26)}
+    .brand{display:flex;flex-direction:column;line-height:1.05}
+    .brand strong{font-size:15px;letter-spacing:-.3px}.brand strong span{color:var(--blue)}
+    .brand small{color:var(--muted);font-size:10px;margin-top:5px}
+    .private{margin-left:auto;color:var(--blue);background:var(--soft);border:1px solid #d9e0ff;border-radius:999px;padding:6px 9px;font-size:10px;font-weight:800}
+    .heading{padding:22px 2px 14px}
+    .heading span{display:block;color:var(--blue);font-size:9px;font-weight:900;letter-spacing:1.5px;margin-bottom:6px}
+    .heading h1{margin:0;font-size:24px;letter-spacing:-1px;line-height:1.2}
+    .heading p{margin:7px 0 0;color:var(--muted);font-size:12px;line-height:1.45;word-break:keep-all}
+    .nav{position:fixed;z-index:20;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 24px);max-width:616px;display:grid;grid-template-columns:repeat(3,1fr);gap:4px;padding:6px;border:1px solid rgba(214,219,230,.8);border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 16px 42px rgba(22,32,59,.2);backdrop-filter:blur(20px)}
+    .nav button{min-height:57px;border:0;border-radius:15px;background:transparent;color:#8790a2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:750}
+    .nav button i{font-style:normal;font-size:20px;line-height:1}
+    .nav button.active{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 7px 16px rgba(49,87,213,.3)}
+    .frame{height:calc(100dvh - 176px);min-height:520px;margin:0 -18px;overflow:hidden;border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:#fff}
+    iframe{display:block;width:100%;height:100%;border:0;background:#fff}
+    .loading{position:absolute;inset:0;display:grid;place-items:center;color:var(--muted);font-size:12px;pointer-events:none}
+    @media(min-width:680px){
+      .site-bg{padding:28px 0}.app{width:640px;min-height:calc(100dvh - 56px);margin:0 auto;padding:24px 30px 38px;border:1px solid rgba(255,255,255,.8);border-radius:30px;box-shadow:0 24px 70px rgba(34,44,74,.15)}
+      .nav{position:sticky;top:14px;bottom:auto;transform:none;width:100%;max-width:none;margin-top:20px;background:rgba(241,243,247,.92);box-shadow:0 7px 20px rgba(22,32,59,.07)}
+      .nav button{min-height:52px;flex-direction:row;font-size:11px;gap:7px}.nav button i{font-size:17px}
+      .heading{padding-top:27px}.frame{height:760px;min-height:640px;margin:0;border:1px solid var(--line);border-radius:22px;box-shadow:0 8px 24px rgba(33,43,74,.06)}
+    }
+    @media(max-width:370px){.app{padding-left:13px;padding-right:13px}.brand small{display:none}.frame{margin-left:-13px;margin-right:-13px}}
+    @media(prefers-reduced-motion:reduce){*{scroll-behavior:auto!important;transition-duration:.01ms!important}}
+  </style>
 </head>
 <body>
-
-<div id="welcome-toast" class="toast-welcome" onclick="openMessagePopup()">
-    🔔 새로운 공지사항이 있습니다. (클릭하여 확인)
-</div>
-
-<div id="message-modal" class="msg-modal-overlay">
-    <div class="msg-modal-content">
-        <h3>BP FINDER 업데이트 안내</h3>
-<p>
-    안녕하세요, 하루입니다.<br><br>
-
-    BP FINDER에 앤텔레콤 공식 센터정보 자동 업데이트 기능을 적용했습니다.<br><br>
-
-    이제 센터명, 주소, 전화번호, 팩스번호와 지도 좌표가 공식 정보를 기준으로 자동 갱신됩니다.<br><br>
-
-    지역을 검색하면 검색 위치에서 가까운 센터 5곳을 거리순으로 확인할 수 있으며, 지도에는 각 센터의 위치가 1번부터 5번까지 번호로 표시됩니다.<br><br>
-
-    검색한 행정구역의 경계도 지도에 함께 표시되어 주변 센터의 위치와 이동 범위를 더욱 쉽게 비교할 수 있습니다.<br><br>
-
-    센터 목록이 추가·변경·삭제되더라도 별도의 수동 수정 없이 최신 정보가 반영됩니다.<br><br>
-
-    항상 이용해주셔서 감사합니다.
-</p>
-        <button class="msg-close-btn" onclick="closeMessagePopup()">확인</button>
-    </div>
-</div>
-
-<div class="app">
-    <h2>앤텔레콤 BP FINDER</h2>
-    <div id="data-status">센터정보를 불러오는 중입니다.</div>
-    <div class="search-box">
-        <input type="text" id="q" placeholder="지역 명칭 입력 (예: 서면, 동성로)" onkeypress="if(event.keyCode==13) run()">
-        <div id="loc-list"></div>
-        <button class="search-btn" onclick="run()">주소로 센터 찾기</button>
-    </div>
-    <div id="loading">⏳ 거리를 계산 중입니다...</div>
-    <div id="out"></div>
-    <div id="map-container"></div>
-    <div id="map-actions">
-        <button class="map-link-btn" onclick="openKakaoMap()">선택 센터 카카오맵</button>
-        <span id="boundary-status"></span>
-    </div>
-    <div id="boundary-credit">경계 데이터: 통계청 SGIS · 가공: vuski/admdongkor · CC BY 4.0</div>
-</div>
-
-<div class="modal-overlay" id="faxModal">
-    <div class="modal-content">
-        <div class="fav-section">
-            <div class="fav-header">
-                <span>⭐ <b>자주 쓰는 매출처</b> (클릭시 즉시 입력)</span>
-                <button class="fav-btn-save" onclick="addFavSales()">현재 정보 저장</button>
-            </div>
-            <div id="fav-list" class="fav-list"></div>
-        </div>
-
-        <div class="grid-inputs">
-            <select id="in_type" onchange="sync()"><option value="선불">선불</option><option value="후불">후불</option></select>
-            <select id="in_cat" onchange="sync()"><option value="신규개통">신규개통</option><option value="번호이동">번호이동</option></select>
-            <input type="text" id="in_s_no" placeholder="매출 회원번호" oninput="sync()">
-            <input type="text" id="in_s_name" placeholder="매출 회원명" oninput="sync()">
-            <input type="text" id="in_name" placeholder="명의자 성명" oninput="sync()">
-            <input type="text" id="in_birth" placeholder="명의자 생년월일" oninput="sync()">
-            <input type="text" id="in_tel" placeholder="명의자 연락번호" oninput="sync()">
-            <select id="in_mang" onchange="sync()"><option value="K망">K망</option><option value="L망">L망</option></select>
-            <input type="text" id="in_plan" placeholder="가입 요금제" oninput="sync()">
-            <input type="text" id="in_device" placeholder="단말기 모델" oninput="sync()">
-            <input type="text" id="in_res" placeholder="방문일 (예: 15오후 2시)" oninput="sync()">
-            <input type="text" id="in_note" placeholder="비고/특이사항" oninput="sync()">
-            <input type="text" id="in_agent_no" placeholder="요청자 회원번호" oninput="sync()">
-            <input type="text" id="in_agent" placeholder="요청자 성명" oninput="sync()">
-            <input type="text" id="in_agent_center" placeholder="소속 센터" oninput="sync()">
-            <input type="text" id="in_agent_tel" placeholder="요청자 연락처" oninput="sync()">
-        </div>
-        
-        <div class="preview-wrap">
-            <div id="captureArea">
-                <header><h1>센 터 방 문 &nbsp; 개 통 &nbsp; 요 청 서</h1></header>
-                <div style="text-align:right; margin-bottom:15px; font-weight:bold; font-size:16px;"><span id="v_type_check">☑ 선불 □ 후불</span> / <span id="v_cat_check">☑ 신규개통 □ 번호이동</span></div>
-                <div class="section-title">개통 관련 기재란</div>
-                <table>
-                    <tr><th rowspan="2" style="width:20%">매출자 정보</th><th style="width:40%">회원번호</th><th style="width:40%">회원명</th></tr>
-                    <tr><td class="val" id="v_s_no" contenteditable="true">-</td><td class="val" id="v_s_name" contenteditable="true">-</td></tr>
-                    <tr><th>명의자 성명</th><th>명의자 생년월일</th><th>명의자 연락번호</th></tr>
-                    <tr><td class="val" id="v_name" contenteditable="true">-</td><td class="val" id="v_birth" contenteditable="true">-</td><td class="val" id="v_tel" contenteditable="true">-</td></tr>
-                    <tr><th>통신망 선택</th><th>가입 요금제</th><th>방문 예약 시간</th></tr>
-                    <tr><td class="val" id="v_mang_check">☑ K망 □ L망</td><td class="val" id="v_plan" contenteditable="true">-</td><td class="val" id="v_res" contenteditable="true" style="font-weight:900;">-</td></tr>
-                    <tr><th>비고</th><td colspan="2" class="val" id="v_note" contenteditable="true" style="text-align:left; font-weight:normal;">-</td></tr>
-                </table>
-                <div class="section-title">요청 회원 및 센터 기재란</div>
-                <table>
-                    <tr><th rowspan="4" style="width:20%">요청 회원 정보</th><th style="width:40%">회원번호</th><th style="width:40%">회원명</th></tr>
-                    <tr><td class="val" id="v_agent_no_out" contenteditable="true">-</td><td class="val" id="v_agent_out" contenteditable="true">-</td></tr>
-                    <tr><th>소속 센터 / 활동 지역</th><th>연락번호</th></tr>
-                    <tr><td class="val" id="v_agent_center_out" contenteditable="true">-</td><td class="val" id="v_agent_tel_out" contenteditable="true">-</td></tr>
-                    <tr><th rowspan="2">개통 처리 정보</th><th>개통 센터</th><th>개통 확정 번호</th></tr>
-                    <tr><td class="val" id="v_bp" contenteditable="true" style="font-size:18px;">-</td><td class="val" contenteditable="true">-</td></tr>
-                </table>
-
-                <div class="notice-section">
-                    <h3>※ 개통 시 주의사항</h3>
-                    <p>▶ 방문 개통 명의자 본인 확인 후 <span class="bold-under">개통 본인확인서(필수)</span>를 반드시 작성하여 주세요.</p>
-                    <p>▶ 다회선 개통 요청 시 개통 의뢰 회원에게 내용 확인 후 개통 진행해주세요.</p>
-                    <p>▶ 부정영업이 의심이 되는 경우 개통을 거부할 수 있습니다.</p>
-                    <p class="sub-bullet">- 본인 실사용 외 타인 판매, 양도, 불법 스팸, 보이스피싱 등</p>
-                </div>
-
-                <div class="footer"><p class="logo-main">N telecom</p><p class="logo-sub">앤텔레콤</p></div>
-            </div>
-        </div>
-        <div class="modal-action-btns">
-            <button class="save-btn" onclick="saveImage()">📸 서류 저장 및 다운로드</button>
-            <button class="sms-btn" onclick="copySMS()">💬 소비자 예약문자 복사</button>
-            <button class="close-btn" onclick="closeFax()">닫기</button>
-        </div>
-    </div>
-</div>
-
-<script>
-const SMART_MAP = { "서면": "부산 부산진구 부전동", "동성로": "대구 중구 동성로", "남포동": "부산 중구 남포동" };
-
-let DATA = [];
-let centersReady = false;
-
-async function loadCenters() {
-    const statusEl = document.getElementById('data-status');
-
-    try {
-        const response = await fetch(`./data/centers.json?v=${Date.now()}`, {
-            cache: 'no-store'
-        });
-
-        if (!response.ok) {
-            throw new Error(`센터정보 요청 실패 (${response.status})`);
-        }
-
-        const json = await response.json();
-
-        if (!Array.isArray(json.centers)) {
-            throw new Error('centers.json 형식이 올바르지 않습니다.');
-        }
-
-        DATA = json.centers
-            .map(center => ({
-                id: center.id || '',
-                name: center.name || '이름 없음',
-                addr: center.address || `${center.address1 || ''} ${center.address2 || ''}`.trim(),
-                tel: center.phone || '-',
-                fax: center.fax || '-',
-                lat: Number(center.latitude),
-                lng: Number(center.longitude),
-                region: center.region || '',
-                isCenter: Boolean(center.isCenter)
-            }))
-            .filter(center => Number.isFinite(center.lat) && Number.isFinite(center.lng));
-
-        if (DATA.length === 0) {
-            throw new Error('사용 가능한 센터 좌표가 없습니다.');
-        }
-
-        centersReady = true;
-
-        const updatedAt = json.updatedAt ? new Date(json.updatedAt) : null;
-        const updatedText = updatedAt && !Number.isNaN(updatedAt.getTime())
-            ? updatedAt.toLocaleString('ko-KR')
-            : '시간 확인 불가';
-
-        statusEl.textContent = `센터 ${DATA.length}곳 · ${updatedText} 업데이트`;
-    } catch (error) {
-        centersReady = false;
-        DATA = [];
-        statusEl.textContent = '센터정보를 불러오지 못했습니다.';
-        document.getElementById('out').innerHTML = `
-            <div style="padding:18px;text-align:center;color:#fca5a5;line-height:1.6;">
-                센터정보 로딩에 실패했습니다.<br>
-                잠시 후 새로고침해 주세요.
-            </div>`;
-        console.error('센터정보 로딩 실패:', error);
-    }
-}
-let currentList = [];
-let currentBP = null;
-let map = null;
-let geocoder = null;
-let rankOverlays = [];
-let searchOverlays = [];
-let boundaryShapes = [];
-let activeRank = 0;
-let boundaryDataPromise = null;
-
-const ALL_INPUTS = [
-    'in_type', 'in_cat', 'in_s_no', 'in_s_name', 'in_name', 'in_birth', 'in_tel',
-    'in_mang', 'in_plan', 'in_device', 'in_res', 'in_note',
-    'in_agent_no', 'in_agent', 'in_agent_center', 'in_agent_tel'
-];
-
-window.onload = async () => {
-    await loadCenters();
-
-    ALL_INPUTS.forEach(id => {
-        const val = localStorage.getItem(id);
-        const el = document.getElementById(id);
-        if(val && el) el.value = val;
-    });
-
-    renderFavSales();
-    sync();
-};
-
-function renderFavSales() {
-    const list = JSON.parse(localStorage.getItem('fav_sales_list') || '[]');
-    const box = document.getElementById('fav-list');
-    box.innerHTML = list.length ? '' : '<span style="font-size:11px;color:#475569;">등록된 매출처가 없습니다.</span>';
-    list.forEach((item, idx) => {
-        const chip = document.createElement('div');
-        chip.className = 'fav-chip';
-        chip.innerHTML = `${item.name} <span class="del" onclick="delFavSales(event, ${idx})">×</span>`;
-        chip.onclick = () => {
-            document.getElementById('in_s_no').value = item.no;
-            document.getElementById('in_s_name').value = item.name;
-            sync();
-        };
-        box.appendChild(chip);
-    });
-}
-
-function addFavSales() {
-    const no = document.getElementById('in_s_no').value.trim();
-    const name = document.getElementById('in_s_name').value.trim();
-    if(!no || !name) return alert("매출 회원번호와 성명을 입력 후 버튼을 눌러주세요.");
-    let list = JSON.parse(localStorage.getItem('fav_sales_list') || '[]');
-    if(list.some(i => i.no === no)) return alert("이미 등록된 번호입니다.");
-    list.push({no, name});
-    localStorage.setItem('fav_sales_list', JSON.stringify(list));
-    renderFavSales();
-}
-
-function delFavSales(e, idx) {
-    e.stopPropagation();
-    let list = JSON.parse(localStorage.getItem('fav_sales_list') || '[]');
-    list.splice(idx, 1);
-    localStorage.setItem('fav_sales_list', JSON.stringify(list));
-    renderFavSales();
-}
-
-kakao.maps.load(() => {
-    geocoder = new kakao.maps.services.Geocoder();
-});
-
-function run() {
-    if (!centersReady || DATA.length === 0) {
-        alert('센터정보를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
-        return;
-    }
-
-    kakao.maps.load(() => {
-        let q = document.getElementById('q').value.trim();
-        if(!q) return;
-        const box = document.getElementById('loc-list');
-        box.innerHTML = '';
-        let smartQuery = q;
-        for (let key in SMART_MAP) {
-            if (q.includes(key)) {
-                smartQuery = SMART_MAP[key];
-                break;
-            }
-        }
-
-        geocoder.addressSearch(smartQuery, (result, status) => {
-            if (status === 'OK') {
-                box.style.display = 'block';
-                result.forEach((loc) => {
-                    const div = document.createElement('div');
-                    div.className = 'loc-item';
-                    div.innerHTML = `<strong>${loc.address_name}</strong>`;
-                    div.onclick = () => {
-                        box.style.display = 'none';
-                        document.getElementById('q').value = loc.address_name;
-                        startCalculation(parseFloat(loc.y), parseFloat(loc.x), loc.address_name);
-                    };
-                    box.appendChild(div);
-                });
-            } else {
-                const ps = new kakao.maps.services.Places();
-                ps.keywordSearch(q, (res, stat) => {
-                    if (stat === 'OK') {
-                        box.style.display = 'block';
-                        res.slice(0, 8).forEach(loc => {
-                            const div = document.createElement('div');
-                            div.className = 'loc-item';
-                            div.innerHTML = `<strong>${loc.address_name}</strong><br><small>${loc.place_name}</small>`;
-                            div.onclick = () => {
-                                box.style.display = 'none';
-                                document.getElementById('q').value = loc.address_name;
-                                startCalculation(parseFloat(loc.y), parseFloat(loc.x), loc.address_name);
-                            };
-                            box.appendChild(div);
-                        });
-                    } else {
-                        box.style.display = 'none';
-                        alert('검색할 수 있는 지역을 찾지 못했습니다.');
-                    }
-                });
-            }
-        });
-    });
-}
-
-async function startCalculation(uLat, uLng, addr) {
-    document.getElementById('loading').style.display = 'block';
-
-    try {
-        currentList = DATA
-            .map(bp => calcDist(bp, { y: bp.lat, x: bp.lng }, uLat, uLng))
-            .sort((a, b) => a.dist - b.dist)
-            .slice(0, 5);
-
-        activeRank = 0;
-        currentBP = currentList[0] || null;
-        renderCards(addr);
-        await renderSearchMap(uLat, uLng, addr);
-    } finally {
-        document.getElementById('loading').style.display = 'none';
-    }
-}
-
-function calcDist(bp, coords, uLat, uLng) {
-    const dLat = (coords.y - uLat) * Math.PI / 180;
-    const dLng = (coords.x - uLng) * Math.PI / 180;
-    const a = Math.sin(dLat/2)**2 + Math.cos(uLat*Math.PI/180) * Math.cos(coords.y*Math.PI/180) * Math.sin(dLng/2)**2;
-    return { ...bp, lat: coords.y, lng: coords.x, dist: 6371 * 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a)) };
-}
-
-function renderCards(addr) {
-    let h = `<div style="font-size:12px;color:#94a3b8;margin:15px 0 5px;">📍 [${addr}] 인근 지점</div>`;
-    if(currentList.length === 0) {
-        h += `<div style="padding:20px;text-align:center;color:var(--text-sub);">인근 지점을 찾을 수 없습니다.</div>`;
-    }
-    h += currentList.map((c, i) => `
-        <div class="res-card" id="result-card-${i}" onclick="updateMap(${i})">
-            <div class="card-name">${i + 1}. ${c.name} (${c.dist.toFixed(1)}km)</div>
-            <div class="card-addr">${c.addr}</div>
-            <div class="card-btns">
-                <a href="tel:${c.tel}" class="btn-call" onclick="event.stopPropagation();"><span>📞 전화예약</span><span class="btn-sub-text">${c.tel}</span></a>
-                <button class="btn-fax-open" onclick="event.stopPropagation(); openFax(${i});"><span>📠 서류작성</span><span class="btn-sub-text">FAX: ${c.fax || "-"}</span></button>
-            </div>
-        </div>`).join('');
-    document.getElementById('out').innerHTML = h;
-}
-
-function clearMapObjects() {
-    rankOverlays.forEach(item => item.overlay.setMap(null));
-    searchOverlays.forEach(overlay => overlay.setMap(null));
-    boundaryShapes.forEach(shape => shape.setMap(null));
-    rankOverlays = [];
-    searchOverlays = [];
-    boundaryShapes = [];
-}
-
-async function renderSearchMap(uLat, uLng, addr) {
-    const container = document.getElementById('map-container');
-    const actions = document.getElementById('map-actions');
-    const status = document.getElementById('boundary-status');
-    const credit = document.getElementById('boundary-credit');
-
-    container.style.display = 'block';
-    actions.style.display = 'flex';
-    status.textContent = '행정경계를 불러오는 중...';
-
-    const searchPos = new kakao.maps.LatLng(uLat, uLng);
-    if (!map) {
-        map = new kakao.maps.Map(container, { center: searchPos, level: 6 });
-    }
-
-    clearMapObjects();
-    const bounds = new kakao.maps.LatLngBounds();
-    bounds.extend(searchPos);
-
-    const searchPoint = new kakao.maps.CustomOverlay({
-        map,
-        position: searchPos,
-        content: '<div class="search-point"></div>',
-        yAnchor: 0.5,
-        xAnchor: 0.5,
-        zIndex: 5
-    });
-    const searchLabel = new kakao.maps.CustomOverlay({
-        map,
-        position: searchPos,
-        content: '<div class="search-label">검색 지역</div>',
-        yAnchor: 1.8,
-        xAnchor: 0.5,
-        zIndex: 5
-    });
-    searchOverlays.push(searchPoint, searchLabel);
-
-    currentList.forEach((bp, i) => {
-        const pos = new kakao.maps.LatLng(bp.lat, bp.lng);
-        bounds.extend(pos);
-        const content = `
-            <div class="rank-marker-wrap ${i === activeRank ? 'active' : ''}" data-rank="${i}" onclick="selectRankMarker(event, ${i})">
-                <div class="rank-marker"><span>${i + 1}</span></div>
-            </div>`;
-        const overlay = new kakao.maps.CustomOverlay({
-            map,
-            position: pos,
-            content,
-            yAnchor: 1,
-            xAnchor: 0.5,
-            zIndex: 10 + i
-        });
-        rankOverlays.push({ overlay, bp, index: i });
-    });
-
-    const matched = await drawAdministrativeBoundary(addr, bounds);
-    if (matched > 0) {
-        status.textContent = `행정경계 ${matched}개 · 가까운 센터 5곳`;
-        credit.style.display = 'block';
-    } else {
-        const circle = new kakao.maps.Circle({
-            center: searchPos,
-            radius: 1500,
-            strokeWeight: 3,
-            strokeColor: '#ff2ea6',
-            strokeOpacity: 0.9,
-            strokeStyle: 'solid',
-            fillColor: '#ff6bbb',
-            fillOpacity: 0.12
-        });
-        circle.setMap(map);
-        boundaryShapes.push(circle);
-        status.textContent = '정확한 경계 없음 · 1.5km 반경 표시';
-        credit.style.display = 'none';
-    }
-
-    map.setBounds(bounds, 45, 35, 45, 35);
-    setTimeout(() => map.relayout(), 0);
-    updateActiveMarker();
-}
-
-function loadBoundaryData() {
-    if (!boundaryDataPromise) {
-        boundaryDataPromise = import('https://esm.sh/admdongkor@0.4.0')
-            .then(async adk => {
-                const versions = adk.versions();
-                const latest = versions[versions.length - 1];
-                if (!latest) throw new Error('행정경계 버전을 찾지 못했습니다.');
-                return adk.get(latest, 'emd', { detail: false });
-            });
-    }
-    return boundaryDataPromise;
-}
-
-function compactAdmin(value = '') {
-    return String(value)
-        .normalize('NFC')
-        .replace(/\s+/g, '')
-        .replace(/특별자치도|특별자치시|광역시|특별시/g, '')
-        .replace(/제(?=\d+동)/g, '')
-        .replace(/(.+?)\d+(동)$/g, '$1$2');
-}
-
-function findBoundaryFeatures(fc, addr) {
-    if (!fc || !Array.isArray(fc.features)) return [];
-
-    const q = compactAdmin(addr);
-    const hasEmd = /(동|읍|면)/.test(addr);
-    let scored = [];
-
-    for (const feature of fc.features) {
-        const p = feature.properties || {};
-        const sido = compactAdmin(p.sidonm || '');
-        const sgg = compactAdmin(p.sggnm || '');
-        const emdRaw = compactAdmin(p.emdnm || '');
-        const emdBase = emdRaw.replace(/(.+?)\d+(동)$/g, '$1$2');
-
-        let score = 0;
-        if (sido && q.includes(sido)) score += 10;
-        if (sgg && q.includes(sgg)) score += 30;
-        if (emdRaw && q.includes(emdRaw)) score += 80;
-        else if (emdBase && q.includes(emdBase)) score += 70;
-
-        if (hasEmd && score >= 70) scored.push({ feature, score });
-        if (!hasEmd && score >= 30) scored.push({ feature, score });
-    }
-
-    if (!scored.length) return [];
-    const best = Math.max(...scored.map(x => x.score));
-    return scored.filter(x => x.score === best).map(x => x.feature);
-}
-
-async function drawAdministrativeBoundary(addr, bounds) {
-    try {
-        const fc = await loadBoundaryData();
-        const features = findBoundaryFeatures(fc, addr);
-        let drawn = 0;
-
-        features.forEach(feature => {
-            const geometry = feature.geometry;
-            if (!geometry || !Array.isArray(geometry.coordinates)) return;
-            const polygons = geometry.type === 'Polygon'
-                ? [geometry.coordinates]
-                : geometry.type === 'MultiPolygon'
-                    ? geometry.coordinates
-                    : [];
-
-            polygons.forEach(polygonCoords => {
-                const outerRing = polygonCoords[0];
-                if (!Array.isArray(outerRing) || outerRing.length < 3) return;
-
-                const path = outerRing.map(([lng, lat]) => {
-                    const pos = new kakao.maps.LatLng(lat, lng);
-                    bounds.extend(pos);
-                    return pos;
-                });
-
-                const polygon = new kakao.maps.Polygon({
-                    path,
-                    strokeWeight: 3,
-                    strokeColor: '#ff2ea6',
-                    strokeOpacity: 0.9,
-                    strokeStyle: 'solid',
-                    fillColor: '#ff6bbb',
-                    fillOpacity: 0.12
-                });
-                polygon.setMap(map);
-                boundaryShapes.push(polygon);
-                drawn += 1;
-            });
-        });
-
-        return drawn;
-    } catch (error) {
-        console.warn('행정경계 로딩 실패:', error);
-        return 0;
-    }
-}
-
-function selectRankMarker(event, i) {
-    if (event) event.stopPropagation();
-    updateMap(i, true);
-}
-
-function updateMap(i, scrollCard = false) {
-    const bp = currentList[i];
-    if (!bp) return;
-    activeRank = i;
-    currentBP = bp;
-    updateActiveMarker();
-    if (map) map.panTo(new kakao.maps.LatLng(bp.lat, bp.lng));
-    if (scrollCard) {
-        document.getElementById(`result-card-${i}`)?.scrollIntoView({ behavior: 'smooth', block: 'center' });
-    }
-}
-
-function updateActiveMarker() {
-    document.querySelectorAll('.rank-marker-wrap').forEach(el => {
-        el.classList.toggle('active', Number(el.dataset.rank) === activeRank);
-    });
-    document.querySelectorAll('.res-card').forEach((el, i) => {
-        el.style.borderLeftColor = i === activeRank ? '#ef4444' : 'var(--accent)';
-    });
-}
-
-function openKakaoMap() {
-    if (!currentBP) return;
-    const url = `https://map.kakao.com/link/map/${encodeURIComponent(currentBP.name)},${currentBP.lat},${currentBP.lng}`;
-    window.open(url, '_blank');
-}
-
-function sync() {
-    ALL_INPUTS.forEach(id => {
-        const el = document.getElementById(id);
-        if(el) localStorage.setItem(id, el.value);
-    });
-    const type = document.getElementById('in_type').value;
-    document.getElementById('v_type_check').innerHTML = (type==='선불'?'☑ 선불 □ 후불':'□ 선불 ☑ 후불');
-    const cat = document.getElementById('in_cat').value;
-    document.getElementById('v_cat_check').innerHTML = (cat==='신규개통'?'☑ 신규개통 □ 번호이동':'□ 신규개통 ☑ 번호이동');
-    const mang = document.getElementById('in_mang').value;
-    document.getElementById('v_mang_check').innerHTML = (mang==='K망'?'☑ K망 □ L망':'□ K망 ☑ L망');
-
-    let resVal = document.getElementById('in_res').value.trim();
-    let now = new Date();
-    let year = now.getFullYear();
-    let today = now.getDate();
-    let displayDate = resVal;
-    const dayMatch = resVal.match(/^(\d{1,2})(.*)$/);
-    if (dayMatch) {
-        let inputDay = parseInt(dayMatch[1]);
-        let timeInfo = dayMatch[2].trim();
-        let calcMonth = now.getMonth();
-        if (inputDay < today) { calcMonth += 1; if (calcMonth > 11) { calcMonth = 0; year += 1; } }
-        let finalMonth = String(calcMonth + 1).padStart(2, '0');
-        let finalDay = String(inputDay).padStart(2, '0');
-        displayDate = `${year}년 ${finalMonth}월 ${finalDay}일 ${timeInfo}`;
-    }
-
-    document.getElementById('v_s_no').innerText = document.getElementById('in_s_no').value || "-";
-    document.getElementById('v_s_name').innerText = document.getElementById('in_s_name').value || "-";
-    document.getElementById('v_name').innerText = document.getElementById('in_name').value || "-";
-    document.getElementById('v_birth').innerText = document.getElementById('in_birth').value || "-";
-    document.getElementById('v_tel').innerText = document.getElementById('in_tel').value || "-";
-    document.getElementById('v_plan').innerText = document.getElementById('in_plan').value || "-";
-    document.getElementById('v_res').innerText = displayDate || "-";
-    document.getElementById('v_note').innerText = document.getElementById('in_note').value || "-";
-    document.getElementById('v_agent_no_out').innerText = document.getElementById('in_agent_no').value || "-";
-    document.getElementById('v_agent_out').innerText = document.getElementById('in_agent').value || "-";
-    document.getElementById('v_agent_center_out').innerText = document.getElementById('in_agent_center').value || "-";
-    document.getElementById('v_agent_tel_out').innerText = document.getElementById('in_agent_tel').value || "-";
-}
-
-function openFax(i) {
-    currentBP = currentList[i];
-    document.getElementById('v_bp').innerText = currentBP.name;
-    document.getElementById('faxModal').classList.add('open');
-    ['in_name', 'in_birth', 'in_tel', 'in_res', 'in_note'].forEach(id => {
-        document.getElementById(id).value = "";
-        localStorage.removeItem(id);
-    });
-    sync();
-}
-
-function closeFax() { document.getElementById('faxModal').classList.remove('open'); }
-
-const LOG_URL = "https://script.google.com/macros/s/AKfycbzSZUVs3gtBduoOxgCtceqbAppo9zosWQ9O8kVc1VGyu9i0VBv7YDhVXi2fXo3fnWUwdg/exec";
-
-async function sendLog() {
-    if (!currentBP) return;
-    const now = new Date();
-    const pad = n => String(n).padStart(2,'0');
-    const time = `${now.getFullYear()}-${pad(now.getMonth()+1)}-${pad(now.getDate())} ${pad(now.getHours())}:${pad(now.getMinutes())}`;
-    const data = {
-        time,
-        center: currentBP.name,
-        fax: currentBP.fax,
-        name: document.getElementById('in_name').value || '-',
-        birth: document.getElementById('in_birth').value || '-',
-        tel: document.getElementById('in_tel').value || '-',
-        plan: document.getElementById('in_mang').value + ' ' + document.getElementById('in_plan').value,
-        agent: document.getElementById('in_agent').value || '-',
-        agentCenter: document.getElementById('in_agent_center').value || '-'
+  <main class="site-bg">
+    <div class="ambient one"></div><div class="ambient two"></div>
+    <section class="app">
+      <header class="header">
+        <div class="logo" aria-hidden="true">B</div>
+        <div class="brand"><strong>BP FINDER<span>+</span></strong><small>앤텔레콤 모바일 업무 도구</small></div>
+        <span class="private">검색 비노출</span>
+      </header>
+      <nav class="nav" aria-label="업무 도구 선택">
+        <button type="button" data-tool="center"><i aria-hidden="true">⌖</i>센터 찾기</button>
+        <button type="button" data-tool="esim"><i aria-hidden="true">▣</i>eSIM 모델명</button>
+        <button type="button" data-tool="delivery"><i aria-hidden="true">▤</i>당일유심</button>
+      </nav>
+      <div class="heading"><span id="eyebrow"></span><h1 id="toolTitle"></h1><p id="toolDescription"></p></div>
+      <div class="frame"><iframe id="toolFrame" title="BP FINDER 센터 찾기" allow="geolocation; clipboard-read; clipboard-write"></iframe></div>
+    </section>
+  </main>
+  <script>
+    const VERSION="20260822-1";
+    const TOOLS={
+      center:{title:"가까운 센터 찾기",eyebrow:"BP FINDER",description:"지역을 입력하면 가까운 공식 센터를 거리순으로 보여드려요.",src:"./tools/center/index.html"},
+      esim:{title:"eSIM 모델명 만들기",eyebrow:"DEVICE TOOL",description:"기종과 용량을 선택해 앤텔레콤 입력용 모델명을 완성하세요.",src:"./tools/esim/index.html"},
+      delivery:{title:"당일유심 배송조회",eyebrow:"USIM DELIVERY",description:"주소와 접수 시간을 기준으로 당일 배송 가능 여부를 확인하세요.",src:"./tools/delivery/index.html"}
     };
-    try {
-        await fetch(LOG_URL, {
-            method: 'POST',
-            mode: 'no-cors',
-            headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify(data)
-        });
-    } catch(e) {
-        console.warn('로그 전송 실패:', e);
+    const frame=document.getElementById("toolFrame");
+    const buttons=[...document.querySelectorAll("[data-tool]")];
+    let current="";
+    function renderTool(name){
+      if(!TOOLS[name])name="center";
+      const tool=TOOLS[name];
+      buttons.forEach(button=>{const active=button.dataset.tool===name;button.classList.toggle("active",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current")});
+      document.getElementById("eyebrow").textContent=tool.eyebrow;
+      document.getElementById("toolTitle").textContent=tool.title;
+      document.getElementById("toolDescription").textContent=tool.description;
+      if(current!==name){frame.src=tool.src+"?v="+VERSION;frame.title=tool.title;current=name}
     }
-}
-
-async function saveImage() {
-    const area = document.getElementById('captureArea');
-    const nameVal = document.getElementById('in_name').value || '미입력';
-    const fileName = `개통요청서_${nameVal}.png`;
-
-    const canvas = await html2canvas(area, {
-        scale: 2,
-        useCORS: true,
-        backgroundColor: "#ffffff",
-        onclone: (clonedDoc) => {
-            const clonedArea = clonedDoc.getElementById('captureArea');
-            clonedArea.style.transform = "none";
-            clonedArea.style.position = "relative";
-            clonedArea.style.margin = "0";
-            clonedArea.style.filter = "grayscale(100%)";
-        }
-    });
-
-    const dataUrl = canvas.toDataURL("image/png");
-    const link = document.createElement('a');
-    link.download = fileName;
-    link.href = dataUrl;
-    link.click();
-
-    // ✅ 로그 전송 (사용자에게 보이지 않음)
-    sendLog();
-
-    if (currentBP && currentBP.fax && currentBP.fax !== "-") {
-        navigator.clipboard.writeText(currentBP.fax).then(() => alert(`✅ 흑백 서류 저장 완료 및 팩스번호(${currentBP.fax}) 복사 완료`));
-    } else {
-        alert("✅ 흑백 서류 저장 완료");
-    }
-}
-
-function copySMS() {
-    const res = document.getElementById('v_res').innerText;
-    const name = document.getElementById('in_name').value || "고객";
-    const device = document.getElementById('in_device').value || "-";
-    const mang = document.getElementById('in_mang').value;
-    const plan = document.getElementById('in_plan').value || "-";
-    const agentName = document.getElementById('in_agent').value || "-";
-    const agentTel = (document.getElementById('in_agent_tel').value || "-").replace(/-/g, '.');
-
-    const parts = res.match(/\d+/g);
-    const isAM = res.includes("오전") ? "오전" : "오후";
-    let formattedRes = res;
-
-    if (parts && parts.length >= 3) {
-        const year = parts[0];
-        const month = parseInt(parts[1]);
-        const day = parseInt(parts[2]);
-        const hour = parts[3] || "";
-        const dateObj = new Date(year, month - 1, day);
-        const dayOfWeek = dateObj.toLocaleDateString('ko-KR', { weekday: 'short' });
-        formattedRes = `${month}월 ${day}일 (${dayOfWeek}) ${isAM} ${hour}시`;
-    }
-
-    const smsText = `■앤텔레콤 지점방문 예약증
-
-방문일시 : ${formattedRes}
-고객명 : ${name} 님
-사용할 단말기 : ${device}
-유심 : 나노유심
-요금제 : ${mang} ${plan}
-준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원
-개통지점 : ${currentBP.name}
-담당자 : ${agentName} / ${agentTel}
-주소 : ${currentBP.addr}`;
-
-    navigator.clipboard.writeText(smsText).then(() => {
-        alert("✅ 예약 문자가 클립보드에 복사되었습니다.");
-    });
-}
-
-let welcomeToastTimer;
-window.addEventListener('DOMContentLoaded', () => {
-    const toast = document.getElementById('welcome-toast');
-    setTimeout(() => { toast.classList.add('show'); }, 500);
-    welcomeToastTimer = setTimeout(() => { toast.classList.remove('show'); }, 5500);
-});
-
-function openMessagePopup() {
-    const toast = document.getElementById('welcome-toast');
-    clearTimeout(welcomeToastTimer);
-    toast.classList.remove('show');
-    document.getElementById('message-modal').classList.add('open');
-}
-
-function closeMessagePopup() {
-    document.getElementById('message-modal').classList.remove('open');
-}
-</script>
+    buttons.forEach(button=>button.addEventListener("click",()=>{location.hash=button.dataset.tool}));
+    window.addEventListener("hashchange",()=>renderTool(location.hash.slice(1)));
+    renderTool(location.hash.slice(1)||"center");
+  </script>
 </body>
 </html>
+
