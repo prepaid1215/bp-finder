@@ -1163,7 +1163,8 @@
   }
 
   function init() {
-    $('brandName').textContent = CONFIG.brand;
+    const brandName = $('brandName');
+    if (brandName) brandName.textContent = CONFIG.brand;
     $('shippingFee').textContent = `${CONFIG.shippingFee.toLocaleString()}원`;
     renderRegionList();
 
