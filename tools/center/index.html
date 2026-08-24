@@ -60,6 +60,12 @@
 
         .grid-inputs { display: grid; grid-template-columns: 1fr 1fr; gap: 8px; background: var(--bg); padding: 15px; border-radius: 14px; margin-bottom: 20px; }
         .grid-inputs input, .grid-inputs select { width: 100%; padding: 10px; border-radius: 8px; border: 1px solid var(--border); background: var(--card); color: #fff; font-size: 12px; }
+        .visit-date-field { position: relative; min-width: 0; }
+        .visit-date-field #in_res { min-height: 44px; padding-right: 54px; }
+        .visit-calendar-btn { position: absolute; top: 0; right: 0; bottom: 0; width: 44px; display: flex; align-items: center; justify-content: center; overflow: hidden; border: 1px solid #60a5fa; border-radius: 8px; background: #2563eb; color: #fff; cursor: pointer; }
+        .visit-calendar-btn:focus-within { outline: 2px solid #93c5fd; outline-offset: 1px; }
+        .visit-calendar-icon { font-size: 17px; line-height: 1; pointer-events: none; }
+        .visit-calendar-btn input[type=date] { position: absolute; inset: 0; width: 100%; height: 100%; margin: 0; padding: 0; border: 0; opacity: 0; cursor: pointer; }
         .preview-wrap { position: relative; width: 100%; height: 530px; overflow: hidden; background: #444; border-radius: 12px; padding: 10px; border: 2px solid #333; }
         
         #captureArea { position: absolute; top: 10px; left: 50%; width: 794px; background: #fff; color: #111; font-family: "Malgun Gothic", "Apple SD Gothic Neo", sans-serif; transform: translateX(-50%) scale(0.44); transform-origin: top center; }
@@ -201,7 +207,13 @@
             <input type="text" id="in_plan" placeholder="가입 요금제" oninput="sync()">
             <input type="text" id="in_port_info" placeholder="번호이동 시 현재 번호 / 통신사" oninput="sync()">
             <input type="text" id="in_device" placeholder="단말기 모델" oninput="sync()">
-            <input type="text" id="in_res" placeholder="방문일 (예: 23 5시)" oninput="sync()">
+            <div class="visit-date-field">
+                <input type="text" id="in_res" placeholder="방문일시 (예: 오전 8시)" aria-label="방문일시" oninput="sync()">
+                <label class="visit-calendar-btn" title="달력에서 방문일 선택">
+                    <span class="visit-calendar-icon" aria-hidden="true">&#128197;</span>
+                    <input type="date" id="visit_date_picker" aria-label="달력에서 방문일 선택" onchange="applyVisitDateFromCalendar()">
+                </label>
+            </div>
             <input type="text" id="in_note" placeholder="비고/특이사항" oninput="sync()">
             <input type="text" id="in_confirm_no" placeholder="개통 확정 번호" oninput="sync()">
             <input type="text" id="in_agent_no" placeholder="요청자 회원번호" oninput="sync()">
@@ -361,6 +373,7 @@ const ALL_INPUTS = [
 ];
 
 window.onload = async () => {
+    initializeVisitDatePicker();
     await loadCenters();
 
     ALL_INPUTS.forEach(id => {
@@ -783,14 +796,40 @@ async function copyMapLink(provider) {
         alert('복사하지 못했습니다. 다시 눌러 주세요.');
     }
 }
-function formatVisitDate(value, baseDate = new Date()) {
-    const raw = String(value || '').trim();
-    const match = raw.match(/^(\d{1,2})(?:일)?\s*(.*)$/);
-    if (!match) return raw;
-    const day = Number(match[1]);
-    if (!Number.isInteger(day) || day < 1 || day > 31) return raw;
+function createVisitDate(year, month, day) {
+    const date = new Date(year, month - 1, day);
+    if (date.getFullYear() !== year || date.getMonth() !== month - 1 || date.getDate() !== day) return null;
+    return date;
+}
 
-    const rest = match[2].trim();
+function parseVisitDate(value, baseDate = new Date()) {
+    const raw = String(value || '').trim();
+    if (!raw) return null;
+
+    let match = raw.match(/^(\d{4})-(\d{1,2})-(\d{1,2})\s*(.*)$/);
+    if (!match) match = raw.match(/^(\d{4})\s*년\s*(\d{1,2})\s*월\s*(\d{1,2})(?:일)?\s*(.*)$/);
+    if (match) {
+        const date = createVisitDate(Number(match[1]), Number(match[2]), Number(match[3]));
+        return date ? { date, timeText: match[4].trim() } : null;
+    }
+
+    match = raw.match(/^(\d{1,2})\s*월\s*(\d{1,2})(?:일)?\s*(.*)$/);
+    if (match) {
+        const month = Number(match[1]);
+        const day = Number(match[2]);
+        const today = new Date(baseDate.getFullYear(), baseDate.getMonth(), baseDate.getDate());
+        for (let year = baseDate.getFullYear(); year <= baseDate.getFullYear() + 8; year += 1) {
+            const date = createVisitDate(year, month, day);
+            if (date && date >= today) return { date, timeText: match[3].trim() };
+        }
+        return null;
+    }
+
+    match = raw.match(/^(\d{1,2})(?:일)?\s*(.*)$/);
+    if (!match) return null;
+    const day = Number(match[1]);
+    if (!Number.isInteger(day) || day < 1 || day > 31) return null;
+
     let year = baseDate.getFullYear();
     let month = baseDate.getMonth();
     if (day < baseDate.getDate()) month += 1;
@@ -798,12 +837,60 @@ function formatVisitDate(value, baseDate = new Date()) {
     for (let i = 0; i < 24; i += 1) {
         const candidate = new Date(year, month, day);
         if (candidate.getFullYear() === year && candidate.getMonth() === month && candidate.getDate() === day) {
-            return `${month + 1}월 ${day}일${rest ? ` ${rest}` : ''}`;
+            return { date: candidate, timeText: match[2].trim() };
         }
         month += 1;
         if (month > 11) { month = 0; year += 1; }
     }
-    return raw;
+    return null;
+}
+
+function formatVisitDate(value, baseDate = new Date()) {
+    const raw = String(value || '').trim();
+    const parsed = parseVisitDate(raw, baseDate);
+    if (!parsed) return raw;
+    const month = parsed.date.getMonth() + 1;
+    const day = parsed.date.getDate();
+    return `${month}월 ${day}일${parsed.timeText ? ` ${parsed.timeText}` : ''}`;
+}
+
+function formatVisitDateForSms(value, baseDate = new Date()) {
+    const raw = String(value || '').trim();
+    const parsed = parseVisitDate(raw, baseDate);
+    if (!parsed) return raw;
+    const month = parsed.date.getMonth() + 1;
+    const day = parsed.date.getDate();
+    const weekday = parsed.date.toLocaleDateString('ko-KR', { weekday: 'short' });
+    return `${month}월 ${day}일 (${weekday})${parsed.timeText ? ` ${parsed.timeText}` : ''}`;
+}
+
+function toVisitDateInputValue(date) {
+    const pad = value => String(value).padStart(2, '0');
+    return `${date.getFullYear()}-${pad(date.getMonth() + 1)}-${pad(date.getDate())}`;
+}
+
+function initializeVisitDatePicker() {
+    const picker = document.getElementById('visit_date_picker');
+    if (picker) picker.min = toVisitDateInputValue(new Date());
+}
+
+function applyVisitDateFromCalendar() {
+    const picker = document.getElementById('visit_date_picker');
+    const input = document.getElementById('in_res');
+    if (!picker || !input || !picker.value) return;
+
+    const parts = picker.value.split('-').map(Number);
+    const date = createVisitDate(parts[0], parts[1], parts[2]);
+    if (!date) return;
+
+    const current = input.value.trim();
+    const isTimeOnly = /^(?:(?:오전|오후)\s*)?\d{1,2}\s*(?:시|:\d{2})/.test(current);
+    const parsedCurrent = isTimeOnly ? null : parseVisitDate(current);
+    const timeText = isTimeOnly ? current : (parsedCurrent ? parsedCurrent.timeText : current);
+    input.value = `${date.getMonth() + 1}월 ${date.getDate()}일${timeText ? ` ${timeText}` : ' '}`;
+    sync();
+    input.focus();
+    input.setSelectionRange(input.value.length, input.value.length);
 }
 
 function paperCheck(label, checked) {
@@ -955,6 +1042,7 @@ function openFax(i) {
         document.getElementById(id).value = "";
         localStorage.removeItem(id);
     });
+    document.getElementById('visit_date_picker').value = "";
     sync();
     requestAnimationFrame(() => {
         renderCaptureMap(currentBP);
@@ -1124,18 +1212,7 @@ async function copySMS(includeMap) {
     const agentName = document.getElementById('in_agent').value || "-";
     const agentTel = (document.getElementById('in_agent_tel').value || "-").replace(/-/g, '.');
 
-    const parts = res.match(/\d+/g);
-    const isAM = res.includes("오전") ? "오전" : "오후";
-    let formattedRes = res;
-
-    if (parts && parts.length >= 3) {
-        const month = parseInt(parts[1]);
-        const day = parseInt(parts[2]);
-        const hour = parts[3] || "";
-        const dateObj = new Date(parts[0], month - 1, day);
-        const dayOfWeek = dateObj.toLocaleDateString('ko-KR', { weekday: 'short' });
-        formattedRes = month + '월 ' + day + '일 (' + dayOfWeek + ') ' + isAM + ' ' + hour + '시';
-    }
+    const formattedRes = formatVisitDateForSms(res);
 
     const smsLines = [
         '■앤텔레콤 지점방문 예약증',
