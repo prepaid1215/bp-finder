@@ -1191,6 +1191,10 @@ async function prepareMapSnapshot() {
 
 async function saveImage() {
     sync();
+
+    // 기존 데이터 수집 복구
+    await sendLog();
+
     const area = document.getElementById('captureArea');
     const nameVal = document.getElementById('in_name').value || '미입력';
     await saveElementAsPng(area, `개통요청서_${nameVal}.png`, 1.5);
