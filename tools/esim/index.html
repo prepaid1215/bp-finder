@@ -152,6 +152,68 @@ h1{margin:0;font-size:23px;font-weight:900}
   color:#526a80;
   font-weight:800;
 }
+.photo-analysis{
+  margin-top:12px;
+  padding:14px;
+  border:1px solid #b9d5ec;
+  border-radius:14px;
+  background:#fff;
+}
+.photo-analysis[hidden]{display:none}
+.photo-ocr-status{
+  color:#315e88;
+  font-size:13px;
+  font-weight:900;
+}
+.photo-progress{
+  height:8px;
+  margin-top:9px;
+  overflow:hidden;
+  border-radius:999px;
+  background:#e4eef7;
+}
+.photo-progress span{
+  display:block;
+  width:0;
+  height:100%;
+  border-radius:inherit;
+  background:var(--accent);
+  transition:width .2s ease;
+}
+.photo-result{
+  margin-top:12px;
+  padding:13px;
+  border-radius:12px;
+  background:#edf8f1;
+  color:#28523a;
+  font-size:13px;
+  line-height:1.55;
+}
+.photo-result.warn{
+  background:#fff7e8;
+  color:#76551b;
+}
+.photo-result.error{
+  background:#fff0f0;
+  color:#8b3030;
+}
+.photo-result strong{display:block;margin-bottom:4px;font-size:16px}
+.photo-result button{
+  width:100%;
+  min-height:46px;
+  margin-top:11px;
+  border:0;
+  border-radius:11px;
+  background:var(--accent);
+  color:#fff;
+  font-weight:900;
+}
+.photo-privacy{
+  margin:9px 2px 0;
+  color:#7e93a7;
+  font-size:11px;
+  line-height:1.45;
+}
 
 .category-grid{
   display:grid;
@@ -325,7 +387,7 @@ h1{margin:0;font-size:23px;font-weight:900}
   <div class="wrap">
     <h1>eSIM 단말모델명 생성기</h1>
     <p class="sub">사진으로 확인하거나 아이폰·갤럭시를 직접 선택하세요.</p>
-    <div class="version">업데이트 2026-08-19 · v5</div>
+    <div class="version">업데이트 2026-09-04 · v6</div>
 
     <div class="tabs">
       <button class="tab active" data-tab="photo">사진으로 확인</button>
@@ -381,6 +443,13 @@ h1{margin:0;font-size:23px;font-weight:900}
           id="photoRemove">
           사진 다시 선택
         </button>
+      </div>
+
+      <div class="photo-analysis" id="photoAnalysis" hidden aria-live="polite">
+        <div class="photo-ocr-status" id="photoOcrStatus">사진을 확인하는 중입니다.</div>
+        <div class="photo-progress" aria-hidden="true"><span id="photoProgressBar"></span></div>
+        <div id="photoResult"></div>
+        <p class="photo-privacy">사진은 서버로 전송하지 않고 이 기기 안에서만 글자를 읽습니다.</p>
       </div>
     </div>
   </div>
@@ -640,6 +709,263 @@ galaxy:{
 }
 };
 
+
+const tacModelMap={
+  "35788454":"A2643"
+};
+
+let ocrLoader;
+let photoAnalysisRun=0;
+let activeOcrWorker=null;
+
+function loadPhotoOcr(){
+  if(window.Tesseract) return Promise.resolve(window.Tesseract);
+  if(ocrLoader) return ocrLoader;
+
+  ocrLoader=new Promise((resolve,reject)=>{
+    const script=document.createElement("script");
+    script.src="https://cdn.jsdelivr.net/npm/tesseract.js@5.1.1/dist/tesseract.min.js";
+    script.onload=()=>window.Tesseract
+      ? resolve(window.Tesseract)
+      : reject(Error("OCR 모듈을 시작하지 못했습니다."));
+    script.onerror=()=>reject(Error("사진 인식 모듈을 불러오지 못했습니다. 인터넷 연결을 확인해 주세요."));
+    document.head.appendChild(script);
+  });
+
+  return ocrLoader;
+}
+
+function knownModelChoices(){
+  return Object.entries(data).flatMap(([brandName,brandData])=>
+    brandData.series.flatMap(seriesName=>
+      (brandData.models[seriesName] || []).map(item=>({
+        brand:brandName,
+        series:seriesName,
+        item,
+        name:item[0],
+        code:item[1]
+      }))
+    )
+  );
+}
+
+function normalizedDeviceText(value){
+  return String(value || "")
+    .toUpperCase()
+    .replace(/[^A-Z0-9]/g,"");
+}
+
+function extractPhotoNumbers(text){
+  const matches=String(text || "").match(/\d(?:[\d \t-]{12,40})\d/g) || [];
+  return [...new Set(matches
+    .map(value=>value.replace(/\D/g,""))
+    .filter(value=>value.length>=14 && value.length<=34)
+  )];
+}
+
+function detectPhotoDevice(text){
+  const raw=String(text || "");
+  const compact=normalizedDeviceText(raw);
+  const choices=knownModelChoices();
+  let detected=choices.find(choice=>compact.includes(normalizedDeviceText(choice.code)));
+  let reason=detected ? "model-code" : "";
+
+  if(!detected){
+    detected=[...choices]
+      .sort((a,b)=>normalizedDeviceText(b.name).length-normalizedDeviceText(a.name).length)
+      .find(choice=>compact.includes(normalizedDeviceText(choice.name)));
+    if(detected) reason="model-name";
+  }
+
+  const numbers=extractPhotoNumbers(raw);
+  const imeis=numbers.filter(value=>value.length===15);
+  const hasEid=/\bE[I1]D\b/i.test(raw) || numbers.some(value=>value.length>=28);
+  let tac="";
+
+  if(!detected){
+    tac=imeis.map(value=>value.slice(0,8)).find(value=>tacModelMap[value]) || "";
+    if(tac){
+      detected=choices.find(choice=>normalizedDeviceText(choice.code)===normalizedDeviceText(tacModelMap[tac]));
+      if(detected) reason="imei-tac";
+    }
+  }
+
+  return {
+    detected:detected ? {...detected,reason} : null,
+    hasEid,
+    tac,
+    imeiCount:imeis.length
+  };
+}
+
+function setPhotoProgress(message,percent){
+  $("photoOcrStatus").textContent=message;
+  $("photoProgressBar").style.width=Math.max(0,Math.min(100,percent))+"%";
+}
+
+function addDirectSelectButtons(card){
+  [["아이폰 직접 선택","iphone"],["갤럭시 직접 선택","galaxy"]].forEach(([label,tab])=>{
+    const button=document.createElement("button");
+    button.type="button";
+    button.textContent=label;
+    button.onclick=()=>openTab(tab);
+    card.appendChild(button);
+  });
+}
+
+function renderPhotoDetection(info){
+  setPhotoProgress("사진 확인이 끝났습니다.",100);
+  const output=$("photoResult");
+  output.innerHTML="";
+  const card=document.createElement("div");
+  card.className="photo-result";
+  const title=document.createElement("strong");
+  const message=document.createElement("div");
+  card.append(title,message);
+
+  if(info.detected){
+    title.textContent=info.detected.name+" 확인";
+    const reason=info.detected.reason==="imei-tac"
+      ? "IMEI 앞자리 "+info.tac+"로 기종을 확인했습니다."
+      : "사진의 모델명 또는 모델번호를 읽어 기종을 확인했습니다.";
+    message.textContent=reason+(info.hasEid ? " EID도 확인되어 eSIM 사용 가능 단말입니다." : "");
+    const button=document.createElement("button");
+    button.type="button";
+    button.textContent="이 기종으로 계속";
+    button.onclick=()=>applyDetectedModel(info.detected);
+    card.appendChild(button);
+  }else if(info.hasEid){
+    card.classList.add("warn");
+    title.textContent="eSIM 지원 단말로 확인됨";
+    message.textContent="EID는 확인했지만 모델명이나 등록된 IMEI 앞자리 정보가 없어 정확한 기종은 자동으로 찾지 못했습니다. 아래에서 기종을 직접 선택해 주세요.";
+    addDirectSelectButtons(card);
+  }else{
+    card.classList.add("warn");
+    title.textContent="기종을 찾지 못했습니다";
+    message.textContent="모델명, 모델번호(Axxxx 또는 SM-xxxx), EID나 IMEI가 선명하게 보이는 사진을 다시 선택해 주세요. 직접 선택해도 됩니다.";
+    addDirectSelectButtons(card);
+  }
+
+  output.appendChild(card);
+}
+
+function renderPhotoError(error){
+  setPhotoProgress("사진을 확인하지 못했습니다.",0);
+  const output=$("photoResult");
+  output.innerHTML="";
+  const card=document.createElement("div");
+  card.className="photo-result error";
+  const title=document.createElement("strong");
+  title.textContent="사진 인식 실패";
+  const message=document.createElement("div");
+  message.textContent=error && error.message
+    ? error.message
+    : "사진을 다시 선택하거나 기종을 직접 선택해 주세요.";
+  card.append(title,message);
+  addDirectSelectButtons(card);
+  output.appendChild(card);
+}
+
+async function preparePhotoForOcr(file){
+  if(!window.createImageBitmap) return file;
+
+  try{
+    const bitmap=await createImageBitmap(file);
+    const longest=Math.max(bitmap.width,bitmap.height);
+    const scale=Math.min(3,Math.max(1,2200/longest));
+    const canvas=document.createElement("canvas");
+    canvas.width=Math.round(bitmap.width*scale);
+    canvas.height=Math.round(bitmap.height*scale);
+    const context=canvas.getContext("2d",{willReadFrequently:true});
+    context.filter="grayscale(1) contrast(1.7)";
+    context.drawImage(bitmap,0,0,canvas.width,canvas.height);
+    bitmap.close();
+    return canvas;
+  }catch(error){
+    return file;
+  }
+}
+
+function photoWorkerProgress(message,runId){
+  if(runId!==photoAnalysisRun) return;
+  const status=String(message.status || "").toLowerCase();
+  const phaseProgress=Number(message.progress || 0);
+
+  if(status.includes("recognizing")){
+    setPhotoProgress("사진 속 글자 인식 중 "+Math.round(phaseProgress*100)+"%",40+phaseProgress*55);
+  }else if(status.includes("language")){
+    setPhotoProgress("글자 인식 데이터 준비 중...",25);
+  }else if(status.includes("initializing")){
+    setPhotoProgress("사진 인식 엔진 준비 중...",38);
+  }else{
+    setPhotoProgress("사진 인식 엔진 불러오는 중...",12);
+  }
+}
+
+async function analyzeModelPhoto(file){
+  const runId=++photoAnalysisRun;
+  $("photoAnalysis").hidden=false;
+  $("photoResult").innerHTML="";
+  setPhotoProgress("사진 인식 엔진 불러오는 중...",5);
+
+  if(activeOcrWorker){
+    activeOcrWorker.terminate().catch(()=>{});
+    activeOcrWorker=null;
+  }
+
+  try{
+    const Tesseract=await loadPhotoOcr();
+    if(runId!==photoAnalysisRun) return;
+    const source=await preparePhotoForOcr(file);
+    if(runId!==photoAnalysisRun) return;
+
+    const worker=await Tesseract.createWorker("eng",1,{
+      logger:message=>photoWorkerProgress(message,runId)
+    });
+    activeOcrWorker=worker;
+
+    let result;
+    try{
+      result=await worker.recognize(source,{rotateAuto:true});
+    }finally{
+      await worker.terminate().catch(()=>{});
+      if(activeOcrWorker===worker) activeOcrWorker=null;
+    }
+
+    if(runId!==photoAnalysisRun) return;
+    const text=result && result.data ? result.data.text : "";
+    if(!text.trim()) throw Error("사진에서 글자를 읽지 못했습니다. 더 선명한 원본 사진을 선택해 주세요.");
+    renderPhotoDetection(detectPhotoDevice(text));
+  }catch(error){
+    if(runId===photoAnalysisRun) renderPhotoError(error);
+  }
+}
+
+function applyDetectedModel(detected){
+  openTab(detected.brand);
+  series=detected.series;
+  model=detected.item;
+  storage="";
+  phoneState="basic";
+
+  renderSeries();
+  renderModels();
+  show("modelCard",true);
+  show("storageCard",true);
+  show("actualModelBox",false);
+
+  if(isOldIphone()){
+    show("stateCard",true);
+    $("storageStepNum").textContent="4";
+  }else{
+    show("stateCard",false);
+    $("storageStepNum").textContent="3";
+  }
+
+  renderStorage();
+  updateResult();
+  scrollCard(isOldIphone() ? "stateCard" : "storageCard");
+}
 
 let brand="iphone";
 let series="";
@@ -1114,16 +1440,25 @@ modelPhoto.addEventListener(
     };
 
     reader.readAsDataURL(file);
+    analyzeModelPhoto(file);
   }
 );
 
 
 $("photoRemove").onclick=()=>{
-
+  photoAnalysisRun+=1;
+  if(activeOcrWorker){
+    activeOcrWorker.terminate().catch(()=>{});
+    activeOcrWorker=null;
+  }
   modelPhoto.value="";
   previewImage.src="";
   preview.style.display="none";
   photoInfo.textContent="";
+  $("photoAnalysis").hidden=true;
+  $("photoResult").innerHTML="";
+  $("photoProgressBar").style.width="0";
+  modelPhoto.click();
 };
 
 
