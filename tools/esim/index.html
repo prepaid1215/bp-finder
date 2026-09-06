@@ -387,7 +387,7 @@ h1{margin:0;font-size:23px;font-weight:900}
   <div class="wrap">
     <h1>eSIM 단말모델명 생성기</h1>
     <p class="sub">사진으로 확인하거나 아이폰·갤럭시를 직접 선택하세요.</p>
-    <div class="version">업데이트 2026-09-04 · v6</div>
+    <div class="version">업데이트 2026-09-06 · v7</div>
 
     <div class="tabs">
       <button class="tab active" data-tab="photo">사진으로 확인</button>
@@ -711,6 +711,7 @@ galaxy:{
 
 
 const tacModelMap={
+  "35149740":"ULK-UIP17PR",
   "35788454":"A2643"
 };
 
@@ -828,12 +829,7 @@ function renderPhotoDetection(info){
     const reason=info.detected.reason==="imei-tac"
       ? "IMEI 앞자리 "+info.tac+"로 기종을 확인했습니다."
       : "사진의 모델명 또는 모델번호를 읽어 기종을 확인했습니다.";
-    message.textContent=reason+(info.hasEid ? " EID도 확인되어 eSIM 사용 가능 단말입니다." : "");
-    const button=document.createElement("button");
-    button.type="button";
-    button.textContent="이 기종으로 계속";
-    button.onclick=()=>applyDetectedModel(info.detected);
-    card.appendChild(button);
+    message.textContent=reason+(info.hasEid ? " EID도 확인되어 eSIM 사용 가능 단말입니다." : "")+" 저장용량 선택으로 자동 이동합니다.";
   }else if(info.hasEid){
     card.classList.add("warn");
     title.textContent="eSIM 지원 단말로 확인됨";
@@ -847,6 +843,7 @@ function renderPhotoDetection(info){
   }
 
   output.appendChild(card);
+  if(info.detected) applyDetectedModel(info.detected);
 }
 
 function renderPhotoError(error){
