@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-09-07T20:24:20.908Z",
+  "updatedAt": "2026-09-08T19:47:23.050Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
   "count": 81,
@@ -669,11 +669,11 @@
       "region": "충남",
       "phone": "041-567-1530",
       "fax": "041-566-1530",
-      "address1": "충남 천안시 동남구 수곡1길 12-5(신방동)",
-      "address2": "은광빌딩 4층",
-      "address": "충남 천안시 동남구 수곡1길 12-5(신방동) 은광빌딩 4층",
-      "latitude": "36.7896056",
-      "longitude": "127.127526",
+      "address1": "충남 천안시 동남구 신촌4로 16 (신방동, 초원아파트)",
+      "address2": "상가 1동 1층 119호",
+      "address": "충남 천안시 동남구 신촌4로 16 (신방동, 초원아파트) 상가 1동 1층 119호",
+      "latitude": "36.7880",
+      "longitude": "127.1246",
       "isCenter": false
     },
     {
