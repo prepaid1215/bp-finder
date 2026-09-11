@@ -105,6 +105,64 @@ h1{margin:0;font-size:23px;font-weight:900}
   line-height:1.65;
 }
 
+.model-search{
+  margin-bottom:13px;
+  padding:14px;
+  border:1px solid var(--line);
+  border-radius:14px;
+  background:#fff;
+}
+
+.model-search-title{
+  display:block;
+  margin-bottom:8px;
+  color:#304b63;
+  font-size:13px;
+  font-weight:900;
+}
+
+.model-search-row{
+  display:grid;
+  grid-template-columns:minmax(0,1fr) 82px;
+  gap:8px;
+}
+
+.model-search-input{
+  width:100%;
+  min-width:0;
+  height:48px;
+  padding:0 13px;
+  border:1px solid var(--line);
+  border-radius:12px;
+  background:#fff;
+  color:#162c3f;
+  font-size:15px;
+  font-weight:800;
+  outline:none;
+}
+
+.model-search-input:focus{
+  border-color:var(--accent);
+  box-shadow:0 0 0 3px rgba(79,148,207,.14);
+}
+
+.model-search-btn{
+  height:48px;
+  border:0;
+  border-radius:12px;
+  background:var(--accent);
+  color:#fff;
+  font-weight:900;
+}
+
+.model-search-status{
+  min-height:18px;
+  margin-top:7px;
+  color:var(--muted);
+  font-size:12px;
+  line-height:1.45;
+}
+
 .photo-box{
   margin-top:13px;
   padding:15px;
@@ -387,7 +445,7 @@ h1{margin:0;font-size:23px;font-weight:900}
   <div class="wrap">
     <h1>eSIM 단말모델명 생성기</h1>
     <p class="sub">사진으로 확인하거나 아이폰·갤럭시를 직접 선택하세요.</p>
-    <div class="version">업데이트 2026-09-11 · v8</div>
+    <div class="version">업데이트 2026-09-11 · v9</div>
 
     <div class="tabs">
       <button class="tab active" data-tab="photo">사진으로 확인</button>
@@ -406,9 +464,25 @@ h1{margin:0;font-size:23px;font-weight:900}
     <div class="step">
       <div class="num">1</div>
       <div>
-        <strong>정보 화면 사진 첨부</strong>
-        <small>기종을 잘 모르겠다면 사진부터 첨부하세요.</small>
+        <strong>모델번호 검색 또는 사진 첨부</strong>
+        <small>모델번호를 입력하면 해당 기종으로 바로 이동합니다.</small>
       </div>
+    </div>
+
+    <div class="model-search">
+      <label class="model-search-title" for="photoModelSearch">모델번호로 바로 찾기</label>
+      <div class="model-search-row">
+        <input
+          type="search"
+          id="photoModelSearch"
+          class="model-search-input"
+          placeholder="예: SM-S942 또는 942"
+          autocomplete="off"
+          autocapitalize="characters"
+          spellcheck="false">
+        <button type="button" class="model-search-btn" id="photoModelSearchBtn">검색</button>
+      </div>
+      <div class="model-search-status" id="photoModelSearchStatus" aria-live="polite"></div>
     </div>
 
     <div class="guide">
@@ -754,6 +828,46 @@ function normalizedDeviceText(value){
   return String(value || "")
     .toUpperCase()
     .replace(/[^A-Z0-9]/g,"");
+}
+
+function findModelSearchMatches(value){
+  const query=normalizedDeviceText(value);
+  if(!query) return [];
+
+  return knownModelChoices().filter(choice=>{
+    const code=normalizedDeviceText(choice.code);
+    const codeDigits=code.replace(/\D/g,"");
+    const name=normalizedDeviceText(choice.name);
+
+    return code===query ||
+      (query.length>=5 && code.startsWith(query)) ||
+      (/^\d{3,4}$/.test(query) && codeDigits===query) ||
+      (query.length>=4 && name.includes(query));
+  });
+}
+
+function runPhotoModelSearch(){
+  const input=$("photoModelSearch");
+  const status=$("photoModelSearchStatus");
+  const query=input.value.trim();
+
+  if(!query){
+    status.textContent="모델번호를 입력해 주세요.";
+    input.focus();
+    return false;
+  }
+
+  const matches=findModelSearchMatches(query);
+  if(matches.length===1){
+    status.textContent=matches[0].name+" 기종으로 이동합니다.";
+    applyDetectedModel({...matches[0],reason:"model-search"});
+    return true;
+  }
+
+  status.textContent=matches.length
+    ? "여러 기종이 검색됩니다. 모델번호를 더 입력해 주세요."
+    : "일치하는 기종이 없습니다. 모델번호를 다시 확인해 주세요.";
+  return false;
 }
 
 function extractPhotoNumbers(text){
@@ -1386,6 +1500,34 @@ const preview=$("photoPreview");
 const previewImage=$("previewImage");
 const photoInfo=$("photoInfo");
 
+
+const photoModelSearch=$("photoModelSearch");
+let photoModelSearchTimer;
+
+photoModelSearch.addEventListener("input",()=>{
+  clearTimeout(photoModelSearchTimer);
+  $("photoModelSearchStatus").textContent="";
+  const query=normalizedDeviceText(photoModelSearch.value);
+  const canAutoSearch=/^\d{3,4}$/.test(query) ||
+    /^SM[A-Z]\d{3,4}[A-Z]?$/.test(query) ||
+    /^A\d{4}$/.test(query);
+
+  if(canAutoSearch){
+    photoModelSearchTimer=setTimeout(runPhotoModelSearch,350);
+  }
+});
+
+photoModelSearch.addEventListener("keydown",event=>{
+  if(event.key!=="Enter") return;
+  event.preventDefault();
+  clearTimeout(photoModelSearchTimer);
+  runPhotoModelSearch();
+});
+
+$("photoModelSearchBtn").onclick=()=>{
+  clearTimeout(photoModelSearchTimer);
+  runPhotoModelSearch();
+};
 
 modelPhoto.addEventListener(
   "change",
