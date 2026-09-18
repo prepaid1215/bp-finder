@@ -1613,8 +1613,33 @@
               clearCandidates();
               $('detailSearchWrap').classList.remove('show');
 
-              // 장소검색에서 얻은 정확한 주소로 우편번호를 다시 조회해
-              // zonecode를 확보한 뒤 실제 배송 API를 호출한다.
+              const area = inferAreaFromText(address);
+              area.source = 'place';
+
+              // 1) 공식 지역표상 전지역·전체 구 가능이면 여기서 종료
+              const confirmed = confirmedFullMatch(address);
+              if (confirmed) {
+                renderResult(area, {
+                  status: 'available',
+                  broad: true,
+                  rule: confirmed.matched,
+                  deliveryLabel: '지역 기준 당일배송 가능',
+                  reason: confirmed.reason
+                });
+                setStatus('', false);
+                return;
+              }
+
+              // 2) 일부지역/상세확인 지역이면 우편번호 확보 후 실제 API 판정
+              const detailRule = knownDetailAreaMatch(address);
+              if (detailRule) {
+                setStatus('일부지역입니다. 정확한 주소를 선택해 실제 배송 가능 여부를 확인합니다.');
+                openPostcodeEmbed(address);
+                return;
+              }
+
+              // 3) 지역표에서 확정되지 않는 주소도 실제 API 확인을 위해 우편번호 확보
+              setStatus('정확한 배송 가능 여부를 확인하고 있습니다.');
               openPostcodeEmbed(address);
             }
           );
