@@ -1182,6 +1182,39 @@
     return null;
   }
 
+
+  function broadPartialRegionMatch(query='') {
+    const q = normalize(query);
+    if (!q) return null;
+
+    // 광역 행정구역명 자체를 입력한 경우 장소검색으로 보내지 않는다.
+    // 전체 권역이 모두 확정 가능하지 않은 지역은 '일부지역 가능'으로 안내한다.
+    const mixedRegions = {
+      '부산': '부산 일부지역',
+      '인천': '인천 일부지역',
+      '경기': '경기 일부지역',
+      '충북': '충북 일부지역',
+      '전남': '전남 일부지역',
+      '강원': '강원 일부지역',
+      '제주': '제주 일부지역',
+      '세종': '세종 일부지역',
+      '경남': '경남 일부지역',
+      '경북': '경북 일부지역',
+      '전북': '전북 일부지역'
+    };
+
+    const tokens = q.replace(/[(),]/g, ' ').split(/\s+/).filter(Boolean);
+
+    for (const [region, label] of Object.entries(mixedRegions)) {
+      // 정확한 행정구역명 단독 입력만 처리
+      if (tokens.length === 1 && adminTokenMatch(q, region)) {
+        return label;
+      }
+    }
+
+    return null;
+  }
+
   function isBroadServiceArea(query='') {
     const q = normalize(query);
 
@@ -1195,6 +1228,18 @@
         needsDetail: false,
         matched: confirmed.matched,
         reason: confirmed.reason
+      };
+    }
+
+    // 부산·인천·경기처럼 광역 전체가 한 가지 판정이 아닌 지역
+    // 행정구역명 자체 입력은 장소검색으로 보내지 않고 '일부지역 가능'으로 안내
+    const broadPartial = broadPartialRegionMatch(q);
+    if (broadPartial) {
+      return {
+        status: 'verify',
+        needsDetail: true,
+        matched: broadPartial,
+        reason: '지역에 따라 당일배송 가능 범위가 다릅니다. 구·시·군을 더 입력하거나 상세주소를 검색해 주세요.'
       };
     }
 
