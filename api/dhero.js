@@ -1,6 +1,8 @@
 /**
- * Vercel Serverless Function
+ * BP FINDER Vercel proxy
  * POST /api/dhero
+ *
+ * Vercel -> preplan.site 국내 PHP proxy -> N텔레콤 배송판정 API
  */
 
 module.exports = async function handler(req, res) {
@@ -44,29 +46,20 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const payload = {
-    header: [{ type: '01' }],
-    body: [{ addr, zipcd }]
-  };
-
   const controller = new AbortController();
-  const timeoutMs = 20000;
+  const timeoutMs = 15000;
   const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const upstream = await fetch(
-      'https://www.n-telecom.co.kr/common/component/dHero/AjaxDHeroAPI.aspx',
+      'https://preplan.site/wp-content/themes/59%EB%A7%8C%EB%AA%A8%EB%B0%94%EC%9D%BC/dhero-proxy.php',
       {
         method: 'POST',
         headers: {
-          'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
-          'Accept': 'application/json, text/javascript, */*; q=0.01',
-          'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
-          'Cache-Control': 'no-cache',
-          'Pragma': 'no-cache',
-          'User-Agent': 'bp-finder-delivery-check/1.1'
+          'Content-Type': 'application/json; charset=UTF-8',
+          'Accept': 'application/json'
         },
-        body: JSON.stringify(payload),
+        body: JSON.stringify({ addr, zipcd }),
         cache: 'no-store',
         signal: controller.signal
       }
@@ -77,7 +70,7 @@ module.exports = async function handler(req, res) {
     if (!upstream.ok) {
       return res.status(502).json({
         ok: false,
-        message: '배송판정 서버가 정상 응답하지 않았습니다.',
+        message: '중계 서버가 정상 응답하지 않았습니다.',
         upstreamStatus: upstream.status,
         region: process.env.VERCEL_REGION || null
       });
@@ -89,15 +82,15 @@ module.exports = async function handler(req, res) {
     } catch (_) {
       return res.status(502).json({
         ok: false,
-        message: '배송판정 응답 형식을 확인하지 못했습니다.',
+        message: '중계 서버 응답 형식을 확인하지 못했습니다.',
         region: process.env.VERCEL_REGION || null
       });
     }
 
-    if (!data || typeof data.RESULT === 'undefined') {
+    if (!data || data.ok !== true || !data.data) {
       return res.status(502).json({
         ok: false,
-        message: '배송판정 결과값이 없습니다.',
+        message: data?.message || '배송판정 결과를 받지 못했습니다.',
         region: process.env.VERCEL_REGION || null
       });
     }
@@ -105,10 +98,11 @@ module.exports = async function handler(req, res) {
     return res.status(200).json({
       ok: true,
       data: {
-        RESULT: String(data.RESULT ?? ''),
-        RESULTMSG: String(data.RESULTMSG ?? '')
+        RESULT: String(data.data.RESULT ?? ''),
+        RESULTMSG: String(data.data.RESULTMSG ?? '')
       },
-      region: process.env.VERCEL_REGION || null
+      region: process.env.VERCEL_REGION || null,
+      via: 'preplan'
     });
   } catch (error) {
     const isTimeout = error && error.name === 'AbortError';
@@ -116,8 +110,8 @@ module.exports = async function handler(req, res) {
     return res.status(502).json({
       ok: false,
       message: isTimeout
-        ? '배송판정 서버 응답 시간이 초과되었습니다.'
-        : '배송판정 서버에 연결하지 못했습니다.',
+        ? '중계 서버 응답 시간이 초과되었습니다.'
+        : '중계 서버에 연결하지 못했습니다.',
       region: process.env.VERCEL_REGION || null,
       timeoutMs
     });
