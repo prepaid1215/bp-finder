@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="주소를 입력해 개통 USIM 당일 배송 가능지역과 접수 마감 여부를 확인하고, 2026년 9월 USIM 비용 무료 이벤트를 안내합니다.">
-  <title>당일유심 배송조회 | 59만모바일</title>
+  <title>당일유심 배송조회</title>
   <script>
     const pageParams = new URLSearchParams(window.location.search);
     if (pageParams.get('embed') === '1') {
@@ -850,7 +850,7 @@
 
 <script>
   const CONFIG = {
-    brand: (pageParams.get('brand') || '당일유심') + ' 당일유심',
+    brand: pageParams.get('brand') || '당일유심',
     applyUrl: '/',
     trackingUrl: 'https://check.doobalhero.kr/',
     shippingFee: 3700,
