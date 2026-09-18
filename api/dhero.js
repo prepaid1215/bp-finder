@@ -1,11 +1,6 @@
 /**
  * Vercel Serverless Function
  * POST /api/dhero
- *
- * 입력:
- * { "addr": "전남 여수시 가곡길 6", "zipcd": "59634" }
- *
- * N텔레콤 배송판정 API에 서버-대-서버 요청 후 RESULT / RESULTMSG 반환.
  */
 
 module.exports = async function handler(req, res) {
@@ -32,15 +27,8 @@ module.exports = async function handler(req, res) {
     }
   }
 
-  if (!input || typeof input !== 'object') {
-    return res.status(400).json({
-      ok: false,
-      message: '잘못된 요청 형식입니다.'
-    });
-  }
-
-  const addr = String(input.addr || '').trim();
-  const zipcd = String(input.zipcd || '').trim();
+  const addr = String(input?.addr || '').trim();
+  const zipcd = String(input?.zipcd || '').trim();
 
   if (addr.length < 4 || addr.length > 160) {
     return res.status(400).json({
@@ -56,20 +44,14 @@ module.exports = async function handler(req, res) {
     });
   }
 
-  const upstreamPayload = {
-    header: [
-      { type: '01' }
-    ],
-    body: [
-      {
-        addr,
-        zipcd
-      }
-    ]
+  const payload = {
+    header: [{ type: '01' }],
+    body: [{ addr, zipcd }]
   };
 
   const controller = new AbortController();
-  const timeout = setTimeout(() => controller.abort(), 8000);
+  const timeoutMs = 20000;
+  const timeout = setTimeout(() => controller.abort(), timeoutMs);
 
   try {
     const upstream = await fetch(
@@ -77,14 +59,14 @@ module.exports = async function handler(req, res) {
       {
         method: 'POST',
         headers: {
-          // 실제 N텔레콤 요청과 동일하게 Content-Type은 form-urlencoded,
-          // 본문 자체는 JSON 문자열로 전송한다.
           'Content-Type': 'application/x-www-form-urlencoded; charset=UTF-8',
           'Accept': 'application/json, text/javascript, */*; q=0.01',
+          'Accept-Language': 'ko-KR,ko;q=0.9,en-US;q=0.8,en;q=0.7',
           'Cache-Control': 'no-cache',
-          'User-Agent': 'bp-finder-delivery-check/1.0'
+          'Pragma': 'no-cache',
+          'User-Agent': 'bp-finder-delivery-check/1.1'
         },
-        body: JSON.stringify(upstreamPayload),
+        body: JSON.stringify(payload),
         cache: 'no-store',
         signal: controller.signal
       }
@@ -96,7 +78,8 @@ module.exports = async function handler(req, res) {
       return res.status(502).json({
         ok: false,
         message: '배송판정 서버가 정상 응답하지 않았습니다.',
-        upstreamStatus: upstream.status
+        upstreamStatus: upstream.status,
+        region: process.env.VERCEL_REGION || null
       });
     }
 
@@ -106,14 +89,16 @@ module.exports = async function handler(req, res) {
     } catch (_) {
       return res.status(502).json({
         ok: false,
-        message: '배송판정 응답 형식을 확인하지 못했습니다.'
+        message: '배송판정 응답 형식을 확인하지 못했습니다.',
+        region: process.env.VERCEL_REGION || null
       });
     }
 
     if (!data || typeof data.RESULT === 'undefined') {
       return res.status(502).json({
         ok: false,
-        message: '배송판정 결과값이 없습니다.'
+        message: '배송판정 결과값이 없습니다.',
+        region: process.env.VERCEL_REGION || null
       });
     }
 
@@ -122,7 +107,8 @@ module.exports = async function handler(req, res) {
       data: {
         RESULT: String(data.RESULT ?? ''),
         RESULTMSG: String(data.RESULTMSG ?? '')
-      }
+      },
+      region: process.env.VERCEL_REGION || null
     });
   } catch (error) {
     const isTimeout = error && error.name === 'AbortError';
@@ -131,7 +117,9 @@ module.exports = async function handler(req, res) {
       ok: false,
       message: isTimeout
         ? '배송판정 서버 응답 시간이 초과되었습니다.'
-        : '배송판정 서버에 연결하지 못했습니다.'
+        : '배송판정 서버에 연결하지 못했습니다.',
+      region: process.env.VERCEL_REGION || null,
+      timeoutMs
     });
   } finally {
     clearTimeout(timeout);
