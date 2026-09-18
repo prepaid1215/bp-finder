@@ -1564,10 +1564,74 @@
 
     $('detailSearchWrap').classList.remove('show');
 
+    // 번지/도로명 번호가 포함된 상세주소는 바로 우편번호 검색
+    if (looksLikeDetailedAddress(query)) {
+      if (!openPostcodeEmbed(query)) {
+        const area = inferAreaFromText(query);
+        renderResult(area, checkCoverage(area));
+      }
+      return;
+    }
+
+    // 부산역·서울역·아파트·병원 등 장소명은 카카오 장소검색을 먼저 사용
+    if (searchPlaceKeyword(query)) {
+      return;
+    }
+
+    // 장소 API를 사용할 수 없는 경우 일반 주소검색으로 폴백
     if (!openPostcodeEmbed(query)) {
       const area = inferAreaFromText(query);
       renderResult(area, checkCoverage(area));
     }
+  }
+
+
+  function searchPlaceKeyword(query='') {
+    if (!places || !(window.kakao && kakao.maps && kakao.maps.services)) {
+      return false;
+    }
+
+    setStatus('장소명을 검색하고 있습니다.');
+
+    places.keywordSearch(query, (placeResults, placeStatus) => {
+      if (placeStatus === kakao.maps.services.Status.OK && placeResults.length) {
+        clearCandidates();
+
+        let added = 0;
+
+        placeResults.slice(0, 8).forEach(place => {
+          const address = place.road_address_name || place.address_name || '';
+          if (!address) return;
+
+          added++;
+
+          addCandidate(
+            place.place_name || query,
+            address,
+            () => {
+              $('addressInput').value = address;
+              clearCandidates();
+              $('detailSearchWrap').classList.remove('show');
+
+              // 장소검색에서 얻은 정확한 주소로 우편번호를 다시 조회해
+              // zonecode를 확보한 뒤 실제 배송 API를 호출한다.
+              openPostcodeEmbed(address);
+            }
+          );
+        });
+
+        if (added > 0) {
+          $('candidateList').classList.add('open');
+          setStatus('검색된 장소 중 정확한 곳을 선택해 주세요.');
+          return;
+        }
+      }
+
+      // 장소 검색 결과가 없으면 일반 주소검색으로 넘긴다.
+      openPostcodeEmbed(query);
+    });
+
+    return true;
   }
 
   function searchDetailAddress() {
