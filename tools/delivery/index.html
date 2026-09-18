@@ -4,7 +4,7 @@
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <meta name="description" content="주소를 입력해 개통 USIM 당일 배송 가능지역과 접수 마감 여부를 확인하고, 2026년 9월 USIM 비용 무료 이벤트를 안내합니다.">
-  <title>당일유심 배송 가능지역 조회 | 59만모바일</title>
+  <title>당일유심 배송조회 | 59만모바일</title>
   <script>
     const pageParams = new URLSearchParams(window.location.search);
     if (pageParams.get('embed') === '1') {
@@ -724,31 +724,40 @@
       }
     }
 
+  
+    /* 내부 사업자용 간소화 */
+    .tracking-card,
+    .section,
+    .footer-note {
+      display: none !important;
+    }
+
+    .hero + .search-card {
+      margin-top: 14px !important;
+    }
+
+    .hero-promo {
+      font-size: 13px !important;
+      line-height: 1.45;
+    }
+
+    .hero-promo strong {
+      font-size: 15px !important;
+    }
+
   </style>
 </head>
 <body>
   <main class="page">
-    <section class="hero">
-      <div class="brand" id="brandName">59만모바일 당일유심</div>
-      <div class="hero-promo">9월 프로모션 <strong>USIM 5,500원 무료</strong></div>
-      <h1>당일유심 배송<br>가능지역 조회</h1>
-      <p>주소를 입력하면 배송 권역과 개통완료 마감시간을 기준으로 당일 배송 가능 여부를 확인합니다.</p>
-    </section>
-
-    <section class="promo-card" aria-label="2026년 9월 USIM 비용 지원 이벤트">
-      <span class="promo-badge">2026년 9월 이벤트</span>
-      <h2>9월 당일배송 개통 시<br>USIM 비용 5,500원 무료</h2>
-      <p>N플랫폼 당일 배송으로 010 신규 또는 MNP 번호이동을 개통하면 USIM 결제 금액을 무료로 지원합니다.</p>
-      <div class="promo-price"><del>5,500원</del><strong>무료</strong><span>배송비 3,700원 별도</span></div>
-      <div class="promo-meta">
-        <div><b>이벤트 기간</b>2026.09.01 ~ 2026.09.30</div>
-        <div><b>지원 대상</b>당일배송 010 신규·MNP 번호이동</div>
+    <section class="hero" style="padding:18px 22px;border-radius:18px;">
+      <div class="hero-promo" style="margin-top:0;width:100%;justify-content:flex-start;">
+        9월 프로모션 연장 · <strong>USIM 5,500원 무료</strong> · 배송비 3,700원 별도 · 9월 30일까지
       </div>
     </section>
 
     <section class="search-card">
       <div class="label">
-        <span>배송받을 주소</span>
+        <span>배송 가능지역 조회</span>
         <small>도로명·지번 모두 가능</small>
       </div>
       <div class="input-row">
