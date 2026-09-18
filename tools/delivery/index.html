@@ -1654,10 +1654,10 @@
   }
 
   function init() {
-    $('brandName').textContent = CONFIG.brand;
-    $('applyBtn').href = CONFIG.applyUrl;
-    $('shippingFee').textContent = `${CONFIG.shippingFee.toLocaleString()}원`;
-    renderRegionList();
+    if ($('brandName')) $('brandName').textContent = CONFIG.brand;
+    if ($('applyBtn')) $('applyBtn').href = CONFIG.applyUrl;
+    if ($('shippingFee')) $('shippingFee').textContent = `${CONFIG.shippingFee.toLocaleString()}원`;
+    if ($('regionBody')) renderRegionList();
 
     $('searchBtn').addEventListener('click', searchAddress);
     $('locationBtn').addEventListener('click', useCurrentLocation);
