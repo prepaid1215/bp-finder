@@ -1209,13 +1209,9 @@
       };
     }
 
-    // 목록에 없는 지역도 '불가'로 단정하지 않고 실제 API 확인 기회를 제공
-    return {
-      status: 'verify',
-      needsDetail: true,
-      matched: '지역 기준 미확인',
-      reason: '현재 지역표만으로 가능·불가를 확정하지 않습니다. 상세주소를 검색해 실제 배송판정 API로 확인하세요.'
-    };
+    // 행정구역명이 아닌 장소명(예: 부산역, 서울역, 병원/아파트명)은
+    // 여기서 판정하지 않고 아래 카카오 주소/장소검색으로 넘긴다.
+    return null;
   }
 
   function areaFromPostcode(data) {
