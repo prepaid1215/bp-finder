@@ -1208,13 +1208,20 @@ async function saveImage() {
 
 async function copySMS(includeMap) {
     if (!currentBP) return alert('센터를 먼저 선택해 주세요.');
+
     const res = document.getElementById('v_res').innerText;
     const name = document.getElementById('in_name').value || "고객";
     const device = document.getElementById('in_device').value || "-";
     const mang = document.getElementById('in_mang').value;
     const plan = document.getElementById('in_plan').value || "-";
+
+    // 담당자 정보
     const agentName = document.getElementById('in_agent').value || "-";
     const agentTel = (document.getElementById('in_agent_tel').value || "-").replace(/-/g, '.');
+
+    // 매출자 정보
+    const salesName = document.getElementById('in_s_name').value || "-";
+    const salesNo = document.getElementById('in_s_no').value || "-";
 
     const formattedRes = formatVisitDateForSms(res);
 
@@ -1229,6 +1236,8 @@ async function copySMS(includeMap) {
         '준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원',
         '개통지점 : ' + currentBP.name,
         '담당자 : ' + agentName + ' / ' + agentTel,
+        '매출자 : ' + salesName,
+        '회원번호 : ' + salesNo,
         '주소 : ' + currentBP.addr
     ];
 
