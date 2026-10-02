@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-10-01T21:42:20.478Z",
+  "updatedAt": "2026-10-02T21:13:52.998Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
-  "count": 81,
+  "count": 82,
   "centers": [
     {
       "id": "1315",
@@ -226,6 +226,20 @@
       "address": "경기 안성시 안성맞춤대로 1017-1 (인지동) 1층",
       "latitude": "37.004462",
       "longitude": "127.268350",
+      "isCenter": true
+    },
+    {
+      "id": "8014",
+      "name": "[제휴판매점]폰카페",
+      "regionCode": "J06",
+      "region": "경기",
+      "phone": "010-5540-0510",
+      "fax": "031-761-9020",
+      "address1": "경기 광주시 경충대로1422번길 44 (쌍령동)",
+      "address2": "상가 108호",
+      "address": "경기 광주시 경충대로1422번길 44 (쌍령동) 상가 108호",
+      "latitude": "37.3985238",
+      "longitude": "127.2797041",
       "isCenter": true
     },
     {
