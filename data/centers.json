@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-10-07T21:50:44.880Z",
+  "updatedAt": "2026-10-08T21:54:24.843Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
-  "count": 82,
+  "count": 83,
   "centers": [
     {
       "id": "1315",
@@ -226,6 +226,20 @@
       "address": "경기 안성시 안성맞춤대로 1017-1 (인지동) 1층",
       "latitude": "37.004462",
       "longitude": "127.268350",
+      "isCenter": true
+    },
+    {
+      "id": "8015",
+      "name": "[제휴판매점]스타통신",
+      "regionCode": "J06",
+      "region": "경기",
+      "phone": "031-442-6998",
+      "fax": "031-413-0163",
+      "address1": "경기 안양시 만안구 안양로 지하 301 (안양동)",
+      "address2": "20, 11호 (안양동, 중앙지하상가)",
+      "address": "경기 안양시 만안구 안양로 지하 301 (안양동) 20, 11호 (안양동, 중앙지하상가)",
+      "latitude": "37.3977473",
+      "longitude": "126.9230317",
       "isCenter": true
     },
     {
