@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-11T20:51:02.128Z",
+  "updatedAt": "2026-10-12T23:33:09.851Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
   "count": 83,
@@ -230,16 +230,16 @@
     },
     {
       "id": "8015",
-      "name": "[제휴판매점]스타통신",
+      "name": "[제휴판매점] 안양 1번가",
       "regionCode": "J06",
       "region": "경기",
       "phone": "031-442-6998",
-      "fax": "031-413-0163",
+      "fax": "031-442-6997",
       "address1": "경기 안양시 만안구 안양로 지하 301 (안양동)",
       "address2": "20, 11호 (안양동, 중앙지하상가)",
       "address": "경기 안양시 만안구 안양로 지하 301 (안양동) 20, 11호 (안양동, 중앙지하상가)",
-      "latitude": "37.3977473",
-      "longitude": "126.9230317",
+      "latitude": "37.3983444",
+      "longitude": "126.9222065",
       "isCenter": true
     },
     {
