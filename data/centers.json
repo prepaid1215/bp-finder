@@ -2,8 +2,23 @@
   "updatedAt": "2026-10-12T23:33:09.851Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
-  "count": 83,
+  "count": 84,
   "centers": [
+    {
+      "id": "HQ",
+      "name": "앤텔레콤(본사)",
+      "regionCode": "J06",
+      "region": "경기",
+      "phone": "031-267-9647",
+      "fax": "",
+      "address1": "경기도 수원시 영통구 센트럴타운로 114-8",
+      "address2": "3층",
+      "address": "경기도 수원시 영통구 센트럴타운로 114-8 3층",
+      "latitude": "37.2903457",
+      "longitude": "127.0525900",
+      "isCenter": true,
+      "isHQ": true
+    },
     {
       "id": "1315",
       "name": "가산역BP",

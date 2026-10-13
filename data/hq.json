@@ -1,0 +1,17 @@
+[
+  {
+    "id": "HQ",
+    "name": "앤텔레콤(본사)",
+    "regionCode": "J06",
+    "region": "경기",
+    "phone": "031-267-9647",
+    "fax": "",
+    "address1": "경기도 수원시 영통구 센트럴타운로 114-8",
+    "address2": "3층",
+    "address": "경기도 수원시 영통구 센트럴타운로 114-8 3층",
+    "latitude": "37.2903457",
+    "longitude": "127.0525900",
+    "isCenter": true,
+    "isHQ": true
+  }
+]

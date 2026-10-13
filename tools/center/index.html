@@ -25,7 +25,7 @@
         .res-card { background: #334155; padding: 18px; border-radius: 16px; margin-top: 12px; border-left: 5px solid var(--accent); transition: transform 0.2s; cursor: pointer; }
         .card-name { font-weight: 700; font-size: 16px; color: #fff; }
         .card-addr { font-size: 13px; color: var(--text-sub); margin: 6px 0 12px; line-height: 1.4; }
-        .card-btns { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+        .card-btns { display: grid; grid-template-columns: repeat(auto-fit, minmax(0, 1fr)); gap: 10px; }
         .btn-call, .btn-fax-open { display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 12px 5px; border-radius: 10px; border: none; font-weight: 700; cursor: pointer; text-decoration: none; color: #fff; }
         .btn-call { background: #2563eb; }
         .btn-fax-open { background: #475569; }
@@ -328,7 +328,8 @@ async function loadCenters() {
                 lat: Number(center.latitude),
                 lng: Number(center.longitude),
                 region: center.region || '',
-                isCenter: Boolean(center.isCenter)
+                isCenter: Boolean(center.isCenter),
+                isHQ: Boolean(center.isHQ)
             }))
             .filter(center => Number.isFinite(center.lat) && Number.isFinite(center.lng));
 
@@ -521,7 +522,7 @@ function renderCards(addr) {
             <div class="card-addr">${c.addr}</div>
             <div class="card-btns">
                 <a href="tel:${c.tel}" class="btn-call" onclick="event.stopPropagation();"><span>📞 전화예약</span><span class="btn-sub-text">${c.tel}</span></a>
-                <button class="btn-fax-open" onclick="event.stopPropagation(); openFax(${i});"><span>📠 서류작성</span><span class="btn-sub-text">FAX: ${c.fax || "-"}</span></button>
+                ${c.isHQ ? '' : `<button class="btn-fax-open" onclick="event.stopPropagation(); openFax(${i});"><span>📠 서류작성</span><span class="btn-sub-text">FAX: ${c.fax || "-"}</span></button>`}
             </div>
         </div>`).join('');
     document.getElementById('out').innerHTML = h;

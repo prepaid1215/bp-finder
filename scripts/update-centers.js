@@ -14,6 +14,15 @@ const OUTPUT_FILE = path.join(
   "centers.json"
 );
 
+const HQ_FILE = path.join(process.cwd(), "data", "hq.json");
+
+// 본사처럼 홈페이지 목록에 없지만 센터 업무를 하는 곳 (data/hq.json 수동 관리)
+function loadExtraCenters() {
+  if (!fs.existsSync(HQ_FILE)) return [];
+  const list = JSON.parse(fs.readFileSync(HQ_FILE, "utf8"));
+  return Array.isArray(list) ? list : [];
+}
+
 const REGIONS = [
   { code: "J01", name: "서울" },
   { code: "J06", name: "경기" },
@@ -171,7 +180,8 @@ async function main() {
         fs.readFileSync(OUTPUT_FILE, "utf8")
       );
 
-      previousCount = Number(previousData.count || 0);
+      const prevExtra = (previousData.centers || []).filter((c) => c.isHQ).length;
+      previousCount = Number(previousData.count || 0) - prevExtra;
     } catch (error) {
       console.warn("기존 centers.json 확인 실패");
     }
@@ -194,12 +204,16 @@ async function main() {
     );
   }
   
+  // 검증 통과 후 본사 등 수동 관리 센터를 맨 앞에 합침
+  const extraCenters = loadExtraCenters();
+  const finalCenters = [...extraCenters, ...uniqueCenters];
+
   const output = {
     updatedAt: new Date().toISOString(),
     source: PAGE_URL,
     api: API_URL,
-    count: uniqueCenters.length,
-    centers: uniqueCenters
+    count: finalCenters.length,
+    centers: finalCenters
   };
 
   fs.mkdirSync(
@@ -216,7 +230,7 @@ async function main() {
   );
 
   console.log(
-    `완료: 총 ${uniqueCenters.length}개 센터 저장`
+    `완료: 총 ${finalCenters.length}개 센터 저장 (본사 등 수동 ${extraCenters.length}개 포함)`
   );
 }
 
