@@ -522,7 +522,7 @@ function renderCards(addr) {
             <div class="card-addr">${c.addr}</div>
             <div class="card-btns">
                 <a href="tel:${c.tel}" class="btn-call" onclick="event.stopPropagation();"><span>📞 전화예약</span><span class="btn-sub-text">${c.tel}</span></a>
-                ${c.isHQ ? '' : `<button class="btn-fax-open" onclick="event.stopPropagation(); openFax(${i});"><span>📠 서류작성</span><span class="btn-sub-text">FAX: ${c.fax || "-"}</span></button>`}
+                <button class="btn-fax-open" onclick="event.stopPropagation(); openFax(${i});"><span>📠 서류작성</span><span class="btn-sub-text">${c.isHQ ? '팩스 없음' : 'FAX: ' + (c.fax || '-')}</span></button>
             </div>
         </div>`).join('');
     document.getElementById('out').innerHTML = h;
