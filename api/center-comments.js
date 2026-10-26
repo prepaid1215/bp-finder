@@ -65,6 +65,7 @@ export default async function handler(req, res) {
 
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
     const centerId = String(body.centerId || "");
+    const centerName = String(body.centerName || "").trim();
     const channel = String(body.channel || "");
     const channelDetail = String(body.channelDetail || "").trim();
     const hoursDetail = String(body.hoursDetail || "").trim();
@@ -76,6 +77,7 @@ export default async function handler(req, res) {
     if (!VALID_ID.test(centerId) || !CHANNELS.has(channel)) {
       return send(res, 400, { error: "센터와 선택 항목을 확인해 주세요." });
     }
+    if (centerName.length > 100 || /[<>\u0000-\u001f]/.test(centerName)) return send(res, 400, {error:"센터명 형식을 확인해 주세요."});
     if (channelDetail.length > 80 || (channel === "other" && channelDetail.length < 2) || hoursDetail.length > 200) return send(res, 400, {error:"입력 항목 길이를 확인해 주세요."});
     if (note.length < 5 || note.length > 400) {
       return send(res, 400, { error: "경험 내용을 5~400자로 작성해 주세요." });
@@ -103,6 +105,7 @@ export default async function handler(req, res) {
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify({
         center_id: centerId,
+        center_name: centerName || null,
         channel, hours:"unknown", stage:null,
         channel_detail:channel === "other" ? channelDetail : null,
         hours_detail:hoursDetail || null,
