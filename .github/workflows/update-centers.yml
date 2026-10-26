@@ -27,6 +27,9 @@ jobs:
         run: |
           npm install axios cheerio
 
+      - name: Test temporary center corrections
+        run: node scripts/test-center-overrides.js
+
       - name: Update centers
         run: node scripts/update-centers.js
 
@@ -35,7 +38,7 @@ jobs:
           git config user.name "github-actions"
           git config user.email "github-actions@github.com"
 
-          git add data/centers.json
+          git add data/centers.json data/center-overrides.json
 
           git diff --cached --quiet || (
             git commit -m "Auto update centers"
