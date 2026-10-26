@@ -7,7 +7,7 @@
 .feedback-inline { grid-column:1 / -1; margin-top:0 }
 #center-feedback-layer { display:none; position:fixed; inset:0; z-index:10050; overflow:auto;
   padding:14px 10px calc(20px + env(safe-area-inset-bottom)); background:rgba(2,6,23,.87); }
-#center-feedback-layer.open { display:block; }
+#center-feedback-layer.open { display:block; overscroll-behavior:contain; }
 #center-feedback-panel { width:100%; max-width:520px; margin:auto; border:1px solid #475569; border-radius:18px;
   padding:18px; background:#1e293b; color:#f8fafc; box-shadow:0 22px 70px rgba(0,0,0,.35); }
 #center-feedback-panel h3 { margin:0; font-size:19px; }
