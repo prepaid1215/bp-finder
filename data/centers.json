@@ -1,5 +1,5 @@
 {
-  "updatedAt": "2026-10-25T19:29:12.196Z",
+  "updatedAt": "2026-10-26T08:23:06.422Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
   "count": 84,
@@ -794,14 +794,15 @@
       "name": "대구글로벌BP",
       "regionCode": "J05",
       "region": "대구",
-      "phone": "053-588-3016",
+      "phone": "010-2665-0111",
       "fax": "053-323-3055",
-      "address1": "대구광역시 달서구 계대동문로4길 72(신당동)",
-      "address2": "1층 101호",
-      "address": "대구광역시 달서구 계대동문로4길 72(신당동) 1층 101호",
-      "latitude": "35.852270",
-      "longitude": "128.493913",
-      "isCenter": false
+      "address1": "대구광역시 북구 매전로 50",
+      "address2": "1층",
+      "address": "대구광역시 북구 매전로 50 1층",
+      "latitude": "35.910060",
+      "longitude": "128.546982",
+      "isCenter": false,
+      "coordinateApproximate": true
     },
     {
       "id": "5331",
