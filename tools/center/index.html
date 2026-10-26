@@ -168,7 +168,7 @@
     <h2>앤텔레콤 BP FINDER</h2>
     <div id="data-status">센터정보를 불러오는 중입니다.</div>
     <div class="search-box">
-        <input type="text" id="q" placeholder="지역 명칭 입력 (예: 서면, 동성로)" onkeypress="if(event.keyCode==13) run()">
+        <input type="text" id="q" placeholder="지역 명칭 입력 (예: 서면, 동성로)" autocomplete="off" spellcheck="false" onkeypress="if(event.keyCode==13 && !event.isComposing) run()">
         <div id="loc-list"></div>
         <button class="search-btn" onclick="run()">주소로 센터 찾기</button>
     </div>
@@ -469,19 +469,50 @@ function searchCenterByName() {
     });
 }
 
-function run() {
+// Autocomplete proposes address candidates only. The user chooses the location.
+let addressSuggestTimer = null;
+let addressSuggestVersion = 0;
+const regionInput = document.getElementById('q');
+const addressChoices = document.getElementById('loc-list');
+function scheduleAddressSuggestions() {
+    clearTimeout(addressSuggestTimer);
+    ++addressSuggestVersion; // Discard responses from older queries.
+    addressChoices.style.display = 'none';
+    addressChoices.replaceChildren();
+    if (regionInput.value.trim().length < 2) return;
+    addressSuggestTimer = setTimeout(() => run(true), 450);
+}
+regionInput.addEventListener('input', event => {
+    if (event.isComposing) {
+        clearTimeout(addressSuggestTimer);
+        ++addressSuggestVersion;
+        addressChoices.style.display = 'none';
+        return;
+    }
+    scheduleAddressSuggestions();
+});
+regionInput.addEventListener('compositionend', scheduleAddressSuggestions);
+
+function run(suggestionsOnly = false) {
+    clearTimeout(addressSuggestTimer);
+    addressSuggestTimer = null;
+    const version = ++addressSuggestVersion;
+    const q = regionInput.value.trim();
+    if (!q) {
+        addressChoices.style.display = 'none';
+        return;
+    }
     if (!window.kakao?.maps?.load) {
-        alert('주소 검색용 지도 서비스를 불러오지 못했습니다. 아래 센터명 검색을 이용해 주세요.');
+        if (!suggestionsOnly) alert('주소 검색용 지도 서비스를 불러오지 못했습니다. 다시 시도해 주세요.');
         return;
     }
     if (!centersReady || DATA.length === 0) {
-        alert('센터정보를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+        if (!suggestionsOnly) alert('센터정보를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
         return;
     }
 
     kakao.maps.load(() => {
-        let q = document.getElementById('q').value.trim();
-        if(!q) return;
+        if (version !== addressSuggestVersion) return;
         const box = document.getElementById('loc-list');
         box.innerHTML = '';
         let smartQuery = q;
@@ -494,6 +525,7 @@ function run() {
 
         if (!geocoder) geocoder = new kakao.maps.services.Geocoder();
         geocoder.addressSearch(smartQuery, (result, status) => {
+            if (version !== addressSuggestVersion) return;
             if (status === 'OK') {
                 box.style.display = 'block';
                 result.forEach((loc) => {
@@ -501,6 +533,8 @@ function run() {
                     div.className = 'loc-item';
                     div.innerHTML = `<strong>${loc.address_name}</strong>`;
                     div.onclick = () => {
+                        clearTimeout(addressSuggestTimer);
+                        ++addressSuggestVersion;
                         box.style.display = 'none';
                         document.getElementById('q').value = loc.address_name;
                         startCalculation(parseFloat(loc.y), parseFloat(loc.x), loc.address_name);
@@ -510,6 +544,7 @@ function run() {
             } else {
                 const ps = new kakao.maps.services.Places();
                 ps.keywordSearch(q, (res, stat) => {
+                    if (version !== addressSuggestVersion) return;
                     if (stat === 'OK') {
                         box.style.display = 'block';
                         res.slice(0, 8).forEach(loc => {
@@ -517,6 +552,8 @@ function run() {
                             div.className = 'loc-item';
                             div.innerHTML = `<strong>${loc.address_name}</strong><br><small>${loc.place_name}</small>`;
                             div.onclick = () => {
+                                clearTimeout(addressSuggestTimer);
+                                ++addressSuggestVersion;
                                 box.style.display = 'none';
                                 document.getElementById('q').value = loc.address_name;
                                 startCalculation(parseFloat(loc.y), parseFloat(loc.x), loc.address_name);
@@ -525,7 +562,7 @@ function run() {
                         });
                     } else {
                         box.style.display = 'none';
-                        alert('검색할 수 있는 지역을 찾지 못했습니다.');
+                        if (!suggestionsOnly) alert('검색할 수 있는 지역을 찾지 못했습니다.');
                     }
                 });
             }
