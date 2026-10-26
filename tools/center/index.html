@@ -318,6 +318,58 @@ const SMART_MAP = { "서면": "부산 부산진구 부전동", "동성로": "대
 let DATA = [];
 let centersReady = false;
 
+// A temporary, manually corrected address has no verified static coordinate.
+// Ask the existing Kakao Maps Geocoder instead of displaying a neighboring pin.
+async function resolveCorrectedCenterCoordinates() {
+    const unresolved = DATA.filter(center => center.coordinateApproximate);
+    let excluded = 0;
+    for (const center of unresolved) {
+        try {
+            const coords = await new Promise((resolve, reject) => {
+                if (!window.kakao?.maps?.load) return reject(new Error('카카오맵 SDK 미사용'));
+                const timeout = setTimeout(() => reject(new Error('좌표 검색 시간 초과')), 6500);
+                kakao.maps.load(() => {
+                    try {
+                        const service = new kakao.maps.services.Geocoder();
+                        const street = center.addr.replace(/\s+\d+층(?:\s+\d+호)?\s*$/, '').trim();
+                        service.addressSearch(street, (results, status) => {
+                            clearTimeout(timeout);
+                            if (status !== kakao.maps.services.Status.OK || !results?.length) {
+                                return reject(new Error('주소 검색 결과 없음'));
+                            }
+                            const match = results.find(result => {
+                                const address = (result.road_address?.address_name || result.address_name || '')
+                                  .replace(/광역시/g, '').replace(/\s+/g, '');
+                                return address.includes('대구북구매전로50') && !address.includes('매전로50-');
+                            });
+                            if (!match) return reject(new Error('매전로 50과 일치하지 않는 검색 결과'));
+                            const lat = Number(match.y), lng = Number(match.x);
+                            if (!Number.isFinite(lat) || !Number.isFinite(lng) ||
+                                lat < 35.8 || lat > 36.1 || lng < 128.4 || lng > 128.7) {
+                                return reject(new Error('검색 위치가 대구 북구 지역에서 벗어남'));
+                            }
+                            resolve({ lat, lng });
+                        });
+                    } catch (error) {
+                        clearTimeout(timeout);
+                        reject(error);
+                    }
+                });
+            });
+            center.lat = coords.lat;
+            center.lng = coords.lng;
+            center.coordinateApproximate = false;
+        } catch (error) {
+            center.locationUnavailable = true;
+            excluded++;
+            console.warn('임시 센터의 정확한 위치 확인 실패:', center.name, error?.message);
+        }
+    }
+    // Never use a manually guessed coordinate for results, distance, or pins.
+    DATA = DATA.filter(center => !center.locationUnavailable);
+    return excluded;
+}
+
 async function loadCenters() {
     const statusEl = document.getElementById('data-status');
 
@@ -352,6 +404,7 @@ async function loadCenters() {
             }))
             .filter(center => Number.isFinite(center.lat) && Number.isFinite(center.lng));
 
+        const geocodeFailures = await resolveCorrectedCenterCoordinates();
         if (DATA.length === 0) {
             throw new Error('사용 가능한 센터 좌표가 없습니다.');
         }
@@ -363,7 +416,7 @@ async function loadCenters() {
             ? updatedAt.toLocaleString('ko-KR')
             : '시간 확인 불가';
 
-        statusEl.textContent = `센터 ${DATA.length}곳 · ${updatedText} 업데이트`;
+        statusEl.textContent = `센터 ${DATA.length}곳 · ${updatedText} 업데이트${geocodeFailures ? ` · 위치 확인 실패 ${geocodeFailures}곳 제외` : ''}`;
     } catch (error) {
         centersReady = false;
         DATA = [];
