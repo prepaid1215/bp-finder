@@ -16,11 +16,45 @@
   border-radius:9px; padding:9px 12px; cursor:pointer; font-weight:800 }
 #center-feedback-panel .feedback-hint { line-height:1.55; color:#cbd5e1; font-size:12px; }
 #center-feedback-panel label { display:block; margin:12px 0 5px; font-size:13px; font-weight:800; color:#f1f5f9; }
-#center-feedback-panel select, #center-feedback-panel textarea, #center-feedback-panel input[type=date] {
-  display:block; width:100%; min-height:42px; border:1px solid #64748b; border-radius:10px;
-  background:#0f172a; color:#fff; padding:10px; font:inherit; font-size:14px;
+/* Keep selects, free-text inputs, dates and notes aligned on every screen size. */
+#center-feedback-panel select,
+#center-feedback-panel input[type="text"]:not([name="website"]),
+#center-feedback-panel input[type="date"],
+#center-feedback-panel textarea {
+  display:block;
+  box-sizing:border-box;
+  width:100%;
+  max-width:100%;
+  min-width:0;
+  min-height:46px;
+  margin:0;
+  border:1px solid #64748b;
+  border-radius:10px;
+  background:#0f172a;
+  color:#f8fafc;
+  padding:11px 13px;
+  font-family:inherit;
+  font-size:14px;
+  line-height:1.5;
+  outline-offset:2px;
 }
-#center-feedback-panel textarea { min-height:94px; resize:vertical; }
+#center-feedback-panel select,
+#center-feedback-panel input[type="text"]:not([name="website"]),
+#center-feedback-panel input[type="date"] { height:46px; }
+#center-feedback-panel input[type="date"] {
+  color-scheme:dark;
+  cursor:pointer;
+}
+#center-feedback-panel input[type="date"]::-webkit-calendar-picker-indicator {
+  cursor:pointer;
+  opacity:0.85;
+}
+#center-feedback-panel input::placeholder,
+#center-feedback-panel textarea::placeholder { color:#94a3b8; opacity:1; }
+#center-feedback-panel select:focus-visible,
+#center-feedback-panel input:focus-visible,
+#center-feedback-panel textarea:focus-visible { outline:2px solid #60a5fa; }
+#center-feedback-panel textarea { min-height:104px; resize:vertical; }
 #center-feedback-panel .feedback-submit { display:block; width:100%; border:0; border-radius:11px;
   margin-top:14px; padding:14px; background:#2563eb; color:#fff; font-weight:800; cursor:pointer }
 #center-feedback-panel button:disabled { opacity:.6; cursor:wait; }
