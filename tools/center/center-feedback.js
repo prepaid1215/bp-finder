@@ -107,7 +107,7 @@
   async function loadComments() {
     list.replaceChildren(itemText("p","feedback-empty","최근 후기를 불러오는 중입니다."));
     try {
-      const response = await fetch(`../../api/center-comments?centerId=${encodeURIComponent(selected.id)}`, { cache:"no-store" });
+      const response = await fetch(`https://jvatfvqudcyrocykvpot.supabase.co/functions/v1/center-feedback?centerId=${encodeURIComponent(selected.id)}`, { cache:"no-store" });
       const payload = await response.json();
       if (!response.ok) throw new Error(payload.error || "불러오기에 실패했습니다.");
       renderEntries(Array.isArray(payload.comments) ? payload.comments : []);
@@ -157,7 +157,7 @@
       website:byId("feedbackWebsite").value
     };
     try {
-      const response = await fetch("../../api/center-comments", {
+      const response = await fetch("https://jvatfvqudcyrocykvpot.supabase.co/functions/v1/center-feedback", {
         method:"POST",
         headers:{"Content-Type":"application/json"},
         body:JSON.stringify(payload)
