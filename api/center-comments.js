@@ -85,7 +85,7 @@ export default async function handler(req, res) {
     if (!VALID_ID.test(centerId) || !CHANNELS.has(channel)) {
       return send(res, 400, { error: "센터와 선택 항목을 확인해 주세요." });
     }
-    if (requesterName.length < 2 || requesterName.length > 50 || /[<>\u0000-\u001f]/.test(requesterName)) return send(res, 400, { error:"요청자 성명을 2~50자로 입력해 주세요." });
+    if ((requesterName.length > 0 && requesterName.length < 2) || requesterName.length > 50 || /[<>\u0000-\u001f]/.test(requesterName)) return send(res, 400, { error:"요청자 성명을 입력할 경우 2~50자로 작성해 주세요." });
     if (centerName.length > 100 || /[<>\u0000-\u001f]/.test(centerName)) return send(res, 400, {error:"센터명 형식을 확인해 주세요."});
     if (channelDetail.length > 80 || (channel === "other" && channelDetail.length < 2) || hoursDetail.length > 200) return send(res, 400, {error:"입력 항목 길이를 확인해 주세요."});
     if (note.length < 5 || note.length > 400) {
@@ -115,7 +115,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         center_id: centerId,
         center_name: centerName || null,
-        requester_name: requesterName,
+        requester_name: requesterName || null,
         channel, hours:"unknown", stage:null,
         channel_detail:channel === "other" ? channelDetail : null,
         hours_detail:hoursDetail || null,
