@@ -55,7 +55,7 @@
     </section>
   </main>
   <script>
-    const VERSION="20261026-api-fix1";
+    const VERSION="20261026-safe-forms1";
     const TOOLS={
       center:{title:"가까운 센터 찾기",eyebrow:"BP FINDER",description:"지역을 입력하면 가까운 공식 센터를 거리순으로 보여드려요.",src:"./tools/center/index.html"},
       esim:{title:"eSIM 모델명 만들기",eyebrow:"DEVICE TOOL",description:"기종과 용량을 선택해 앤텔레콤 입력용 모델명을 완성하세요.",src:"./tools/esim/index.html"},
@@ -96,38 +96,52 @@
       const doc=frame.contentDocument;
       if(!doc)return;
       let startY=null;
+      let startX=null;
       let ready=false;
-      const modalOpen=()=>doc.getElementById("faxModal")?.classList.contains("open");
+      const modalOpen=()=>Boolean(
+        doc.getElementById("faxModal")?.classList.contains("open") ||
+        doc.getElementById("center-feedback-layer")?.classList.contains("open")
+      );
+      const editing=target=>Boolean(target?.closest?.("input, textarea, select, [contenteditable], [role=textbox], button")) ||
+        Boolean(doc.activeElement?.matches?.("input, textarea, select, [contenteditable], [role=textbox]"));
       const atTop=()=>Math.max(doc.scrollingElement?.scrollTop||0,doc.documentElement?.scrollTop||0,doc.body?.scrollTop||0)<=0;
+      const cancel=()=>{
+        startY=null;
+        startX=null;
+        ready=false;
+        resetPullIndicator();
+      };
       const onStart=event=>{
-        if(event.touches.length!==1||modalOpen()||!atTop()){startY=null;return}
+        if(event.touches.length!==1||modalOpen()||editing(event.target)||!atTop()){cancel();return}
         startY=event.touches[0].clientY;
+        startX=event.touches[0].clientX;
         ready=false;
       };
       const onMove=event=>{
         if(startY===null||!event.touches.length)return;
+        if(modalOpen()||editing(event.target)||!atTop()){cancel();return}
         const distance=event.touches[0].clientY-startY;
-        if(distance<=12){resetPullIndicator();return}
+        const horizontal=Math.abs(event.touches[0].clientX-startX);
+        if(distance<=18||horizontal>distance){ready=false;resetPullIndicator();return}
         pullRefresh.classList.add("show");
-        ready=distance>=72;
+        ready=distance>=160;
         pullRefresh.classList.toggle("ready",ready);
-        pullRefresh.textContent=ready?"놓으면 새로고침":"↓ 당겨서 새로고침";
+        pullRefresh.textContent=ready?"놓으면 새로고침":"↓ 더 당기면 새로고침";
       };
       const onEnd=()=>{
-        const shouldRefresh=ready;
-        startY=null;
-        ready=false;
-        if(shouldRefresh)refreshCurrentTool();else resetPullIndicator();
+        const shouldRefresh=ready&&!modalOpen()&&atTop();
+        cancel();
+        if(shouldRefresh)refreshCurrentTool();
       };
       doc.addEventListener("touchstart",onStart,{passive:true});
       doc.addEventListener("touchmove",onMove,{passive:true});
       doc.addEventListener("touchend",onEnd,{passive:true});
-      doc.addEventListener("touchcancel",onEnd,{passive:true});
+      doc.addEventListener("touchcancel",cancel,{passive:true});
       removePullHandlers=()=>{
         doc.removeEventListener("touchstart",onStart);
         doc.removeEventListener("touchmove",onMove);
         doc.removeEventListener("touchend",onEnd);
-        doc.removeEventListener("touchcancel",onEnd);
+        doc.removeEventListener("touchcancel",cancel);
       };
     }
     frame.addEventListener("load",()=>{
