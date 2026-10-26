@@ -138,6 +138,7 @@
             .modal-action-btns { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
         }
     </style>
+    <link rel="stylesheet" href="./center-feedback.css">
 </head>
 <body>
 
@@ -282,6 +283,7 @@
 
         <div class="modal-action-btns">
             <button class="save-btn" onclick="saveImage()">📄 서류 이미지 저장</button>
+            <button type="button" class="feedback-inline" onclick="openCurrentCenterFeedback()">센터 접수 경험 공유</button>
             <div class="sms-map-choice" role="radiogroup" aria-label="예약문자에 포함할 지도 선택">
                 <span>지도 선택</span>
                 <label><input type="radio" name="sms_map_provider" value="naver" checked> 네이버 지도</label>
@@ -524,6 +526,7 @@ function renderCards(addr) {
                 <a href="tel:${c.tel}" class="btn-call" onclick="event.stopPropagation();"><span>📞 전화예약</span><span class="btn-sub-text">${c.tel}</span></a>
                 <button class="btn-fax-open" onclick="event.stopPropagation(); openFax(${i});"><span>📠 서류작성</span><span class="btn-sub-text">${c.isHQ ? '팩스 없음' : 'FAX: ' + (c.fax || '-')}</span></button>
             </div>
+            <button type="button" class="btn-feedback" onclick="event.stopPropagation(); openCenterFeedback(${i});">센터 운영정보 · 이용후기</button>
         </div>`).join('');
     document.getElementById('out').innerHTML = h;
 }
@@ -1277,5 +1280,6 @@ function closeMessagePopup() {
     document.getElementById('message-modal').classList.remove('open');
 }
 </script>
+<script src="./center-feedback.js"></script>
 </body>
 </html>
