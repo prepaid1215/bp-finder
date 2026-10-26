@@ -27,25 +27,13 @@
           <option value="fax">팩스로 받음</option>
           <option value="kakao">카카오톡 채널로 받음</option>
           <option value="both">둘 다 가능</option>
-          <option value="other">다른 방식</option>
+          <option value="other">직접 입력</option>
         </select>
-        <label for="feedbackHours">운영시간 경험</label>
-        <select id="feedbackHours" required>
-          <option value="unknown">확인하지 못함</option>
-          <option value="ontime">안내된 시간에 정상 운영</option>
-          <option value="late">안내된 시작시간보다 늦음</option>
-          <option value="irregular">운영시간이 일정하지 않음</option>
-          <option value="closed">안내된 시간에 방문했지만 휴무</option>
-        </select>
-        <label for="feedbackStage">진행 단계</label>
-        <select id="feedbackStage" required>
-          <option value="prepared">서류 작성만 완료</option>
-          <option value="submitted">신청서 전달</option>
-          <option value="confirmed">센터 접수 확인</option>
-          <option value="visited">센터 방문 완료</option>
-        </select>
-        <label for="feedbackVisitDate">확인한 날짜 (선택)</label>
-        <input id="feedbackVisitDate" type="date">
+        <input id="feedbackChannelDetail" type="text" maxlength="80" placeholder="접수 방식을 직접 입력해 주세요" style="display:none;margin-top:8px">
+        <label for="feedbackHoursDetail">운영시간 (직접 입력)</label>
+        <input id="feedbackHoursDetail" type="text" maxlength="200" placeholder="예: 평일 10시~18시, 방문 전 전화 확인 필요">
+        <label for="feedbackVisitDate">확인한 날짜</label>
+        <input id="feedbackVisitDate" type="date" required aria-label="확인 날짜 선택">
         <label for="feedbackNote">경험 내용 (5~400자)</label>
         <textarea id="feedbackNote" minlength="5" maxlength="400" required placeholder="예: 10시 20분에 통화 연결, 카카오톡으로 서류 전송 요청받음"></textarea>
         <input name="website" id="feedbackWebsite" tabindex="-1" autocomplete="off" aria-hidden="true">
@@ -64,6 +52,23 @@
   const closeButton = byId("feedbackClose");
   const submitButton = byId("feedbackSubmit");
   const lastFocus = { value: null };
+  const channelSelect = byId("feedbackChannel");
+  const customChannel = byId("feedbackChannelDetail");
+  function syncChannel() {
+    const active = channelSelect.value === "other";
+    customChannel.style.display = active ? "block" : "none";
+    customChannel.required = active;
+    if (!active) customChannel.value = "";
+  }
+  channelSelect.addEventListener("change", syncChannel);
+  function resetDate() {
+    const now = new Date();
+    const parts = new Intl.DateTimeFormat("en-CA", {timeZone:"Asia/Seoul",year:"numeric",month:"2-digit",day:"2-digit"}).formatToParts(now);
+    const val = key => parts.find(p=>p.type===key)?.value;
+    const today = val("year")+"-"+val("month")+"-"+val("day");
+    byId("feedbackVisitDate").max = today;
+    byId("feedbackVisitDate").value = today;
+  }
 
   function notifyShell(open) {
     if (typeof notifyParentModal === "function") {
@@ -94,9 +99,8 @@
       const card = document.createElement("article");
       card.className = "feedback-entry";
       const meta = [
-        LABELS.channel[row.channel] || "접수 방식 미상",
-        LABELS.hours[row.hours] || "운영시간 미상",
-        LABELS.stage[row.stage] || "진행 단계 미상",
+        row.channel_detail || LABELS.channel[row.channel] || "접수 방식 미상",
+        row.hours_detail || LABELS.hours[row.hours] || "운영시간 미상",
         row.visit_date || String(row.created_at || "").slice(0,10)
       ].filter(Boolean).join(" · ");
       card.appendChild(itemText("div","feedback-entry-meta",meta));
@@ -121,6 +125,8 @@
     lastFocus.value = document.activeElement;
     byId("feedbackTitle").textContent = selected.name + " · 접수 정보";
     form.reset();
+    syncChannel();
+    resetDate();
     feedbackStatus.textContent = "";
     layer.classList.add("open");
     document.body.style.overflow = "hidden";
@@ -150,8 +156,8 @@
     const payload = {
       centerId:selected.id,
       channel:byId("feedbackChannel").value,
-      hours:byId("feedbackHours").value,
-      stage:byId("feedbackStage").value,
+      channelDetail:customChannel.value.trim(),
+      hoursDetail:byId("feedbackHoursDetail").value.trim(),
       visitDate:byId("feedbackVisitDate").value || null,
       note:byId("feedbackNote").value,
       website:byId("feedbackWebsite").value
@@ -166,6 +172,8 @@
       if (!response.ok) throw new Error(result.error || "제출 실패");
       feedbackStatus.textContent = result.message || "관리자 확인 후 공개됩니다.";
       form.reset();
+      syncChannel();
+      resetDate();
       // Pending entries are intentionally not inserted into public comments.
     } catch (error) {
       feedbackStatus.textContent = error.message || "등록에 실패했습니다.";
