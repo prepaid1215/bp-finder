@@ -261,7 +261,7 @@
                     <div class="section-title">요청 회원 및 센터 기재란</div>
                     <table>
                         <tr><th class="row-label" rowspan="4">요청 회원 정보</th><th>회원번호</th><th>회원명</th></tr>
-                        <tr><td class="val" id="v_agent_no_out" contenteditable="true">-</td><td class="val" id="v_agent_out" contenteditable="true">-</td></tr>
+                        <tr><td class="val" id="v_agent_no_out" contenteditable="true">-</td><td class="val" id="v_agent_out" contenteditable="true"></td></tr>
                         <tr><th>소속 센터 / 활동지역</th><th>연락번호</th></tr>
                         <tr><td class="val" id="v_agent_center_out" contenteditable="true">-</td><td class="val" id="v_agent_tel_out" contenteditable="true">-</td></tr>
                         <tr><th rowspan="2">개통 처리 정보</th><th>개통 센터</th><th>개통 확정 번호</th></tr>
@@ -1023,7 +1023,7 @@ function sync() {
     document.getElementById('v_note').innerText = document.getElementById('in_note').value || "-";
     document.getElementById('v_confirm_no').innerText = document.getElementById('in_confirm_no').value || "-";
     document.getElementById('v_agent_no_out').innerText = document.getElementById('in_agent_no').value || "-";
-    document.getElementById('v_agent_out').innerText = document.getElementById('in_agent').value || "-";
+    document.getElementById('v_agent_out').innerText = document.getElementById('in_agent').value.trim();
     document.getElementById('v_agent_center_out').innerText = document.getElementById('in_agent_center').value || "-";
     document.getElementById('v_agent_tel_out').innerText = document.getElementById('in_agent_tel').value || "-";
 }
@@ -1205,7 +1205,7 @@ async function sendLog() {
         birth: document.getElementById('in_birth').value || '-',
         tel: document.getElementById('in_tel').value || '-',
         plan: document.getElementById('in_mang').value + ' ' + document.getElementById('in_plan').value,
-        agent: document.getElementById('in_agent').value || '-',
+        agent: document.getElementById('in_agent').value.trim(),
         agentCenter: document.getElementById('in_agent_center').value || '-'
     };
     try {
@@ -1318,8 +1318,8 @@ async function copySMS(includeMap) {
     const plan = document.getElementById('in_plan').value || "-";
 
     // 담당자 정보
-    const agentName = document.getElementById('in_agent').value || "-";
-    const agentTel = (document.getElementById('in_agent_tel').value || "-").replace(/-/g, '.');
+    const agentName = document.getElementById('in_agent').value.trim();
+    const agentTel = document.getElementById('in_agent_tel').value.trim().replace(/-/g, '.');
 
     // 매출자 정보
     const salesName = document.getElementById('in_s_name').value || "-";
@@ -1337,7 +1337,7 @@ async function copySMS(includeMap) {
         '요금제 : ' + mang + ' ' + plan,
         '준비물 : 신분증 원본, 사용할 단말기, 충전요금, 유심비 1만원',
         '개통지점 : ' + currentBP.name,
-        '담당자 : ' + agentName + ' / ' + agentTel,
+        ...(agentName || agentTel ? ['담당자 : ' + [agentName, agentTel].filter(Boolean).join(' / ')] : []),
         '회원번호 : ' + salesNo,
         '매출자 : ' + salesName,
         '주소 : ' + currentBP.addr
