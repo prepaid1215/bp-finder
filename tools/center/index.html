@@ -138,6 +138,7 @@
             .modal-action-btns { margin-left: -12px; margin-right: -12px; padding-left: 12px; padding-right: 12px; }
         }
     </style>
+    <link rel="stylesheet" href="./center-feedback.css">
 </head>
 <body>
 
@@ -167,9 +168,10 @@
     <h2>앤텔레콤 BP FINDER</h2>
     <div id="data-status">센터정보를 불러오는 중입니다.</div>
     <div class="search-box">
-        <input type="text" id="q" placeholder="지역 명칭 입력 (예: 서면, 동성로)" onkeypress="if(event.keyCode==13) run()">
+        <input type="text" id="q" placeholder="지역 또는 센터명 입력 (예: 서면, 구로센트럴BP)" onkeypress="if(event.keyCode==13) run()">
         <div id="loc-list"></div>
         <button class="search-btn" onclick="run()">주소로 센터 찾기</button>
+        <button class="search-btn" style="background:#475569;margin-top:8px" onclick="searchCenterByName()">센터명으로 바로 찾기 · 후기 조회</button>
     </div>
     <div id="loading">⏳ 거리를 계산 중입니다...</div>
     <div id="out"></div>
@@ -282,6 +284,7 @@
 
         <div class="modal-action-btns">
             <button class="save-btn" onclick="saveImage()">📄 서류 이미지 저장</button>
+            <button type="button" class="feedback-inline" onclick="openCurrentCenterFeedback()">센터 접수 경험 공유</button>
             <div class="sms-map-choice" role="radiogroup" aria-label="예약문자에 포함할 지도 선택">
                 <span>지도 선택</span>
                 <label><input type="radio" name="sms_map_provider" value="naver" checked> 네이버 지도</label>
@@ -423,11 +426,55 @@ function delFavSales(e, idx) {
     renderFavSales();
 }
 
-kakao.maps.load(() => {
-    geocoder = new kakao.maps.services.Geocoder();
-});
+if (window.kakao?.maps?.load) {
+    kakao.maps.load(() => { geocoder = new kakao.maps.services.Geocoder(); });
+} else {
+    console.warn('지도 서비스 스크립트를 불러오지 못했습니다. 센터명 검색은 이용할 수 있습니다.');
+}
+
+function searchCenterByName() {
+    if (!centersReady || !DATA.length) {
+        alert('센터 정보를 아직 불러오지 못했습니다.');
+        return;
+    }
+    const query = document.getElementById('q').value.trim();
+    const normalized = query.toLowerCase().replace(/\s+/g, '');
+    if (normalized.length < 2) {
+        alert('센터명을 2글자 이상 입력해 주세요.');
+        return;
+    }
+    const matches = DATA.filter(c => c.name.toLowerCase().replace(/\s+/g, '').includes(normalized)).slice(0, 5);
+    if (!matches.length) {
+        document.getElementById('out').textContent = '일치하는 센터가 없습니다. 센터명 일부를 다시 입력해 주세요.';
+        document.getElementById('map-container').style.display = 'none';
+        document.getElementById('map-actions').style.display = 'none';
+        return;
+    }
+    const first = matches[0];
+    currentList = matches.map(c => calcDist(c, { y: c.lat, x: c.lng }, first.lat, first.lng));
+    currentBP = currentList[0];
+    activeRank = 0;
+    document.getElementById('loc-list').style.display = 'none';
+    renderCards('센터명: ' + query);
+    if (!window.kakao?.maps?.load) {
+        document.getElementById('map-container').style.display = 'none';
+        document.getElementById('map-actions').style.display = 'none';
+        return;
+    }
+    kakao.maps.load(() => {
+        renderSearchMap(first.lat, first.lng, query).catch(error => {
+            console.warn('센터명 검색 지도 표시 실패', error);
+            document.getElementById('map-container').style.display = 'none';
+            document.getElementById('map-actions').style.display = 'none';
+        });
+    });
+}
 
 function run() {
+    if (!window.kakao?.maps?.load) {
+        alert('주소 검색용 지도 서비스를 불러오지 못했습니다. 아래 센터명 검색을 이용해 주세요.');
+        return;
+    }
     if (!centersReady || DATA.length === 0) {
         alert('센터정보를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
         return;
@@ -446,6 +493,7 @@ function run() {
             }
         }
 
+        if (!geocoder) geocoder = new kakao.maps.services.Geocoder();
         geocoder.addressSearch(smartQuery, (result, status) => {
             if (status === 'OK') {
                 box.style.display = 'block';
@@ -524,6 +572,7 @@ function renderCards(addr) {
                 <a href="tel:${c.tel}" class="btn-call" onclick="event.stopPropagation();"><span>📞 전화예약</span><span class="btn-sub-text">${c.tel}</span></a>
                 <button class="btn-fax-open" onclick="event.stopPropagation(); openFax(${i});"><span>📠 서류작성</span><span class="btn-sub-text">${c.isHQ ? '팩스 없음' : 'FAX: ' + (c.fax || '-')}</span></button>
             </div>
+            <button type="button" class="btn-feedback" onclick="event.stopPropagation(); openCenterFeedback(${i});">센터 운영정보 · 이용후기</button>
         </div>`).join('');
     document.getElementById('out').innerHTML = h;
 }
@@ -1277,5 +1326,6 @@ function closeMessagePopup() {
     document.getElementById('message-modal').classList.remove('open');
 }
 </script>
+<script src="./center-feedback.js"></script>
 </body>
 </html>
