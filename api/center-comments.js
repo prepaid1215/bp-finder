@@ -29,7 +29,14 @@ async function db(config, query, options = {}) {
     }
   });
   if (!response.ok) {
-    // DB errors and credentials are not returned to the public user.
+    // The database trigger also enforces the per-IP limit when posts race.
+    if (response.status === 400 || response.status === 409) {
+      const errorBody = await response.json().catch(() => ({}));
+      if (errorBody.code === "P0001" && errorBody.message === "CENTER_FEEDBACK_IP_DAILY_LIMIT") {
+        throw new Error("RATE_LIMIT");
+      }
+    }
+    // Never leak service credentials, row contents or privileged DB details.
     console.error("Center feedback database request failed", response.status);
     throw new Error("DATABASE_ERROR");
   }
@@ -120,6 +127,9 @@ export default async function handler(req, res) {
     });
     return send(res, 201, { submitted: true, approved: true, message: "등록되었습니다. 다른 사용자에게 바로 공개됩니다." });
   } catch (error) {
+    if (error?.message === "RATE_LIMIT") {
+      return send(res, 429, { error: "같은 IP에서 최근 24시간 동안 20건이 등록되었습니다. 이후 다시 이용해 주세요." });
+    }
     console.error("Center feedback API error", error?.message);
     return send(res, 500, { error: "잠시 후 다시 시도해 주세요." });
   }
