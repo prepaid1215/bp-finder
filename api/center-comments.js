@@ -12,9 +12,11 @@ function send(res, status, payload) {
 
 function config() {
   const url = process.env.SUPABASE_URL?.replace(/\/$/, "");
-  const key = process.env.SUPABASE_SERVICE_ROLE_KEY;
+  // Prefer modern Supabase secret keys; legacy service_role keys remain supported.
+  const key = process.env.SUPABASE_SECRET_KEY || process.env.SUPABASE_SERVICE_ROLE_KEY;
   const salt = process.env.FEEDBACK_HASH_SALT;
-  return url && key && salt ? { url, key, salt } : null;
+  const legacy = key && !key.startsWith("sb_secret_");
+  return url && key && salt ? { url, key, salt, legacy } : null;
 }
 
 async function db(config, query, options = {}) {
@@ -22,7 +24,8 @@ async function db(config, query, options = {}) {
     ...options,
     headers: {
       apikey: config.key,
-      Authorization: `Bearer ${config.key}`,
+      // sb_secret_* keys are not JWTs: send them only as apikey.
+      ...(config.legacy ? { Authorization: `Bearer ${config.key}` } : {}),
       "Content-Type": "application/json",
       ...options.headers
     }
