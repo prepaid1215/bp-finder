@@ -75,7 +75,7 @@ export default async function handler(req, res) {
     const visitDate = body.visitDate ? String(body.visitDate) : null;
     const website = String(body.website || "").trim(); // honeypot
 
-    if (website) return send(res, 202, { submitted: true, pending: true });
+    if (website) return send(res, 202, { submitted: true, approved: false });
     if (!VALID_ID.test(centerId) || !CHANNELS.has(channel) || !HOURS.has(hours) ) {
       return send(res, 400, { error: "센터와 선택 항목을 확인해 주세요." });
     }
@@ -110,10 +110,10 @@ export default async function handler(req, res) {
         visit_date: visitDate,
         note,
         ip_hash: ipHash,
-        status: "pending"
+        status: "approved"
       })
     });
-    return send(res, 201, { submitted: true, pending: true, message: "등록되었습니다. 관리자 확인 후 공개됩니다." });
+    return send(res, 201, { submitted: true, approved: true, message: "등록되었습니다. 다른 사용자에게 바로 공개됩니다." });
   } catch (error) {
     console.error("Center feedback API error", error?.message);
     return send(res, 500, { error: "잠시 후 다시 시도해 주세요." });
