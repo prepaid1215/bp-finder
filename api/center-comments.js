@@ -51,7 +51,7 @@ export default async function handler(req, res) {
     if (req.method === "GET") {
       const centerId = String(req.query.centerId || "");
       if (!VALID_ID.test(centerId)) return send(res, 400, { error: "센터를 확인해 주세요." });
-      const query = `?center_id=eq.${encodeURIComponent(centerId)}&status=eq.approved&select=channel,hours,stage,visit_date,note,created_at&order=created_at.desc&limit=30`;
+      const query = `?center_id=eq.${encodeURIComponent(centerId)}&status=eq.approved&select=channel,channel_detail,hours,hours_detail,visit_date,note,created_at&order=created_at.desc&limit=30`;
       const rows = await db(cfg, query);
       return send(res, 200, { comments: rows || [] });
     }
@@ -69,15 +69,17 @@ export default async function handler(req, res) {
     const centerId = String(body.centerId || "");
     const channel = String(body.channel || "");
     const hours = String(body.hours || "");
-    const stage = String(body.stage || "");
+    const channelDetail = String(body.channelDetail || "").trim();
+    const hoursDetail = String(body.hoursDetail || "").trim();
     const note = String(body.note || "").trim();
     const visitDate = body.visitDate ? String(body.visitDate) : null;
     const website = String(body.website || "").trim(); // honeypot
 
     if (website) return send(res, 202, { submitted: true, pending: true });
-    if (!VALID_ID.test(centerId) || !CHANNELS.has(channel) || !HOURS.has(hours) || !STAGES.has(stage)) {
+    if (!VALID_ID.test(centerId) || !CHANNELS.has(channel) || !HOURS.has(hours) ) {
       return send(res, 400, { error: "센터와 선택 항목을 확인해 주세요." });
     }
+    if (channelDetail.length > 80 || (channel === "other" && channelDetail.length < 2) || hoursDetail.length > 200) return send(res, 400, {error:"입력 항목 길이를 확인해 주세요."});
     if (note.length < 5 || note.length > 400) {
       return send(res, 400, { error: "경험 내용을 5~400자로 작성해 주세요." });
     }
@@ -102,7 +104,9 @@ export default async function handler(req, res) {
       headers: { Prefer: "return=minimal" },
       body: JSON.stringify({
         center_id: centerId,
-        channel, hours, stage,
+        channel, hours:"unknown", stage:null,
+        channel_detail:channel === "other" ? channelDetail : null,
+        hours_detail:hoursDetail || null,
         visit_date: visitDate,
         note,
         ip_hash: ipHash,
