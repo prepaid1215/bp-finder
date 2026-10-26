@@ -103,6 +103,40 @@
     node.textContent = String(text || "");
     return node;
   }
+  // Turn displayed URLs into clickable links without interpreting user text as HTML.
+  function noteWithLinks(value) {
+    const paragraph = document.createElement("p");
+    const note = String(value || "");
+    const expression = /(?:https?:\/\/|www\.|pf\.kakao\.com\/)[^\s<>"']+/gi;
+    let offset = 0;
+    for (const match of note.matchAll(expression)) {
+      const position = match.index;
+      paragraph.appendChild(document.createTextNode(note.slice(offset, position)));
+      const matched = match[0];
+      const linkText = matched.replace(/[.,!?;:)\]}>，。！？、]+$/u, "");
+      const suffix = matched.slice(linkText.length);
+      try {
+        const destination = /^https?:\/\//i.test(linkText) ? linkText : "https://" + linkText;
+        const url = new URL(destination);
+        if (!["http:", "https:"].includes(url.protocol) || !url.hostname.includes(".")) {
+          throw new Error("Unsupported link");
+        }
+        const anchor = document.createElement("a");
+        anchor.href = url.href;
+        anchor.target = "_blank";
+        anchor.rel = "noopener noreferrer";
+        anchor.className = "feedback-note-link";
+        anchor.textContent = linkText;
+        paragraph.appendChild(anchor);
+      } catch (error) {
+        paragraph.appendChild(document.createTextNode(linkText));
+      }
+      paragraph.appendChild(document.createTextNode(suffix));
+      offset = position + matched.length;
+    }
+    paragraph.appendChild(document.createTextNode(note.slice(offset)));
+    return paragraph;
+  }
   function renderEntries(rows) {
     list.replaceChildren();
     if (!rows.length) {
@@ -118,7 +152,7 @@
         row.visit_date || String(row.created_at || "").slice(0,10)
       ].filter(Boolean).join(" · ");
       card.appendChild(itemText("div","feedback-entry-meta",meta));
-      card.appendChild(itemText("p","",row.note));
+      card.appendChild(noteWithLinks(row.note));
       list.appendChild(card);
     });
   }
