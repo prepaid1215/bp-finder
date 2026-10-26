@@ -1,6 +1,7 @@
 const fs = require("fs");
 const path = require("path");
 const axios = require("axios");
+const { applyCenterOverrides } = require("./center-overrides");
 
 const API_URL =
   "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx";
@@ -15,6 +16,7 @@ const OUTPUT_FILE = path.join(
 );
 
 const HQ_FILE = path.join(process.cwd(), "data", "hq.json");
+const OVERRIDES_FILE = path.join(process.cwd(), "data", "center-overrides.json");
 
 // 본사처럼 홈페이지 목록에 없지만 센터 업무를 하는 곳 (data/hq.json 수동 관리)
 function loadExtraCenters() {
@@ -204,9 +206,25 @@ async function main() {
     );
   }
   
+  // One center can retain user-confirmed details until the official feed catches up.
+  // When phone, fax, address and nearby coordinates match, automatically retire
+  // that manual correction and return to the original, freshly scraped row.
+  const overrideRegistry = fs.existsSync(OVERRIDES_FILE)
+    ? JSON.parse(fs.readFileSync(OVERRIDES_FILE, "utf8"))
+    : { overrides: {} };
+  const { centers: correctedCenters, appliedIds, releasedIds, nextRegistry } =
+    applyCenterOverrides(uniqueCenters, overrideRegistry);
+  if (appliedIds.length) console.log("임시 보정 적용:", appliedIds.join(", "));
+  if (releasedIds.length) {
+    console.log("본사 데이터 일치: 임시 보정 해제 → 본사 자동 수집 사용:", releasedIds.join(", "));
+    // GitHub Actions commits this file with the regenerated centers.json,
+    // so the retired override cannot reappear on a later official-feed change.
+    fs.writeFileSync(OVERRIDES_FILE, JSON.stringify(nextRegistry, null, 2) + "\n", "utf8");
+  }
+
   // 검증 통과 후 본사 등 수동 관리 센터를 맨 앞에 합침
   const extraCenters = loadExtraCenters();
-  const finalCenters = [...extraCenters, ...uniqueCenters];
+  const finalCenters = [...extraCenters, ...correctedCenters];
 
   const output = {
     updatedAt: new Date().toISOString(),
