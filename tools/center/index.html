@@ -347,7 +347,8 @@ async function loadCenters() {
                 lng: Number(center.longitude),
                 region: center.region || '',
                 isCenter: Boolean(center.isCenter),
-                isHQ: Boolean(center.isHQ)
+                isHQ: Boolean(center.isHQ),
+                coordinateApproximate: Boolean(center.coordinateApproximate)
             }))
             .filter(center => Number.isFinite(center.lat) && Number.isFinite(center.lng));
 
@@ -831,8 +832,12 @@ function updateActiveMarker() {
 
 function openKakaoMap() {
     if (!currentBP) return;
-    const url = `https://map.kakao.com/link/map/${encodeURIComponent(currentBP.name)},${currentBP.lat},${currentBP.lng}`;
-    window.open(url, '_blank');
+    // Use address search instead of a neighboring-building coordinate when
+    // a manual correction has not been precisely geocoded yet.
+    const url = currentBP.coordinateApproximate
+        ? getMapLinks(currentBP).kakao
+        : `https://map.kakao.com/link/map/${encodeURIComponent(currentBP.name)},${currentBP.lat},${currentBP.lng}`;
+    window.open(url, '_blank', 'noopener,noreferrer');
 }
 
 async function copyToClipboard(text) {
