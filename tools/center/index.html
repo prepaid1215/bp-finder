@@ -439,7 +439,7 @@ let centerSearchToken = 0;
 const centerQueryInput = document.getElementById('q');
 const searchHelp = document.getElementById('search-help');
 const locList = document.getElementById('loc-list');
-const normalizedCenterName = value => String(value).toLowerCase().replace(/\\s+/g, '');
+const normalizedCenterName = value => String(value).toLowerCase().replace(/\s+/g, '');
 
 function scheduleCenterSearch() {
     clearTimeout(centerSearchTimer);
@@ -467,7 +467,7 @@ centerQueryInput.addEventListener('keydown', event => {
 centerQueryInput.addEventListener('change', () => {
     if (centerQueryInput.value.trim().length > 1 &&
         !centerSearchTimer &&
-        !centerQueryInput.dataset.lastSearch) run();
+        centerQueryInput.dataset.lastSearch !== centerQueryInput.value.trim()) run();
 });
 
 function findCenterByName(query, token) {
