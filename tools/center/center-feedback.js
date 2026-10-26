@@ -19,7 +19,7 @@
         <button type="button" class="feedback-close" id="feedbackClose">닫기</button>
       </div>
       <h4 class="feedback-list-label">이용 경험 남기기</h4>
-      <p class="feedback-hint">실제로 확인한 내용만 작성하세요. 고객 이름·생년월일·전화번호·신청서 사진 등 개인정보를 적지 마세요. 등록내용은 관리자 검수 후 공개됩니다.</p>
+      <p class="feedback-hint">실제로 확인한 내용만 작성하세요. 고객 이름·생년월일·전화번호·신청서 사진 등 개인정보를 적지 마세요. 등록하면 바로 공개됩니다. 개인정보가 포함되지 않았는지 확인해 주세요.</p>
       <form id="feedbackForm">
         <label for="feedbackChannel">신청서 접수 방식</label>
         <select id="feedbackChannel" required>
@@ -40,7 +40,7 @@
         <button type="submit" class="feedback-submit" id="feedbackSubmit">후기 제출</button>
         <p class="feedback-status" id="feedbackStatus" role="status" aria-live="polite"></p>
       </form>
-      <h4 class="feedback-list-label">최근 공개된 경험</h4>
+      <h4 class="feedback-list-label">최근 등록된 경험</h4>
       <div id="feedbackList"><p class="feedback-empty">불러오는 중입니다.</p></div>
     </section>`;
   document.body.appendChild(layer);
@@ -170,11 +170,12 @@
       });
       const result = await response.json();
       if (!response.ok) throw new Error(result.error || "제출 실패");
-      feedbackStatus.textContent = result.message || "관리자 확인 후 공개됩니다.";
+      feedbackStatus.textContent = result.message || "등록 후 바로 공개됩니다.";
       form.reset();
       syncChannel();
       resetDate();
-      // Pending entries are intentionally not inserted into public comments.
+      // Refresh server results rather than rendering untrusted text as HTML.
+      if (result.approved) await loadComments();
     } catch (error) {
       feedbackStatus.textContent = error.message || "등록에 실패했습니다.";
     } finally {
