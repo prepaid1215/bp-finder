@@ -16,11 +16,12 @@
         h2 { text-align: center; font-size: 22px; margin-bottom: 8px; color: #fff; font-weight: 800; }
         #data-status { text-align: center; font-size: 11px; color: var(--text-sub); margin-bottom: 22px; min-height: 16px; }
         .search-box { position: relative; margin-bottom: 15px; }
-        input[type=text]#q { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--input-bg); color: #fff; font-size: 16px; outline: none; transition: all 0.2s; }
+        #q { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--input-bg); color: #fff; font-size: 16px; outline: none; transition: all 0.2s; }
         .search-btn { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 16px; }
         #loc-list { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-top: 5px; display: none; position: absolute; width: 100%; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.6); max-height: 300px; overflow-y: auto; }
         .loc-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; color: #fff; }
         .loc-item:hover { background: #334155; }
+        .search-help { margin: 9px 3px 0; min-height: 19px; font-size: 12px; line-height: 1.5; color: #cbd5e1; }
         #loading { display: none; text-align: center; font-size: 14px; color: var(--accent); margin: 15px 0; }
         .res-card { background: #334155; padding: 18px; border-radius: 16px; margin-top: 12px; border-left: 5px solid var(--accent); transition: transform 0.2s; cursor: pointer; }
         .card-name { font-weight: 700; font-size: 16px; color: #fff; }
@@ -168,9 +169,10 @@
     <h2>앤텔레콤 BP FINDER</h2>
     <div id="data-status">센터정보를 불러오는 중입니다.</div>
     <div class="search-box">
-        <input type="text" id="q" placeholder="지역 명칭 입력 (예: 서면, 동성로)" onkeypress="if(event.keyCode==13) run()">
+        <input type="search" id="q" name="bp-center-region-query" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" enterkeyhint="search" placeholder="지역명 입력 (예: 연산2동, 서면)">
         <div id="loc-list"></div>
-        <button class="search-btn" onclick="run()">주소로 센터 찾기</button>
+        <button class="search-btn" type="button" onclick="run()">주소로 센터 찾기</button>
+        <p class="search-help" id="search-help" role="status" aria-live="polite">지역명을 입력하면 가까운 센터를 자동으로 찾습니다.</p>
     </div>
     <div id="loading">⏳ 거리를 계산 중입니다...</div>
     <div id="out"></div>
@@ -431,104 +433,137 @@ if (window.kakao?.maps?.load) {
     console.warn('지도 서비스 스크립트를 불러오지 못했습니다. 센터명 검색은 이용할 수 있습니다.');
 }
 
-function searchCenterByName() {
-    if (!centersReady || !DATA.length) {
-        alert('센터 정보를 아직 불러오지 못했습니다.');
+// Center search: typing alone searches after a short pause. Enter and the button remain shortcuts.
+let centerSearchTimer = null;
+let centerSearchToken = 0;
+const centerQueryInput = document.getElementById('q');
+const searchHelp = document.getElementById('search-help');
+const locList = document.getElementById('loc-list');
+const normalizedCenterName = value => String(value).toLowerCase().replace(/\\s+/g, '');
+
+function scheduleCenterSearch() {
+    clearTimeout(centerSearchTimer);
+    ++centerSearchToken; // Ignore earlier geocoder/keyword callbacks after text changes.
+    const text = centerQueryInput.value.trim();
+    if (text.length < 2) {
+        searchHelp.textContent = '지역명을 2글자 이상 입력하면 자동 검색합니다.';
         return;
     }
-    const query = document.getElementById('q').value.trim();
-    const normalized = query.toLowerCase().replace(/\s+/g, '');
-    if (normalized.length < 2) {
-        alert('센터명을 2글자 이상 입력해 주세요.');
-        return;
-    }
-    const matches = DATA.filter(c => c.name.toLowerCase().replace(/\s+/g, '').includes(normalized)).slice(0, 5);
-    if (!matches.length) {
-        document.getElementById('out').textContent = '일치하는 센터가 없습니다. 센터명 일부를 다시 입력해 주세요.';
-        document.getElementById('map-container').style.display = 'none';
-        document.getElementById('map-actions').style.display = 'none';
-        return;
-    }
+    searchHelp.textContent = '입력한 지역을 찾는 중입니다...';
+    centerSearchTimer = setTimeout(run, 700);
+}
+
+centerQueryInput.addEventListener('input', event => {
+    if (!event.isComposing) scheduleCenterSearch();
+});
+centerQueryInput.addEventListener('compositionend', scheduleCenterSearch);
+centerQueryInput.addEventListener('keydown', event => {
+    if (event.key !== 'Enter' || event.isComposing || event.keyCode === 229) return;
+    event.preventDefault();
+    run();
+    centerQueryInput.blur();
+});
+// Browser history/autofill selection can dispatch change instead of input.
+centerQueryInput.addEventListener('change', () => {
+    if (centerQueryInput.value.trim().length > 1 &&
+        !centerSearchTimer &&
+        !centerQueryInput.dataset.lastSearch) run();
+});
+
+function findCenterByName(query, token) {
+    const normalized = normalizedCenterName(query);
+    const matches = DATA.filter(c => normalizedCenterName(c.name).includes(normalized)).slice(0, 5);
+    if (!matches.length) return false;
+    if (token !== centerSearchToken) return true;
     const first = matches[0];
-    currentList = matches.map(c => calcDist(c, { y: c.lat, x: c.lng }, first.lat, first.lng));
+    currentList = matches.map(c => calcDist(c, {y:c.lat, x:c.lng}, first.lat, first.lng));
     currentBP = currentList[0];
     activeRank = 0;
-    document.getElementById('loc-list').style.display = 'none';
+    locList.style.display = 'none';
     renderCards('센터명: ' + query);
-    if (!window.kakao?.maps?.load) {
-        document.getElementById('map-container').style.display = 'none';
-        document.getElementById('map-actions').style.display = 'none';
-        return;
-    }
-    kakao.maps.load(() => {
-        renderSearchMap(first.lat, first.lng, query).catch(error => {
-            console.warn('센터명 검색 지도 표시 실패', error);
-            document.getElementById('map-container').style.display = 'none';
-            document.getElementById('map-actions').style.display = 'none';
+    searchHelp.textContent = matches.length + '개 센터를 찾았습니다.';
+    if (window.kakao?.maps?.load) {
+        kakao.maps.load(() => {
+            if (token !== centerSearchToken) return;
+            renderSearchMap(first.lat, first.lng, query).catch(error => {
+                console.warn('센터 검색 지도 표시 실패', error);
+                document.getElementById('map-container').style.display = 'none';
+                document.getElementById('map-actions').style.display = 'none';
+            });
         });
-    });
+    }
+    return true;
+}
+
+function showSearchFailure(message, token) {
+    if (token !== centerSearchToken) return;
+    searchHelp.textContent = message;
+    locList.style.display = 'none';
 }
 
 function run() {
-    if (!window.kakao?.maps?.load) {
-        alert('주소 검색용 지도 서비스를 불러오지 못했습니다. 아래 센터명 검색을 이용해 주세요.');
+    clearTimeout(centerSearchTimer);
+    centerSearchTimer = null;
+    const token = ++centerSearchToken;
+    const query = centerQueryInput.value.trim();
+    centerQueryInput.dataset.lastSearch = query;
+    locList.style.display = 'none';
+    locList.replaceChildren();
+    if (query.length < 2) {
+        showSearchFailure('지역명을 2글자 이상 입력해 주세요.', token);
         return;
     }
-    if (!centersReady || DATA.length === 0) {
-        alert('센터정보를 아직 불러오지 못했습니다. 잠시 후 다시 시도해 주세요.');
+    if (!centersReady || !DATA.length) {
+        showSearchFailure('센터 정보를 불러오는 중입니다. 잠시 후 다시 검색해 주세요.', token);
+        return;
+    }
+    // A full BP name can be searched directly, without a separate search button.
+    if (/BP$/i.test(query) && findCenterByName(query, token)) return;
+    if (!window.kakao?.maps?.load) {
+        if (!findCenterByName(query, token))
+            showSearchFailure('주소 검색에 연결하지 못했습니다. 잠시 후 다시 검색해 주세요.', token);
         return;
     }
 
+    searchHelp.textContent = '가까운 센터를 검색하고 있습니다...';
     kakao.maps.load(() => {
-        let q = document.getElementById('q').value.trim();
-        if(!q) return;
-        const box = document.getElementById('loc-list');
-        box.innerHTML = '';
-        let smartQuery = q;
-        for (let key in SMART_MAP) {
-            if (q.includes(key)) {
-                smartQuery = SMART_MAP[key];
-                break;
+        if (token !== centerSearchToken) return;
+        const keyword = Object.keys(SMART_MAP).find(key => query.includes(key));
+        const smartQuery = keyword ? SMART_MAP[keyword] : query;
+        if (!geocoder) geocoder = new kakao.maps.services.Geocoder();
+
+        function selectFirst(location, label) {
+            if (token !== centerSearchToken) return;
+            const lat = Number(location.y);
+            const lng = Number(location.x);
+            if (!Number.isFinite(lat) || !Number.isFinite(lng)) {
+                showSearchFailure('검색된 위치를 확인할 수 없습니다.', token);
+                return;
             }
+            searchHelp.textContent = label + ' 기준으로 가까운 센터를 표시했습니다.';
+            // No separate address-selection click: use the best match immediately.
+            startCalculation(lat, lng, label).catch(error => {
+                console.error('센터 거리 계산 실패', error);
+                showSearchFailure('센터를 표시하지 못했습니다. 다시 검색해 주세요.', token);
+            });
         }
 
-        if (!geocoder) geocoder = new kakao.maps.services.Geocoder();
         geocoder.addressSearch(smartQuery, (result, status) => {
-            if (status === 'OK') {
-                box.style.display = 'block';
-                result.forEach((loc) => {
-                    const div = document.createElement('div');
-                    div.className = 'loc-item';
-                    div.innerHTML = `<strong>${loc.address_name}</strong>`;
-                    div.onclick = () => {
-                        box.style.display = 'none';
-                        document.getElementById('q').value = loc.address_name;
-                        startCalculation(parseFloat(loc.y), parseFloat(loc.x), loc.address_name);
-                    };
-                    box.appendChild(div);
-                });
-            } else {
-                const ps = new kakao.maps.services.Places();
-                ps.keywordSearch(q, (res, stat) => {
-                    if (stat === 'OK') {
-                        box.style.display = 'block';
-                        res.slice(0, 8).forEach(loc => {
-                            const div = document.createElement('div');
-                            div.className = 'loc-item';
-                            div.innerHTML = `<strong>${loc.address_name}</strong><br><small>${loc.place_name}</small>`;
-                            div.onclick = () => {
-                                box.style.display = 'none';
-                                document.getElementById('q').value = loc.address_name;
-                                startCalculation(parseFloat(loc.y), parseFloat(loc.x), loc.address_name);
-                            };
-                            box.appendChild(div);
-                        });
-                    } else {
-                        box.style.display = 'none';
-                        alert('검색할 수 있는 지역을 찾지 못했습니다.');
-                    }
-                });
+            if (token !== centerSearchToken) return;
+            if (status === kakao.maps.services.Status.OK && result?.length) {
+                selectFirst(result[0], result[0].address_name);
+                return;
             }
+            const places = new kakao.maps.services.Places();
+            places.keywordSearch(query, (locations, placeStatus) => {
+                if (token !== centerSearchToken) return;
+                if (placeStatus === kakao.maps.services.Status.OK && locations?.length) {
+                    const first = locations[0];
+                    selectFirst(first, first.place_name || first.address_name || query);
+                } else if (!findCenterByName(query, token)) {
+                    showSearchFailure('일치하는 지역이 없습니다. 동·역·도로명으로 다시 입력해 주세요.', token);
+                }
+            });
         });
     });
 }
@@ -545,7 +580,13 @@ async function startCalculation(uLat, uLng, addr) {
         activeRank = 0;
         currentBP = currentList[0] || null;
         renderCards(addr);
-        await renderSearchMap(uLat, uLng, addr);
+        try {
+            await renderSearchMap(uLat, uLng, addr);
+        } catch (error) {
+            console.warn('지도 표시 실패, 센터 목록은 유지', error);
+            document.getElementById('map-container').style.display = 'none';
+            document.getElementById('map-actions').style.display = 'none';
+        }
     } finally {
         document.getElementById('loading').style.display = 'none';
     }
