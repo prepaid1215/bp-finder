@@ -17,7 +17,9 @@
 2. Supabase SQL Editor에 `data/center-feedback.sql`의 SQL을 실행.
 3. Vercel 프로젝트 환경변수에 아래 3개를 설정 (Production 및 Preview 각각 필요한 환경):
    - `SUPABASE_URL` = Supabase Project URL
-   - `SUPABASE_SERVICE_ROLE_KEY` = Supabase **service_role** secret key
+   - `SUPABASE_SECRET_KEY` = Supabase **secret API key** (`sb_secret_...`, recommended as of 2026)
+     - Legacy `SUPABASE_SERVICE_ROLE_KEY` is supported as a fallback only.
+     - In Supabase: Project Settings → API Keys → Secret keys. This value must **never** appear in the repository, client-side files, or chat.
    - `FEEDBACK_HASH_SALT` = 충분히 긴 난수 문자열 (IP 해시 생성용)
 4. Vercel Preview에서 제출 → Supabase `bp_center_feedback` 테이블에 `pending` 등록 확인.
 5. Supabase Table Editor에서 악성 글·개인정보 포함 여부 검토 후 `status`를 `approved`로 변경.
@@ -41,3 +43,14 @@
 - `fetch` 결과(201)만 등록 성공으로 취급. 기존 FAQ의 `no-cors` 성공 오인 문제와 분리.
 - 관리자 승인 화면은 구현하지 않음: 현재는 Supabase Table Editor로 관리.
 - 기존 서류 작성의 명의자 정보, 접수 로그 보관 방식에 관한 개인정보 처리는 별도 검토 대상.
+
+## ChatGPT 연결
+Supabase 플러그인을 연결하면 ChatGPT에서 접근 가능한 프로젝트를 확인하고 SQL 테이블 구성을 도울 수 있습니다. 
+다만 ChatGPT 플러그인 연결만으로 BP FINDER 서버(Vercel)의 환경변수가 자동 등록되는 것은 아닙니다.
+프로젝트 준비 후 Vercel 대시보드에서 `SUPABASE_URL`, `SUPABASE_SECRET_KEY`, `FEEDBACK_HASH_SALT` 세 값을 **Preview 환경**에 먼저 설정하고 Preview를 재배포해야 합니다. 검증 전에는 Production에 넣지 마세요.
+
+## 검증 과정
+- 미설정 환경에서는 API가 503을 반환하는지 확인
+- 승인 전 제출글은 GET에 노출되지 않는지 확인
+- 승인한 글만 해당 센터에서 조회되는지 확인
+- 실제 팩스/카카오 접수 절차, 서류 다운로드, 지도, FAQ의 기존 기능 정상 작동 확인
