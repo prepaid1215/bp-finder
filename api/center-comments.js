@@ -66,6 +66,7 @@ export default async function handler(req, res) {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
     const centerId = String(body.centerId || "");
     const centerName = String(body.centerName || "").trim();
+    const requesterName = String(body.requesterName || "").trim();
     const channel = String(body.channel || "");
     const channelDetail = String(body.channelDetail || "").trim();
     const hoursDetail = String(body.hoursDetail || "").trim();
@@ -77,6 +78,7 @@ export default async function handler(req, res) {
     if (!VALID_ID.test(centerId) || !CHANNELS.has(channel)) {
       return send(res, 400, { error: "센터와 선택 항목을 확인해 주세요." });
     }
+    if (requesterName.length < 2 || requesterName.length > 50 || /[<>\u0000-\u001f]/.test(requesterName)) return send(res, 400, { error:"요청자 성명을 2~50자로 입력해 주세요." });
     if (centerName.length > 100 || /[<>\u0000-\u001f]/.test(centerName)) return send(res, 400, {error:"센터명 형식을 확인해 주세요."});
     if (channelDetail.length > 80 || (channel === "other" && channelDetail.length < 2) || hoursDetail.length > 200) return send(res, 400, {error:"입력 항목 길이를 확인해 주세요."});
     if (note.length < 5 || note.length > 400) {
@@ -97,8 +99,8 @@ export default async function handler(req, res) {
     const ip = String(req.headers["x-forwarded-for"] || req.socket?.remoteAddress || "unknown").split(",")[0].trim();
     const ipHash = crypto.createHash("sha256").update(cfg.salt + ":" + ip).digest("hex");
     const since = new Date(Date.now() - 86400000).toISOString();
-    const existing = await db(cfg, `?ip_hash=eq.${ipHash}&created_at=gte.${encodeURIComponent(since)}&select=id&limit=3`);
-    if (existing.length >= 3) return send(res, 429, { error: "등록 횟수 제한에 도달했습니다. 다음 날 다시 이용해 주세요." });
+    const existing = await db(cfg, `?ip_hash=eq.${ipHash}&created_at=gte.${encodeURIComponent(since)}&select=id&limit=20`);
+    if (existing.length >= 20) return send(res, 429, { error: "같은 IP에서 최근 24시간 동안 20건이 등록되었습니다. 이후 다시 이용해 주세요." });
 
     await db(cfg, "", {
       method: "POST",
@@ -106,6 +108,7 @@ export default async function handler(req, res) {
       body: JSON.stringify({
         center_id: centerId,
         center_name: centerName || null,
+        requester_name: requesterName,
         channel, hours:"unknown", stage:null,
         channel_detail:channel === "other" ? channelDetail : null,
         hours_detail:hoursDetail || null,
