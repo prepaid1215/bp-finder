@@ -168,10 +168,9 @@
     <h2>앤텔레콤 BP FINDER</h2>
     <div id="data-status">센터정보를 불러오는 중입니다.</div>
     <div class="search-box">
-        <input type="text" id="q" placeholder="지역 또는 센터명 입력 (예: 서면, 구로센트럴BP)" onkeypress="if(event.keyCode==13) run()">
+        <input type="text" id="q" placeholder="지역 명칭 입력 (예: 서면, 동성로)" onkeypress="if(event.keyCode==13) run()">
         <div id="loc-list"></div>
         <button class="search-btn" onclick="run()">주소로 센터 찾기</button>
-        <button class="search-btn" style="background:#475569;margin-top:8px" onclick="searchCenterByName()">센터명으로 바로 찾기 · 후기 조회</button>
     </div>
     <div id="loading">⏳ 거리를 계산 중입니다...</div>
     <div id="out"></div>
