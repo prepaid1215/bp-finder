@@ -1,0 +1,16 @@
+{
+  "description": "Temporary manual center corrections; automatically released after the official center feed matches the values and updated map coordinates.",
+  "overrides": {
+    "5330": {
+      "name": "대구글로벌BP",
+      "address1": "대구광역시 북구 매전로 50",
+      "address2": "1층",
+      "phone": "010-2665-0111",
+      "fax": "053-323-3055",
+      "latitude": "35.910060",
+      "longitude": "128.546982",
+      "coordinateApproximate": true,
+      "note": "좌표는 매전로 50-4 인근 참고 좌표입니다. 매전로 50 건물의 정확한 좌표는 본사 업데이트 후 적용됩니다."
+    }
+  }
+}
