@@ -2,8 +2,6 @@ import crypto from "node:crypto";
 
 const TABLE = "bp_center_feedback";
 const CHANNELS = new Set(["fax", "kakao", "both", "other", "unknown"]);
-const HOURS = new Set(["ontime", "late", "irregular", "closed", "unknown"]);
-const STAGES = new Set(["prepared", "submitted", "confirmed", "visited"]);
 const VALID_ID = /^(?:HQ|[0-9]{2,8})$/;
 
 function send(res, status, payload) {
@@ -68,7 +66,6 @@ export default async function handler(req, res) {
     const body = typeof req.body === "string" ? JSON.parse(req.body) : (req.body || {});
     const centerId = String(body.centerId || "");
     const channel = String(body.channel || "");
-    const hours = String(body.hours || "");
     const channelDetail = String(body.channelDetail || "").trim();
     const hoursDetail = String(body.hoursDetail || "").trim();
     const note = String(body.note || "").trim();
@@ -76,7 +73,7 @@ export default async function handler(req, res) {
     const website = String(body.website || "").trim(); // honeypot
 
     if (website) return send(res, 202, { submitted: true, approved: false });
-    if (!VALID_ID.test(centerId) || !CHANNELS.has(channel) || !HOURS.has(hours) ) {
+    if (!VALID_ID.test(centerId) || !CHANNELS.has(channel)) {
       return send(res, 400, { error: "센터와 선택 항목을 확인해 주세요." });
     }
     if (channelDetail.length > 80 || (channel === "other" && channelDetail.length < 2) || hoursDetail.length > 200) return send(res, 400, {error:"입력 항목 길이를 확인해 주세요."});
@@ -88,7 +85,9 @@ export default async function handler(req, res) {
         return send(res, 400, { error: "날짜 형식을 확인해 주세요." });
       }
       const date = new Date(visitDate + "T00:00:00Z");
-      if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== visitDate || date > new Date() || Date.now() - date.getTime() > 366 * 86400000) {
+      const todayKst = new Date(Date.now() + 9 * 3600000).toISOString().slice(0, 10);
+      const ageDays = (Date.parse(todayKst) - date.getTime()) / 86400000;
+      if (Number.isNaN(date.getTime()) || date.toISOString().slice(0, 10) !== visitDate || ageDays < 0 || ageDays > 366) {
         return send(res, 400, { error: "최근 1년 이내의 경험 날짜를 입력해 주세요." });
       }
     }
