@@ -21,9 +21,9 @@
       <h4 class="feedback-list-label">이용 경험 남기기</h4>
       <p class="feedback-hint">실제로 확인한 내용만 작성하세요. 고객 이름·생년월일·전화번호·신청서 사진 등 개인정보를 적지 마세요. 등록하면 바로 공개됩니다. 개인정보가 포함되지 않았는지 확인해 주세요.</p>
       <form id="feedbackForm">
-        <label for="feedbackRequesterName">요청자 성명 (관리자 확인용)</label>
-        <input id="feedbackRequesterName" type="text" maxlength="50" minlength="2" required autocomplete="off" placeholder="서류작성에 저장된 요청자 성명 또는 직접 입력">
-        <p class="feedback-hint">서류작성의 ‘요청자 성명’을 자동으로 불러옵니다. 이 이름은 관리용으로만 저장되며 다른 이용자에게는 ‘익명’으로 표시됩니다. 고객 명의자 성명은 입력하지 마세요.</p>
+        <label for="feedbackRequesterName">요청자 성명 (선택 · 관리자 확인용)</label>
+        <input id="feedbackRequesterName" type="text" maxlength="50" minlength="2" autocomplete="off" placeholder="이름이 없다면 비워두세요">
+        <p class="feedback-hint">서류작성에 요청자 성명이 있으면 자동으로 불러옵니다. 없으면 입력하지 않아도 됩니다. 입력한 성명은 관리용으로만 저장되고 공개하지 않습니다. 고객 명의자 성명은 입력하지 마세요.</p>
         <label for="feedbackChannel">신청서 접수 방식</label>
         <select id="feedbackChannel" required>
           <option value="unknown">확인하지 못함</option>
