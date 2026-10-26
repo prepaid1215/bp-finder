@@ -52,6 +52,20 @@
   const closeButton = byId("feedbackClose");
   const submitButton = byId("feedbackSubmit");
   const lastFocus = { value: null };
+  // Root-relative path prevents iframe URL or browser history from changing API routing.
+  const API_URL = new URL("/api/center-comments", window.location.origin).href;
+  async function parseApiResponse(response) {
+    const raw = await response.text();
+    let data;
+    try {
+      data = JSON.parse(raw);
+    } catch (error) {
+      const path = new URL(response.url || API_URL, window.location.href).pathname;
+      throw new Error("서버가 JSON 대신 웹페이지를 반환했습니다. HTTP " + response.status + " · " + path + ". 새로고침 후 다시 시도해 주세요.");
+    }
+    if (!response.ok) throw new Error(data.error || ("후기 요청 실패 (HTTP " + response.status + ")"));
+    return data;
+  }
   const channelSelect = byId("feedbackChannel");
   const customChannel = byId("feedbackChannelDetail");
   function syncChannel() {
@@ -111,9 +125,8 @@
   async function loadComments() {
     list.replaceChildren(itemText("p","feedback-empty","최근 후기를 불러오는 중입니다."));
     try {
-      const response = await fetch(`../../api/center-comments?centerId=${encodeURIComponent(selected.id)}`, { cache:"no-store" });
-      const payload = await response.json();
-      if (!response.ok) throw new Error(payload.error || "불러오기에 실패했습니다.");
+      const response = await fetch(API_URL + "?centerId=" + encodeURIComponent(selected.id), { cache:"no-store", credentials:"same-origin" });
+      const payload = await parseApiResponse(response);
       renderEntries(Array.isArray(payload.comments) ? payload.comments : []);
     } catch (error) {
       list.replaceChildren(itemText("p","feedback-empty",error.message || "후기를 불러올 수 없습니다."));
@@ -163,13 +176,14 @@
       website:byId("feedbackWebsite").value
     };
     try {
-      const response = await fetch("../../api/center-comments", {
+      const response = await fetch(API_URL, {
         method:"POST",
         headers:{"Content-Type":"application/json"},
+        credentials:"same-origin",
+        cache:"no-store",
         body:JSON.stringify(payload)
       });
-      const result = await response.json();
-      if (!response.ok) throw new Error(result.error || "제출 실패");
+      const result = await parseApiResponse(response);
       feedbackStatus.textContent = result.message || "등록 후 바로 공개됩니다.";
       form.reset();
       syncChannel();
