@@ -5,6 +5,8 @@ create extension if not exists pgcrypto;
 create table if not exists public.bp_center_feedback (
   id uuid primary key default gen_random_uuid(),
   center_id text not null,
+  center_name text,
+  requester_name varchar(50), -- private, do not return from the public GET API
   channel text not null check (channel in ('fax','kakao','both','other','unknown')),
   hours text not null check (hours in ('ontime','late','irregular','closed','unknown')),
   stage text check (stage in ('prepared','submitted','confirmed','visited')),
