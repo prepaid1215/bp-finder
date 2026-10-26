@@ -168,6 +168,7 @@
     feedbackStatus.textContent = "등록 중입니다.";
     const payload = {
       centerId:selected.id,
+      centerName:selected.name,
       channel:byId("feedbackChannel").value,
       channelDetail:customChannel.value.trim(),
       hoursDetail:byId("feedbackHoursDetail").value.trim(),
