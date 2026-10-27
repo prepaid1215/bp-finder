@@ -31,9 +31,9 @@
         .btn-fax-open { background: #475569; }
         .btn-sub-text { font-size: 10px; font-weight: 400; margin-top: 3px; opacity: 0.8; }
         #map-container { width: 100%; height: 330px; margin-top: 20px; border-radius: 16px; display: none; border: 1px solid var(--border); overflow: hidden; position: relative; }
-        #map-actions { display: none; align-items: center; justify-content: space-between; gap: 8px; margin: 12px 0; }
-        .map-link-btn { border: 0; border-radius: 9px; background: #2563eb; color: #fff; padding: 9px 12px; font-size: 12px; font-weight: 700; cursor: pointer; }
-        #boundary-status { color: var(--text-sub); font-size: 11px; text-align: right; line-height: 1.35; }
+        #map-actions { display: none; align-items: center; justify-content: space-between; gap: 8px; margin: 12px 0; min-width: 0; }
+        .map-link-btn { flex: 0 0 auto; white-space: nowrap; min-height: 44px; border: 0; border-radius: 9px; background: #2563eb; color: #fff; padding: 10px 14px; font-size: 13px; font-weight: 700; cursor: pointer; }
+        #boundary-status { flex: 1 1 auto; min-width: 0; color: var(--text-sub); font-size: 11px; text-align: right; line-height: 1.45; overflow-wrap: break-word; }
         #boundary-credit { display: none; margin-top: 6px; color: #64748b; font-size: 9px; line-height: 1.4; text-align: right; }
         .rank-marker-wrap { position: relative; width: 36px; height: 45px; cursor: pointer; }
         .rank-marker { position: absolute; left: 3px; top: 0; width: 30px; height: 30px; border-radius: 50% 50% 50% 0; transform: rotate(-45deg); background: #2563eb; border: 3px solid #fff; box-shadow: 0 3px 10px rgba(0,0,0,.35); transition: .15s ease; }
@@ -134,6 +134,9 @@
         .msg-cheer { margin: 0 0 18px; color: #facc15; font-size: 17px; font-weight: 900; text-align: center; }
         .msg-close-btn { width: 100%; padding: 14px; background: #3b82f6; color: white; border: none; border-radius: 12px; font-weight: bold; font-size: 16px; cursor: pointer; }
         @media (max-width: 540px) {
+            #map-actions { flex-direction: column; align-items: stretch; gap: 8px; }
+            #map-actions .map-link-btn { width: 100%; padding: 12px 14px; }
+            #map-actions #boundary-status { text-align: center; }
             .modal-overlay { padding: 0; }
             .modal-content { min-height: 100dvh; border-radius: 0; padding: 14px 12px 0; }
             .modal-topbar { margin: -14px -12px 12px; padding: 10px 12px; border-radius: 0; }
