@@ -18,7 +18,12 @@
         </div>
         <button type="button" class="feedback-close" id="feedbackClose">닫기</button>
       </div>
-      <h4 class="feedback-list-label">이용 경험 남기기</h4>
+      <p class="feedback-status" id="feedbackStatus" role="status" aria-live="polite"></p>
+      <h4 class="feedback-list-label feedback-recent-title">최근 등록된 경험</h4>
+      <div id="feedbackList"><p class="feedback-empty">불러오는 중입니다.</p></div>
+      <div class="feedback-compose">
+        <button type="button" class="feedback-toggle" id="feedbackToggle" aria-expanded="false" aria-controls="feedbackCompose">＋ 이용 경험 작성하기</button>
+        <div id="feedbackCompose" hidden>
       <p class="feedback-hint">실제로 확인한 내용만 작성하세요. 고객 이름·생년월일·전화번호·신청서 사진 등 개인정보를 적지 마세요. 등록하면 바로 공개됩니다. 개인정보가 포함되지 않았는지 확인해 주세요.</p>
       <form id="feedbackForm">
         <label for="feedbackChannel">신청서 접수 방식</label>
@@ -38,10 +43,9 @@
         <textarea id="feedbackNote" minlength="5" maxlength="400" required placeholder="예: 10시 20분에 통화 연결, 카카오톡으로 서류 전송 요청받음"></textarea>
         <input name="website" id="feedbackWebsite" tabindex="-1" autocomplete="off" aria-hidden="true">
         <button type="submit" class="feedback-submit" id="feedbackSubmit">후기 제출</button>
-        <p class="feedback-status" id="feedbackStatus" role="status" aria-live="polite"></p>
       </form>
-      <h4 class="feedback-list-label">최근 등록된 경험</h4>
-      <div id="feedbackList"><p class="feedback-empty">불러오는 중입니다.</p></div>
+        </div>
+      </div>
     </section>`;
   document.body.appendChild(layer);
 
@@ -51,6 +55,8 @@
   const list = byId("feedbackList");
   const closeButton = byId("feedbackClose");
   const submitButton = byId("feedbackSubmit");
+  const compose = byId("feedbackCompose");
+  const toggleButton = byId("feedbackToggle");
   const lastFocus = { value: null };
   // Root-relative path prevents iframe URL or browser history from changing API routing.
   const API_URL = new URL("/api/center-comments", window.location.origin).href;
@@ -89,6 +95,15 @@
     byId("feedbackVisitDate").max = today;
     byId("feedbackVisitDate").value = today;
   }
+
+  function setComposeExpanded(expanded) {
+    compose.hidden = !expanded;
+    toggleButton.setAttribute("aria-expanded", String(expanded));
+    toggleButton.textContent = expanded ? "− 작성 폼 접기" : "＋ 이용 경험 작성하기";
+  }
+  toggleButton.addEventListener("click", () => {
+    setComposeExpanded(compose.hidden);
+  });
 
   function notifyShell(open) {
     if (typeof notifyParentModal === "function") {
@@ -181,6 +196,8 @@
     syncChannel();
     resetDate();
     feedbackStatus.textContent = "";
+    setComposeExpanded(false);
+    layer.scrollTop = 0;
     layer.classList.add("open");
     document.body.style.overflow = "hidden";
     notifyShell(true);
@@ -231,9 +248,14 @@
       syncChannel();
       resetDate();
       // Refresh server results rather than rendering untrusted text as HTML.
-      if (result.approved) await loadComments();
+      if (result.approved) {
+        await loadComments();
+        setComposeExpanded(false);
+        layer.scrollTop = 0;
+      }
     } catch (error) {
       feedbackStatus.textContent = error.message || "등록에 실패했습니다.";
+      feedbackStatus.scrollIntoView({ block:"nearest" });
     } finally {
       submitButton.disabled = false;
     }
