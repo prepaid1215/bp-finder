@@ -1,0 +1,15 @@
+.install-row{display:flex;justify-content:flex-end;margin:0 0 12px;min-height:34px}
+.install-row[hidden]{display:none}
+.install-button{display:inline-flex;align-items:center;gap:7px;border:1px solid #d5def8;border-radius:10px;padding:8px 12px;background:#eef2ff;color:#2446b9;font-size:12px;font-weight:750}
+.install-button svg{width:16px;height:16px;flex:none}
+.install-row:not([hidden])~.frame{margin-top:0;height:calc(100dvh - 64px)}
+.install-dialog{width:calc(100% - 32px);max-width:400px;max-height:85dvh;overflow:auto;padding:26px;border:0;border-radius:22px;color:#17213a;box-shadow:0 24px 80px #14255240}
+.install-dialog::backdrop{background:#11182780}
+.install-dialog h2{font-size:21px;margin:0 0 12px;line-height:1.5}
+.install-dialog p,.install-dialog ol{font-size:14px;line-height:1.8;color:#58637a}
+.install-dialog ol{padding-left:22px}
+.install-dialog li{padding:4px 0}
+.install-dialog .install-url{padding:10px;background:#f2f5fc;border-radius:9px;overflow-wrap:anywhere;font-size:12px;color:#3157d5}
+.install-close{width:100%;margin-top:12px;border:0;border-radius:11px;padding:12px;background:#3157d5;color:white;font-weight:750}
+.install-button:focus-visible,.install-close:focus-visible{outline:3px solid #17213a;outline-offset:3px}
+@media(min-width:680px){.install-row:not([hidden])~.frame{height:760px}}

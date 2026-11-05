@@ -14,6 +14,12 @@
   <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
   <meta name="googlebot" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
   <meta name="referrer" content="strict-origin-when-cross-origin">
+  <link rel="manifest" href="/manifest.webmanifest">
+  <link rel="apple-touch-icon" href="/assets/icon-180.png">
+  <meta name="apple-mobile-web-app-capable" content="yes">
+  <meta name="apple-mobile-web-app-title" content="BP파인더">
+  <link rel="stylesheet" href="/assets/install.css">
+  <script src="/assets/install.js" defer></script>
   <title>BP FINDER+ | 앤텔레콤 모바일 업무 도구</title>
   <style>
     :root{--ink:#111827;--muted:#697386;--line:#e7eaf0;--blue:#3157d5;--blue2:#2446b9;--soft:#eef2ff}
@@ -52,6 +58,12 @@
   <main class="site-bg">
     <div class="ambient one"></div><div class="ambient two"></div>
     <section class="app">
+      <div class="install-row" id="installRow" hidden>
+        <button class="install-button" id="installButton" type="button" aria-haspopup="dialog" aria-controls="installDialog">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" aria-hidden="true"><path d="M12 3v12m-4-4 4 4 4-4M5 15v5h14v-5"/></svg>
+          홈 화면에 추가
+        </button>
+      </div>
       <nav class="nav" aria-label="업무 도구 선택">
         <button type="button" data-tool="center"><i aria-hidden="true">⌖</i>센터 찾기</button>
         <button type="button" data-tool="esim"><i aria-hidden="true">▣</i>eSIM 모델명</button>
@@ -61,6 +73,14 @@
       <div class="frame"><iframe id="toolFrame" title="BP FINDER 센터 찾기" allow="geolocation; clipboard-read; clipboard-write"></iframe></div>
     </section>
   </main>
+  <dialog class="install-dialog" id="installDialog" aria-labelledby="installTitle" aria-describedby="installIntro">
+    <h2 id="installTitle">홈 화면에 BP파인더 추가</h2>
+    <p id="installIntro"></p>
+    <ol id="installSteps"></ol>
+    <p class="install-url">https://bp-finder.vercel.app/</p>
+    <p>카카오톡 등 앱 안에서 열었다면 Safari나 Chrome으로 다시 열어 주세요.</p>
+    <button class="install-close" id="installClose" type="button" autofocus>확인</button>
+  </dialog>
   <script>
     const VERSION="20261102-feedback-list-first";
     const TOOLS={
