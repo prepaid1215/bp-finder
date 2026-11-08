@@ -24,8 +24,8 @@
   <style>
     :root{--ink:#111827;--muted:#697386;--line:#e7eaf0;--blue:#3157d5;--blue2:#2446b9;--soft:#eef2ff}
     *{box-sizing:border-box}
-    html{background:#eef1f7}
-    body{margin:0;color:var(--ink);font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
+    html{background:#eef1f7;overscroll-behavior-y:none}
+    body{overscroll-behavior-y:none;margin:0;color:var(--ink);font-family:"Pretendard",-apple-system,BlinkMacSystemFont,"Segoe UI",sans-serif}
     button{font:inherit;cursor:pointer;-webkit-tap-highlight-color:transparent}
     .site-bg{min-height:100dvh;position:relative;overflow:hidden;background:radial-gradient(circle at 10% 0%,#dfe7ff 0,transparent 34%),radial-gradient(circle at 90% 100%,#dcf8ed 0,transparent 30%),#eef1f7}
     .ambient{position:fixed;border-radius:999px;filter:blur(60px);opacity:.46;pointer-events:none}
@@ -34,9 +34,7 @@
     .app{width:100%;min-height:100dvh;position:relative;z-index:1;background:rgba(249,250,252,.95);padding:18px 18px calc(92px + env(safe-area-inset-bottom))}
     .nav{position:fixed;z-index:20;left:50%;bottom:max(12px,env(safe-area-inset-bottom));transform:translateX(-50%);width:calc(100% - 24px);max-width:616px;display:grid;grid-template-columns:repeat(4,1fr);gap:4px;padding:6px;border:1px solid rgba(214,219,230,.8);border-radius:20px;background:rgba(255,255,255,.92);box-shadow:0 16px 42px rgba(22,32,59,.2);backdrop-filter:blur(20px)}
     .nav.modal-hidden{display:none!important;visibility:hidden!important;pointer-events:none!important}
-    .pull-refresh{position:fixed;z-index:60;top:max(10px,env(safe-area-inset-top));left:50%;transform:translate(-50%,-18px);opacity:0;pointer-events:none;padding:8px 14px;border-radius:999px;background:rgba(17,24,39,.9);color:#fff;font-size:12px;font-weight:800;box-shadow:0 8px 24px rgba(17,24,39,.25);transition:opacity .18s ease,transform .18s ease}
-    .pull-refresh.show{opacity:1;transform:translate(-50%,0)}
-    .pull-refresh.ready{background:#2563eb}
+
     .nav button{min-height:57px;border:0;border-radius:15px;background:transparent;color:#8790a2;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px;font-size:10px;font-weight:750}
     .nav button i{font-style:normal;font-size:20px;line-height:1}
     .nav button.active{background:linear-gradient(135deg,var(--blue),var(--blue2));color:#fff;box-shadow:0 7px 16px rgba(49,87,213,.3)}
@@ -54,7 +52,6 @@
   </style>
 </head>
 <body>
-  <div class="pull-refresh" id="pullRefresh" role="status" aria-live="polite">↓ 당겨서 새로고침</div>
   <main class="site-bg">
     <div class="ambient one"></div><div class="ambient two"></div>
     <section class="app">
@@ -82,7 +79,9 @@
     <button class="install-close" id="installClose" type="button" autofocus>확인</button>
   </dialog>
   <script>
-    const VERSION="20261102-feedback-list-first";
+    // The app previously reloaded the iframe on a downward swipe. That could
+    // discard a partly completed form, especially on mobile keyboards.
+    const VERSION="20261108-draft-recovery";
     const TOOLS={
       center:{title:"가까운 센터 찾기",eyebrow:"BP FINDER",description:"지역을 입력하면 가까운 공식 센터를 거리순으로 보여드려요.",src:"./tools/center/index.html"},
       esim:{title:"eSIM 모델명 만들기",eyebrow:"DEVICE TOOL",description:"기종과 용량을 선택해 앤텔레콤 입력용 모델명을 완성하세요.",src:"./tools/esim/index.html"},
@@ -92,103 +91,55 @@
     const frame=document.getElementById("toolFrame");
     const nav=document.querySelector(".nav");
     const buttons=[...document.querySelectorAll("[data-tool]")];
-    const pullRefresh=document.getElementById("pullRefresh");
-    let modalObserver;
-    let removePullHandlers=()=>{};
+    let modalObserver=null;
     let current="";
+    function readLastTool(){
+      try{return sessionStorage.getItem("bp-finder:last-tool")||""}catch(error){return ""}
+    }
+    function rememberTool(name){
+      try{sessionStorage.setItem("bp-finder:last-tool",name)}catch(error){}
+    }
     function renderTool(name){
       if(!TOOLS[name])name="center";
-      nav.classList.remove("modal-hidden");
       const tool=TOOLS[name];
-      buttons.forEach(button=>{const active=button.dataset.tool===name;button.classList.toggle("active",active);if(active)button.setAttribute("aria-current","page");else button.removeAttribute("aria-current")});
-      if(current!==name){frame.src=tool.src+"?v="+VERSION;frame.title=tool.title;current=name}
+      buttons.forEach(button=>{
+        const active=button.dataset.tool===name;
+        button.classList.toggle("active",active);
+        if(active)button.setAttribute("aria-current","page");
+        else button.removeAttribute("aria-current");
+      });
+      if(current!==name){
+        frame.src=tool.src+"?v="+VERSION;
+        frame.title=tool.title;
+        current=name;
+      }
+      rememberTool(name);
     }
-    buttons.forEach(button=>button.addEventListener("click",()=>{location.hash=button.dataset.tool}));
+    buttons.forEach(button=>button.addEventListener("click",()=>{
+      if(location.hash.slice(1)===button.dataset.tool) return;
+      location.hash=button.dataset.tool;
+    }));
     window.addEventListener("message",event=>{
       if(event.source!==frame.contentWindow||event.data?.type!=="bp-finder:modal")return;
       nav.classList.toggle("modal-hidden",Boolean(event.data.open));
     });
-    function resetPullIndicator(){
-      pullRefresh.classList.remove("show","ready");
-      pullRefresh.textContent="↓ 당겨서 새로고침";
-    }
-    function refreshCurrentTool(){
-      const name=current||"center";
-      pullRefresh.classList.add("show","ready");
-      pullRefresh.textContent="새로고침 중…";
-      frame.src=TOOLS[name].src+"?v="+VERSION+"&refresh="+Date.now();
-    }
-    function bindPullRefresh(){
-      removePullHandlers();
-      const doc=frame.contentDocument;
-      if(!doc)return;
-      let startY=null;
-      let startX=null;
-      let ready=false;
-      const modalOpen=()=>Boolean(
-        doc.getElementById("faxModal")?.classList.contains("open") ||
-        doc.getElementById("center-feedback-layer")?.classList.contains("open")
-      );
-      const editing=target=>Boolean(target?.closest?.("input, textarea, select, [contenteditable], [role=textbox], button")) ||
-        Boolean(doc.activeElement?.matches?.("input, textarea, select, [contenteditable], [role=textbox]"));
-      const atTop=()=>Math.max(doc.scrollingElement?.scrollTop||0,doc.documentElement?.scrollTop||0,doc.body?.scrollTop||0)<=0;
-      const cancel=()=>{
-        startY=null;
-        startX=null;
-        ready=false;
-        resetPullIndicator();
-      };
-      const onStart=event=>{
-        if(event.touches.length!==1||modalOpen()||editing(event.target)||!atTop()){cancel();return}
-        startY=event.touches[0].clientY;
-        startX=event.touches[0].clientX;
-        ready=false;
-      };
-      const onMove=event=>{
-        if(startY===null||!event.touches.length)return;
-        if(modalOpen()||editing(event.target)||!atTop()){cancel();return}
-        const distance=event.touches[0].clientY-startY;
-        const horizontal=Math.abs(event.touches[0].clientX-startX);
-        if(distance<=18||horizontal>distance){ready=false;resetPullIndicator();return}
-        pullRefresh.classList.add("show");
-        ready=distance>=160;
-        pullRefresh.classList.toggle("ready",ready);
-        pullRefresh.textContent=ready?"놓으면 새로고침":"↓ 더 당기면 새로고침";
-      };
-      const onEnd=()=>{
-        const shouldRefresh=ready&&!modalOpen()&&atTop();
-        cancel();
-        if(shouldRefresh)refreshCurrentTool();
-      };
-      doc.addEventListener("touchstart",onStart,{passive:true});
-      doc.addEventListener("touchmove",onMove,{passive:true});
-      doc.addEventListener("touchend",onEnd,{passive:true});
-      doc.addEventListener("touchcancel",cancel,{passive:true});
-      removePullHandlers=()=>{
-        doc.removeEventListener("touchstart",onStart);
-        doc.removeEventListener("touchmove",onMove);
-        doc.removeEventListener("touchend",onEnd);
-        doc.removeEventListener("touchcancel",cancel);
-      };
-    }
     frame.addEventListener("load",()=>{
       modalObserver?.disconnect();
-      nav.classList.remove("modal-hidden");
-      resetPullIndicator();
-      bindPullRefresh();
-      try{
-        const modal=frame.contentDocument?.getElementById("faxModal");
-        if(!modal)return;
-        const syncModal=()=>nav.classList.toggle("modal-hidden",modal.classList.contains("open"));
+      const doc=frame.contentDocument;
+      const modals=["faxModal","center-feedback-layer","modalOverlay"]
+        .map(id=>doc?.getElementById(id)).filter(Boolean);
+      const syncModal=()=>nav.classList.toggle(
+        "modal-hidden",modals.some(modal=>modal.classList.contains("open"))
+      );
+      if(modals.length){
         modalObserver=new MutationObserver(syncModal);
-        modalObserver.observe(modal,{attributes:true,attributeFilter:["class"]});
-        syncModal();
-      }catch(error){}
+        modals.forEach(modal=>modalObserver.observe(modal,{attributes:true,attributeFilter:["class"]}));
+      }
+      syncModal();
     });
     window.addEventListener("hashchange",()=>renderTool(location.hash.slice(1)));
-    // 처음 열 때는 주소의 #해시와 관계없이 항상 센터 찾기로 시작
-    if(location.hash)history.replaceState(null,"",location.pathname+location.search);
-    renderTool("center");
+    // Keep the selected tool when the browser restarts or reloads the app.
+    renderTool(location.hash.slice(1)||readLastTool()||"center");
   </script>
 </body>
 </html>
