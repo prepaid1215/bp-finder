@@ -625,6 +625,7 @@ function loadData(){
     .then(res=>res.json())
     .then(data=>{
       DATA = data;
+      if(modalOverlay?.classList.contains('open')) restoreOriginalReference();
       loadingEl.style.display='none';
       updateFilterOptions();
       render();
@@ -661,6 +662,59 @@ const fA = document.getElementById('fA');
 
 let currentType = '신규';
 let pickedOriginal = null;
+const FAQ_DRAFT_KEY = 'bp-finder:faq-draft-v1';
+const FAQ_DRAFT_MAX_AGE = 2 * 60 * 60 * 1000;
+const FAQ_FORM_FIELDS = [fCenter,fSubmitter,fCat,fSub,fDetail,fQ,fA];
+let restoringFaqDraft = false;
+
+function readFaqDraft(){
+  try {
+    const saved = JSON.parse(sessionStorage.getItem(FAQ_DRAFT_KEY) || 'null');
+    if(!saved) return null;
+    if(!saved.savedAt || Date.now()-saved.savedAt>FAQ_DRAFT_MAX_AGE){
+      sessionStorage.removeItem(FAQ_DRAFT_KEY);
+      return null;
+    }
+    return saved;
+  } catch(error){ return null; }
+}
+function saveFaqDraft(active){
+  if(restoringFaqDraft) return;
+  const fields = Object.fromEntries(FAQ_FORM_FIELDS.map(el=>[el.id,el.value]));
+  const hasInput = Object.values(fields).some(value=>value.trim()) || Boolean(pickedOriginal);
+  try {
+    if(!hasInput){
+      sessionStorage.removeItem(FAQ_DRAFT_KEY);
+      return;
+    }
+    sessionStorage.setItem(FAQ_DRAFT_KEY,JSON.stringify({
+      savedAt:Date.now(),active:Boolean(active),type:currentType,
+      originalId:pickedOriginal?.id??null,fields
+    }));
+  } catch(error){console.warn('FAQ 임시저장 실패:',error)}
+}
+function clearFaqDraft(){
+  try{sessionStorage.removeItem(FAQ_DRAFT_KEY)}catch(error){}
+}
+function restoreOriginalReference(){
+  const saved = readFaqDraft();
+  if(!saved?.originalId || currentType!=='수정요청') return;
+  const original = DATA.find(item=>String(item.id)===String(saved.originalId));
+  if(!original) return;
+  pickedOriginal=original;
+  pickedLabel.style.display='block';
+  pickedLabel.textContent='선택됨: '+original.q;
+}
+function restoreFaqDraft(expectedType){
+  const saved = readFaqDraft();
+  if(!saved || saved.type!==expectedType) return false;
+  restoringFaqDraft=true;
+  setType(saved.type);
+  FAQ_FORM_FIELDS.forEach(el=>{el.value=saved.fields?.[el.id]??''});
+  restoreOriginalReference();
+  restoringFaqDraft=false;
+  return true;
+}
 
 function resetForm(){
   fCenter.value=''; fSubmitter.value=''; fCat.value=''; fSub.value='';
@@ -683,15 +737,18 @@ function setType(type){
 
 function openModal(type, prefillOriginal){
   resetForm();
-  setType(type || '신규');
-  if(prefillOriginal){
-    pickOriginal(prefillOriginal);
-  }
+  const requestedType=type || '신규';
+  setType(requestedType);
+  if(prefillOriginal) pickOriginal(prefillOriginal);
+  else restoreFaqDraft(requestedType);
   modalOverlay.classList.add('open');
+  saveFaqDraft(true);
   window.parent.postMessage({type:'bp-finder:modal', open:true}, '*');
 }
 
 function closeModal(){
+  if(successView.style.display==='block') clearFaqDraft();
+  else saveFaqDraft(false);
   modalOverlay.classList.remove('open');
   window.parent.postMessage({type:'bp-finder:modal', open:false}, '*');
 }
@@ -703,7 +760,14 @@ closeSuccessBtn.addEventListener('click', closeModal);
 modalOverlay.addEventListener('click', (e)=>{ if(e.target===modalOverlay) closeModal(); });
 
 typeBtns.forEach(btn=>{
-  btn.addEventListener('click', ()=> setType(btn.dataset.type));
+  btn.addEventListener('click', ()=>{
+    setType(btn.dataset.type);
+    saveFaqDraft(true);
+  });
+});
+FAQ_FORM_FIELDS.forEach(el=>{
+  el.addEventListener('input',()=>saveFaqDraft(true));
+  el.addEventListener('change',()=>saveFaqDraft(true));
 });
 
 function pickOriginal(d){
@@ -716,6 +780,7 @@ function pickOriginal(d){
   fDetail.value = d.detail || '';
   fQ.value = d.q || '';
   fA.value = d.a || '';
+  saveFaqDraft(true);
 }
 
 function renderOriginalPicker(){
@@ -769,6 +834,7 @@ submitBtn.addEventListener('click', ()=>{
     headers: {'Content-Type':'text/plain'},
     body: JSON.stringify(payload)
   }).then(()=>{
+    clearFaqDraft();
     formView.style.display='none';
     successView.style.display='block';
   }).catch(err=>{
@@ -778,6 +844,10 @@ submitBtn.addEventListener('click', ()=>{
     alert('제출 중 오류가 발생했습니다. 다시 시도해주세요.');
   });
 });
+
+// Resume an interrupted question without requiring users to re-enter it.
+const pendingFaqDraft=readFaqDraft();
+if(pendingFaqDraft?.active) openModal(pendingFaqDraft.type);
 </script>
 </body>
 </html>
