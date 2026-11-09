@@ -16,6 +16,7 @@
     <script src="https://dapi.kakao.com/v2/maps/sdk.js?appkey=e27b685233912bfd3431eb5deab591b5&libraries=services&autoload=false"></script>
     <script src="https://html2canvas.hertzen.com/dist/html2canvas.min.js"></script>
     <style>
+    html, body { overscroll-behavior-y: contain; }
         :root { --bg: #0f172a; --card: #1e293b; --accent: #3b82f6; --text-main: #f8fafc; --text-sub: #94a3b8; --success: #10b981; --border: #334155; --input-bg: #0f172a; }
         * { box-sizing: border-box; font-family: 'Pretendard', 'Malgun Gothic', sans-serif; }
         body { background: var(--bg); color: var(--text-main); margin: 0; padding: 15px; display: flex; justify-content: center; }
@@ -461,18 +462,68 @@ const ALL_INPUTS = [
     'in_agent_no', 'in_agent', 'in_agent_center', 'in_agent_tel'
 ];
 
+// Keep the active document open after an unexpected mobile reload.
+// Only the center identifier is needed here; the existing form fields are
+// persisted by sync(). Closing the form intentionally clears this marker.
+const FAX_DRAFT_KEY = 'bp-finder:active-fax-v1';
+const FAX_DRAFT_MAX_AGE = 2 * 60 * 60 * 1000;
+function safeStore(action, key, value) {
+    try {
+        if (action === 'get') return localStorage.getItem(key);
+        if (action === 'set') localStorage.setItem(key, value);
+        if (action === 'remove') localStorage.removeItem(key);
+    } catch (error) {
+        console.warn('임시 입력 저장소 이용 불가:', error);
+    }
+    return null;
+}
+function rememberOpenFax(center) {
+    if (!center) return;
+    safeStore('set', FAX_DRAFT_KEY, JSON.stringify({
+        id: center.id || '', name: center.name || '', savedAt: Date.now()
+    }));
+}
+function restoreOpenFax() {
+    try {
+        const saved = JSON.parse(safeStore('get', FAX_DRAFT_KEY) || 'null');
+        if (!saved || !saved.savedAt || Date.now() - saved.savedAt > FAX_DRAFT_MAX_AGE) {
+            safeStore('remove', FAX_DRAFT_KEY);
+            return;
+        }
+        const center = DATA.find(item =>
+            (saved.id && item.id === saved.id) ||
+            (saved.name && item.name === saved.name)
+        );
+        if (!center) return;
+        currentBP = center;
+        document.getElementById('v_bp').innerText = center.name;
+        document.getElementById('v_bp_guide').innerText = center.name;
+        document.getElementById('v_bp_addr').innerText = center.addr;
+        document.getElementById('faxModal').classList.add('open');
+        document.body.style.overflow = 'hidden';
+        notifyParentModal(true);
+        requestAnimationFrame(() => {
+            renderCaptureMap(center);
+            schedulePreviewFit();
+        });
+    } catch (error) {
+        console.warn('서류 작성 화면 복원 실패:', error);
+    }
+}
+
 window.onload = async () => {
     initializeVisitDatePicker();
     await loadCenters();
 
     ALL_INPUTS.forEach(id => {
-        const val = localStorage.getItem(id);
+        const val = safeStore('get', id);
         const el = document.getElementById(id);
         if(val && el) el.value = val;
     });
 
     renderFavSales();
     sync();
+    restoreOpenFax();
 };
 
 function renderFavSales() {
@@ -1100,7 +1151,7 @@ function paperCheck(label, checked) {
 function sync() {
     ALL_INPUTS.forEach(id => {
         const el = document.getElementById(id);
-        if(el) localStorage.setItem(id, el.value);
+        if(el) safeStore('set', id, el.value);
     });
     const type = document.getElementById('in_type').value;
     document.getElementById('v_type_check').innerHTML = paperCheck('선불', type === '선불') + '　' + paperCheck('후불', type === '후불');
@@ -1233,6 +1284,7 @@ function renderOsmCaptureMap(container, lat, lng) {
 
 function openFax(i) {
     currentBP = currentList[i];
+    rememberOpenFax(currentBP);
     document.getElementById('v_bp').innerText = currentBP.name;
     document.getElementById('v_bp_guide').innerText = currentBP.name;
     document.getElementById('v_bp_addr').innerText = currentBP.addr;
@@ -1241,7 +1293,7 @@ function openFax(i) {
     notifyParentModal(true);
     ['in_name', 'in_birth', 'in_tel', 'in_port_info', 'in_res', 'in_note', 'in_confirm_no'].forEach(id => {
         document.getElementById(id).value = "";
-        localStorage.removeItem(id);
+        safeStore('remove', id);
     });
     document.getElementById('visit_date_picker').value = "";
     sync();
@@ -1279,6 +1331,7 @@ function schedulePreviewFit() {
 }
 
 function closeFax() {
+    safeStore('remove', FAX_DRAFT_KEY);
     document.getElementById('faxModal').classList.remove('open');
     document.body.style.overflow = '';
     notifyParentModal(false);
