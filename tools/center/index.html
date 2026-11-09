@@ -466,7 +466,7 @@ const ALL_INPUTS = [
 // Only the center identifier is needed here; the existing form fields are
 // persisted by sync(). Closing the form intentionally clears this marker.
 const FAX_DRAFT_KEY = 'bp-finder:active-fax-v1';
-const FAX_DRAFT_MAX_AGE = 2 * 60 * 60 * 1000;
+const FAX_DRAFT_MAX_AGE = 30 * 60 * 1000;
 function safeStore(action, key, value) {
     try {
         if (action === 'get') return localStorage.getItem(key);
