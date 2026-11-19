@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-11-18T23:18:57.451Z",
+  "updatedAt": "2026-11-19T23:27:19.632Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
-  "count": 83,
+  "count": 82,
   "centers": [
     {
       "id": "HQ",
@@ -577,20 +577,6 @@
       "address": "강원 홍천군 홍천읍 꽃뫼로1길 3-1 1층",
       "latitude": "37.691246",
       "longitude": "127.878773",
-      "isCenter": false
-    },
-    {
-      "id": "4219",
-      "name": "대전 GOBP",
-      "regionCode": "J04",
-      "region": "대전",
-      "phone": "042-633-0633",
-      "fax": "042-633-0634",
-      "address1": "대전 동구 백룡로5번길 80 (자양동)",
-      "address2": "지하1층",
-      "address": "대전 동구 백룡로5번길 80 (자양동) 지하1층",
-      "latitude": "36.335940",
-      "longitude": "127.447903",
       "isCenter": false
     },
     {
