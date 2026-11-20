@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-11-19T23:27:19.632Z",
+  "updatedAt": "2026-11-20T23:00:06.057Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
-  "count": 82,
+  "count": 83,
   "centers": [
     {
       "id": "HQ",
@@ -577,6 +577,20 @@
       "address": "강원 홍천군 홍천읍 꽃뫼로1길 3-1 1층",
       "latitude": "37.691246",
       "longitude": "127.878773",
+      "isCenter": false
+    },
+    {
+      "id": "4220",
+      "name": "가자대전BP",
+      "regionCode": "J04",
+      "region": "대전",
+      "phone": "042-242-0155",
+      "fax": "042-242-0155",
+      "address1": "대전 동구 태전로 17-1 (중동)",
+      "address2": "",
+      "address": "대전 동구 태전로 17-1 (중동)",
+      "latitude": "36.3321",
+      "longitude": "127.4302",
       "isCenter": false
     },
     {
