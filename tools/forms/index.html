@@ -1,0 +1,226 @@
+<!doctype html>
+<html lang="ko">
+<head>
+  <script>
+    if (location.hostname === "prepaid1215.github.io") {
+      document.documentElement.style.display = "none";
+      location.replace("/bp-finder/moved.html");
+    }
+  </script>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+  <meta name="robots" content="noindex,nofollow,noarchive,nosnippet,noimageindex">
+  <title>센터 서식 | BP FINDER+</title>
+  <style>
+    :root {
+      color-scheme: dark;
+      --background: #0f172a;
+      --surface: #1e293b;
+      --border: #334155;
+      --text: #f8fafc;
+      --muted: #aebdd0;
+      --accent: #bfdbfe;
+    }
+    * { box-sizing: border-box; }
+    html { overscroll-behavior-y: contain; }
+    body {
+      margin: 0;
+      background: var(--background);
+      color: var(--text);
+      font: 1rem/1.5 Pretendard, "Malgun Gothic", sans-serif;
+    }
+    main { max-width: 38rem; margin: 0 auto; padding: 1.375rem 1rem 2rem; }
+    header {
+      padding: 1.25rem;
+      border: 1px solid var(--border);
+      border-radius: 1.125rem;
+      background: linear-gradient(155deg, #1d3456, var(--surface) 72%);
+    }
+    h1 { margin: 0; font-size: 1.625rem; line-height: 1.25; }
+    .version { margin: .375rem 0 0; color: var(--accent); font-size: .875rem; }
+    .filters { display: grid; grid-template-columns: minmax(0, 3fr) minmax(0, 2fr); gap: .75rem; margin-top: 1.125rem; }
+    label { display: grid; gap: .375rem; min-width: 0; font-size: .875rem; font-weight: 700; }
+    input, select {
+      width: 100%;
+      min-height: 2.75rem;
+      padding: .625rem .75rem;
+      border: 1px solid #64748b;
+      border-radius: .625rem;
+      background: var(--background);
+      color: var(--text);
+      font-family: inherit;
+      font-size: 1rem;
+      font-weight: 400;
+      line-height: 1.25;
+    }
+    input::placeholder { color: var(--muted); }
+    select {
+      appearance: none;
+      padding-right: 2rem;
+      background-image: linear-gradient(45deg, transparent 50%, var(--accent) 50%), linear-gradient(135deg, var(--accent) 50%, transparent 50%);
+      background-position: right 1rem center, right .75rem center;
+      background-size: .25rem .25rem;
+      background-repeat: no-repeat;
+    }
+    :is(input, select, a):focus-visible { outline: 2px solid #93c5fd; outline-offset: 3px; }
+    #status { margin: .875rem 0 0; color: var(--muted); font-size: .875rem; }
+    section { margin-top: 1.5rem; }
+    h2 { margin: 0 0 .625rem; font-size: 1.0625rem; line-height: 1.4; }
+    ul { margin: 0; padding: 0; list-style: none; }
+    li {
+      display: grid;
+      grid-template-columns: minmax(0, 1fr) auto;
+      align-items: center;
+      gap: .75rem;
+      padding: .75rem;
+      border: 1px solid var(--border);
+      border-radius: .75rem;
+      background: var(--surface);
+    }
+    li + li { margin-top: .5rem; }
+    .file-title { margin: 0; font-weight: 700; overflow-wrap: anywhere; }
+    .file-meta { margin: .125rem 0 0; color: var(--muted); font-size: .8125rem; overflow-wrap: anywhere; }
+    .download {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+      min-height: 2.75rem;
+      padding: .5rem .75rem;
+      border: 1px solid #64748b;
+      border-radius: .625rem;
+      background: var(--background);
+      color: var(--accent);
+      font-size: .875rem;
+      font-weight: 700;
+      text-decoration: none;
+      white-space: nowrap;
+    }
+    .download:hover { border-color: var(--accent); background: #203550; }
+    @media (max-width: 679px) {
+      main { padding-bottom: calc(6rem + env(safe-area-inset-bottom, 0px)); }
+    }
+    @media (max-width: 420px) {
+      .filters { grid-template-columns: 1fr; }
+    }
+    @media (forced-colors: active) {
+      select { appearance: auto; background-image: none; }
+    }
+  </style>
+</head>
+<body>
+  <main>
+    <header>
+      <h1>센터 서식</h1>
+      <p class="version">ver22.0 · <time datetime="2026-11-20">2026.11.20</time></p>
+      <div class="filters">
+        <label>서식 검색
+          <input id="search" type="search" placeholder="서식 이름이나 파일 형식" aria-controls="results" disabled>
+        </label>
+        <label>분류
+          <select id="category" aria-controls="results" disabled>
+            <option value="">전체</option>
+          </select>
+        </label>
+      </div>
+    </header>
+    <p id="status" role="status">서식 목록을 불러오는 중입니다.</p>
+    <div id="results"></div>
+  </main>
+  <script>
+    const search = document.getElementById("search");
+    const category = document.getElementById("category");
+    const results = document.getElementById("results");
+    const status = document.getElementById("status");
+    const fileBase = "../../downloads/center-forms-20261120-v22.0/";
+    const numberFormat = new Intl.NumberFormat("ko-KR", { maximumFractionDigits: 1 });
+    let groups = [];
+
+    function normalize(value) {
+      return value.normalize("NFKC").toLocaleLowerCase("ko-KR");
+    }
+
+    function formatSize(bytes) {
+      if (bytes >= 1_000_000) return `${numberFormat.format(bytes / 1_000_000)} MB`;
+      if (bytes >= 1_000) return `${numberFormat.format(bytes / 1_000)} KB`;
+      return `${numberFormat.format(bytes)} B`;
+    }
+
+    function renderFile(file, groupLabel) {
+      const row = document.createElement("li");
+      const details = document.createElement("div");
+      const title = document.createElement("p");
+      const meta = document.createElement("p");
+      const link = document.createElement("a");
+
+      title.className = "file-title";
+      title.textContent = file.title;
+      meta.className = "file-meta";
+      meta.textContent = [file.type, formatSize(file.bytes), file.section !== groupLabel && file.section]
+        .filter(Boolean).join(" · ");
+      details.append(title, meta);
+
+      link.className = "download";
+      link.href = fileBase + encodeURIComponent(file.filename);
+      link.download = file.filename;
+      link.textContent = "다운로드";
+      link.setAttribute("aria-label", `${file.title} 다운로드`);
+      row.append(details, link);
+
+      return row;
+    }
+
+    function render() {
+      const terms = normalize(search.value).trim().split(/\s+/).filter(Boolean);
+      const visible = document.createDocumentFragment();
+      let count = 0;
+
+      for (const [index, group] of groups.entries()) {
+        if (category.value !== "" && category.value !== String(index)) continue;
+
+        const matches = group.files.filter(file => terms.every(term => file.searchText.includes(term)));
+        if (matches.length === 0) continue;
+
+        const section = document.createElement("section");
+        const heading = document.createElement("h2");
+        const list = document.createElement("ul");
+        heading.textContent = group.label;
+        for (const file of matches) list.append(renderFile(file, group.label));
+        section.append(heading, list);
+        visible.append(section);
+        count += matches.length;
+      }
+
+      results.replaceChildren(visible);
+      status.textContent = count > 0 ? `서식 ${count}개` : "검색 조건에 맞는 서식이 없습니다.";
+    }
+
+    async function loadCatalog() {
+      const response = await fetch("./catalog.json");
+      if (!response.ok) throw new Error("Could not load the forms catalog");
+
+      const catalog = await response.json();
+      groups = catalog.groups.map(group => ({
+        label: group.label,
+        files: group.files.map(file => {
+          const type = file.filename.split(".").at(-1).toUpperCase();
+          const searchText = normalize([file.title, file.filename, group.label, file.section, type].filter(Boolean).join(" "));
+          return { ...file, type, searchText };
+        })
+      }));
+
+      for (const [index, group] of groups.entries()) category.add(new Option(group.label, index));
+      search.disabled = false;
+      category.disabled = false;
+      render();
+    }
+
+    search.addEventListener("input", render);
+    category.addEventListener("change", render);
+    loadCatalog().catch(() => {
+      search.disabled = true;
+      category.disabled = true;
+      status.textContent = "서식 목록을 불러오지 못했습니다. 잠시 후 새로고침해 주세요.";
+    });
+  </script>
+</body>
+</html>

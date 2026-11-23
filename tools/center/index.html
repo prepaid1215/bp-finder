@@ -26,10 +26,6 @@
         .search-box { position: relative; margin-bottom: 15px; }
         input[type=text]#q { width: 100%; padding: 16px; border-radius: 14px; border: 1px solid var(--border); background: var(--input-bg); color: #fff; font-size: 16px; outline: none; transition: all 0.2s; }
         .search-btn { width: 100%; padding: 16px; background: var(--accent); color: white; border: none; border-radius: 14px; font-weight: 700; cursor: pointer; margin-top: 10px; font-size: 16px; }
-        .forms-download { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 4px 12px; min-height: 44px; padding: 10px 14px; border: 1px solid #64748b; border-radius: 12px; background: var(--bg); color: #dbeafe; font-size: 14px; font-weight: 700; text-decoration: none; }
-        .forms-download:hover { border-color: #93c5fd; }
-        .forms-download:focus-visible { outline: 2px solid #93c5fd; outline-offset: 2px; }
-        .forms-download span { color: var(--text-sub); font-size: 12px; font-weight: 400; }
         #loc-list { background: var(--card); border: 1px solid var(--border); border-radius: 14px; margin-top: 5px; display: none; position: absolute; width: 100%; z-index: 100; box-shadow: 0 10px 25px rgba(0,0,0,0.6); max-height: 300px; overflow-y: auto; }
         .loc-item { padding: 15px; border-bottom: 1px solid var(--border); cursor: pointer; color: #fff; }
         .loc-item:hover { background: #334155; }
@@ -209,9 +205,6 @@
         <div id="loc-list"></div>
         <button class="search-btn" onclick="run()">주소로 센터 찾기</button>
     </div>
-    <a class="forms-download" href="../../downloads/center-forms-20261120-v22.0.zip" download="1.20261120_센터양식(배포용)_ver22.0.zip">
-        센터 서식 ZIP 다운로드 <span>ver22.0 · 42.7 MB</span>
-    </a>
     <div id="loading">⏳ 거리를 계산 중입니다...</div>
     <div id="out"></div>
     <div id="map-actions">
