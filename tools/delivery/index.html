@@ -10,7 +10,7 @@
   </script>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="주소를 입력해 개통 USIM 당일 배송 가능지역과 접수 마감 여부를 확인하고, 2026년 9월 USIM 비용 무료 이벤트를 안내합니다.">
+  <meta name="description" content="주소를 입력해 개통 USIM 당일 배송 가능지역과 접수 마감 여부를 확인하세요.">
   <title>당일유심 배송조회</title>
   <script>
     const pageParams = new URLSearchParams(window.location.search);
@@ -21,8 +21,6 @@
     const subColor = pageParams.get('subcolor');
     if (brandColor && /^[0-9a-f]{6}$/i.test(brandColor)) {
       document.documentElement.style.setProperty('--blue', '#' + brandColor);
-      document.documentElement.style.setProperty('--pink', '#' + brandColor);
-      document.documentElement.style.setProperty('--pink-dark', '#' + brandColor);
     }
     if (subColor && /^[0-9a-f]{6}$/i.test(subColor)) {
       document.documentElement.style.setProperty('--brand-sub', '#' + subColor);
@@ -41,9 +39,6 @@
       --orange-soft: #fff4e8;
       --red: #c83b3b;
       --red-soft: #fff0f0;
-      --pink: #e11d72;
-      --pink-dark: #a70f50;
-      --yellow: #ffe14f;
       --ink: #172033;
       --sub: #667085;
       --line: #e5e9f0;
@@ -73,97 +68,15 @@
       padding: 28px 0 54px;
     }
 
-    .hero {
-      position: relative;
-      overflow: hidden;
-      border-radius: 28px;
-      padding: 28px;
-      color: #fff;
-      background: linear-gradient(135deg, #10233f 0%, #1f5fd1 75%, #3c81f3 100%);
-      box-shadow: var(--shadow);
-    }
-
-    .hero::after {
-      content: "";
-      position: absolute;
-      width: 190px;
-      height: 190px;
-      right: -60px;
-      top: -75px;
-      border-radius: 50%;
-      border: 34px solid rgba(255,255,255,.10);
-    }
-
-    .brand {
-      position: relative;
-      z-index: 1;
-      display: inline-flex;
-      align-items: center;
-      gap: 8px;
-      padding: 6px 11px;
-      border: 1px solid rgba(255,255,255,.35);
-      border-radius: 999px;
-      font-size: 12px;
-      font-weight: 800;
-      background: rgba(255,255,255,.10);
-    }
-
-    .hero h1 {
-      position: relative;
-      z-index: 1;
-      margin: 16px 0 8px;
-      font-size: clamp(27px, 6vw, 38px);
-      line-height: 1.25;
-      letter-spacing: -1.4px;
-    }
-
-    .hero-promo {
-      position: relative;
-      z-index: 2;
-      display: flex;
-      align-items: center;
-      justify-content: center;
-      gap: 8px;
-      width: fit-content;
-      margin-top: 15px;
-      padding: 9px 14px;
-      border: 2px solid rgba(255,255,255,.9);
-      border-radius: 14px;
-      color: #501027;
-      background: linear-gradient(135deg, var(--yellow), #fff4a8);
-      box-shadow: 0 8px 20px rgba(0,0,0,.18);
-      font-size: 14px;
-      font-weight: 950;
-      letter-spacing: -.3px;
-    }
-
-    .hero-promo strong {
-      color: var(--pink-dark);
-      font-size: 18px;
-    }
-
-    .hero p {
-      position: relative;
-      z-index: 1;
-      margin: 0;
-      color: rgba(255,255,255,.84);
-      font-size: 15px;
-      word-break: keep-all;
-    }
-
     .search-card {
       position: relative;
       z-index: 3;
-      margin-top: 18px;
       padding: 22px;
       border: 1px solid rgba(16,35,63,.08);
       border-radius: 24px;
       background: var(--card);
       box-shadow: var(--shadow);
     }
-
-    /* 프로모션 카드가 없을 때만 히어로와 검색창을 겹쳐 표시 */
-    .hero + .search-card { margin-top: -18px; }
 
     .label {
       display: flex;
@@ -395,98 +308,6 @@
     .action-primary { border: 0; color: #fff; background: var(--blue); }
     .action-secondary { border: 1px solid #cfd6e3; color: var(--navy); background: #fff; }
 
-    .promo-card {
-      position: relative;
-      overflow: hidden;
-      margin-top: 18px;
-      padding: 22px;
-      border: 3px solid #ff4d91;
-      border-radius: 22px;
-      background: linear-gradient(135deg, #fff0f7 0%, #fff9da 58%, #fff 100%);
-      box-shadow: 0 16px 36px rgba(225,29,114,.16);
-    }
-
-    .promo-badge {
-      display: inline-flex;
-      align-items: center;
-      padding: 5px 10px;
-      border-radius: 999px;
-      color: #fff;
-      background: linear-gradient(135deg, var(--pink), #ff5a37);
-      font-size: 11px;
-      font-weight: 900;
-    }
-
-    .promo-card::after {
-      content: '9월 한정';
-      position: absolute;
-      top: 18px;
-      right: -34px;
-      width: 130px;
-      padding: 6px 0;
-      color: #fff;
-      background: var(--pink);
-      text-align: center;
-      font-size: 11px;
-      font-weight: 900;
-      transform: rotate(38deg);
-      box-shadow: 0 4px 10px rgba(0,0,0,.12);
-    }
-
-    .promo-card h2 {
-      margin: 11px 0 7px;
-      color: var(--navy);
-      font-size: 21px;
-      letter-spacing: -.5px;
-    }
-
-    .promo-card p {
-      margin: 0;
-      color: #5f6673;
-      font-size: 13px;
-      word-break: keep-all;
-    }
-
-    .promo-price {
-      display: flex;
-      flex-wrap: wrap;
-      align-items: center;
-      gap: 8px;
-      margin-top: 14px;
-    }
-
-    .promo-price del { color: #8d95a3; font-size: 14px; }
-    .promo-price strong { color: var(--pink); font-size: 34px; line-height: 1; text-shadow: 0 2px 0 #fff; }
-    .promo-price span { color: var(--sub); font-size: 12px; }
-
-    .promo-meta {
-      display: grid;
-      grid-template-columns: repeat(2, minmax(0,1fr));
-      gap: 8px;
-      margin-top: 16px;
-    }
-
-    .promo-meta div {
-      padding: 11px 12px;
-      border-radius: 12px;
-      color: #5d6572;
-      background: rgba(255,255,255,.85);
-      font-size: 12px;
-    }
-
-    .promo-meta b { display: block; margin-bottom: 2px; color: var(--navy); font-size: 11px; }
-
-
-    .fee-highlight {
-      border: 2px solid var(--pink);
-      background: color-mix(in srgb, var(--pink) 7%, white);
-    }
-
-    .fee-highlight span {
-      color: var(--pink-dark);
-      font-size: 15px;
-    }
-
     .tracking-card {
       margin-top: 18px;
       padding: 20px;
@@ -674,17 +495,15 @@
 
     @media (max-width: 540px) {
       .page { width: min(100% - 18px, 720px); padding-top: 12px; }
-      .hero { border-radius: 22px; padding: 24px 20px 31px; }
-      .search-card, .section, .result-card, .promo-card { border-radius: 19px; padding: 18px; }
+      .search-card, .section, .result-card { border-radius: 19px; padding: 18px; }
       .input-row { grid-template-columns: 1fr; }
       .search-btn { min-height: 48px; }
       .sub-actions { align-items: flex-start; }
       .detail-grid, .result-actions { grid-template-columns: 1fr; }
-      .service-grid, .promo-meta { grid-template-columns: 1fr; }
+      .service-grid { grid-template-columns: 1fr; }
       .timeline-row { grid-template-columns: 92px 1fr; }
       .tracking-wrap { align-items: stretch; flex-direction: column; }
       .tracking-btn { text-align: center; }
-      .hero-promo { width: 100%; }
     }
 
 
@@ -701,8 +520,6 @@
       padding: 0;
     }
 
-    html.embed-mode .hero,
-    html.embed-mode .promo-card,
     html.embed-mode .tracking-card,
     html.embed-mode .section,
     html.embed-mode .footer-note {
@@ -710,7 +527,6 @@
     }
 
     html.embed-mode .search-card {
-      margin-top: 0;
       padding: 20px;
       border: 0;
       border-radius: 0;
@@ -739,29 +555,10 @@
       display: none !important;
     }
 
-    .hero + .search-card {
-      margin-top: 14px !important;
-    }
-
-    .hero-promo {
-      font-size: 13px !important;
-      line-height: 1.45;
-    }
-
-    .hero-promo strong {
-      font-size: 15px !important;
-    }
-
   </style>
 </head>
 <body>
   <main class="page">
-    <section class="hero" style="padding:18px 22px;border-radius:18px;">
-      <div class="hero-promo" style="margin-top:0;width:100%;justify-content:flex-start;">
-        9월 프로모션 연장 · <strong>USIM 5,500원 무료</strong> · 배송비 3,700원 별도 · 9월 30일까지
-      </div>
-    </section>
-
     <section class="search-card">
       <div class="label">
         <span>배송 가능지역 조회</span>
@@ -805,7 +602,7 @@
         <div class="detail-box"><b>예상 배송시간</b><span id="deliveryTime">-</span></div>
         <div class="detail-box"><b>오늘 접수 마감</b><span id="cutoffTime">-</span></div>
         <div class="detail-box"><b>배송비</b><span id="shippingFee">3,700원</span></div>
-        <div class="detail-box fee-highlight"><b>USIM 비용</b><span id="usimFee">9월 프로모션 무료</span></div>
+        <div class="detail-box"><b>USIM 비용</b><span id="usimFee">5,500원</span></div>
         <div class="detail-box"><b>우편번호</b><span id="zonecode">-</span></div>
       </div>
       <div id="resultNotice" class="notice"></div>
@@ -830,7 +627,7 @@
       <h2>서비스 이용 기준</h2>
       <div class="service-grid">
         <div class="service-item"><b>서비스 시작일</b><span>2026.06.17</span></div>
-        <div class="service-item"><b>USIM 비용</b><span><del>5,500원</del> → 무료</span></div>
+        <div class="service-item"><b>USIM 비용</b><span>5,500원</span></div>
         <div class="service-item"><b>배송비</b><span>3,700원</span></div>
       </div>
       <div class="timeline" style="margin-top:12px">
@@ -841,7 +638,6 @@
         <div class="timeline-row"><b>권역 외 주소</b><span>당일 배송이 어려운 지역은 우체국 택배 발송</span></div>
         <div class="timeline-row"><b>미개통 결제</b><span>USIM 결제 후 미개통 시 30분 이내 자동 결제 취소</span></div>
       </div>
-      <div class="notice"><b>9월 이벤트:</b> 2026년 9월 1일부터 9월 30일까지 N플랫폼 당일배송으로 010 신규 또는 MNP 번호이동 개통 시 USIM 비용 5,500원이 무료입니다. 당일배송으로 개통할 때만 적용되며 배송비 3,700원은 별도입니다.</div>
     </section>
 
     <section class="section">
@@ -862,9 +658,6 @@
     trackingUrl: 'https://check.doobalhero.kr/',
     shippingFee: 3700,
     usimFee: 5500,
-    promoActive: true,
-    promoStart: '2026-09-01',
-    promoEnd: '2026-09-30',
     weekdayCutoffHour: 15,
     saturdayCutoffHour: 11
   };
@@ -1493,7 +1286,8 @@
       : (coverage.status === 'available' ? schedule.deliveryTime : (coverage.status === 'unavailable' ? '우체국 택배 발송' : '확인 후 안내'));
     $('cutoffTime').textContent = schedule.cutoffLabel;
     $('shippingFee').textContent = `${CONFIG.shippingFee.toLocaleString()}원`;
-    $('usimFee').textContent = CONFIG.promoActive ? '5,500원 → 무료' : `${CONFIG.usimFee.toLocaleString()}원`;
+    const usimFee = `${CONFIG.usimFee.toLocaleString()}원`;
+    $('usimFee').textContent = usimFee;
     if ($('zonecode')) $('zonecode').textContent = area.zonecode || (coverage.broad ? (coverage.status === 'available' ? '상세주소 불필요' : '상세주소 검색 전') : '-');
 
     let summary = coverage.reason;
@@ -1501,20 +1295,17 @@
     if (coverage.status === 'unavailable') summary += ' 개통 후 우체국 택배 발송으로 진행할 수 있습니다.';
     $('resultSummary').textContent = summary;
 
-    const promoNotice = CONFIG.promoActive
-      ? ' 2026년 9월 30일까지 당일배송 010 신규·MNP 번호이동 개통 시 USIM 비용 5,500원이 무료이며 배송비 3,700원은 별도입니다.'
-      : '';
     if (coverage.live) {
       $('resultNotice').textContent =
-        `실제 배송판정 API 응답 코드: ${coverage.resultCode || '-'}. 신청 단계 결과를 최종 기준으로 사용하세요.` + promoNotice;
+        `실제 배송판정 API 응답 코드: ${coverage.resultCode || '-'}. 신청 단계 결과를 최종 기준으로 사용하세요.`;
     } else if (coverage.broad) {
       $('resultNotice').textContent = coverage.status === 'available'
-        ? '공식 배송지역표 기준 전지역·전체 구 가능지역입니다. 상세주소 입력은 필수가 아니지만, 실제 접수는 우편번호 기준 예외가 있을 수 있습니다.' + promoNotice
-        : '지역명 기준 1차 안내입니다. 상세주소를 선택하면 실제 배송판정 API로 최종 확인합니다.' + promoNotice;
+        ? '공식 배송지역표 기준 전지역·전체 구 가능지역입니다. 상세주소 입력은 필수가 아니지만, 실제 접수는 우편번호 기준 예외가 있을 수 있습니다.'
+        : '지역명 기준 1차 안내입니다. 상세주소를 선택하면 실제 배송판정 API로 최종 확인합니다.';
     } else {
       $('resultNotice').textContent = coverage.status === 'available'
-        ? '표시 결과는 제공된 지역표 기준입니다. 실제 접수는 우편번호와 기사 배정 상황에 따라 제한될 수 있습니다.' + promoNotice
-        : '최종 배송 방식은 신청 주소의 우편번호와 접수 시점에 따라 확정됩니다.' + promoNotice;
+        ? '표시 결과는 제공된 지역표 기준입니다. 실제 접수는 우편번호와 기사 배정 상황에 따라 제한될 수 있습니다.'
+        : '최종 배송 방식은 신청 주소의 우편번호와 접수 시점에 따라 확정됩니다.';
     }
 
     lastResultText = [
@@ -1524,7 +1315,7 @@
       `권역: ${coverage.rule}`,
       `접수 마감: ${schedule.cutoffLabel}`,
       `배송 안내: ${$('deliveryTime').textContent}`,
-      `USIM 비용: ${CONFIG.promoActive ? '5,500원 → 무료(2026.09.30까지)' : CONFIG.usimFee.toLocaleString() + '원'}`,
+      `USIM 비용: ${usimFee}`,
       `배송비: ${CONFIG.shippingFee.toLocaleString()}원`,
       '배송조회: 개통 완료 후 두발히어로 카카오톡 안내 또는 https://check.doobalhero.kr/ 에서 확인',
       '주의: 우편번호와 기사 배정 상황에 따라 일부 주소는 제한될 수 있습니다.'
