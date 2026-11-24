@@ -1,8 +1,8 @@
 {
-  "updatedAt": "2026-11-22T22:21:30.311Z",
+  "updatedAt": "2026-11-24T03:12:02.748Z",
   "source": "https://lgusobija.n-telecom.co.kr/view/merge/info/AgcdInfo_pc.aspx",
   "api": "https://lgusobija.n-telecom.co.kr/common/component/info/AjaxAgcdInfo.aspx",
-  "count": 83,
+  "count": 84,
   "centers": [
     {
       "id": "HQ",
@@ -703,6 +703,20 @@
       "address": "충남 천안시 동남구 신촌4로 16 (신방동, 초원아파트) 상가 1동 1층 119호",
       "latitude": "36.7880",
       "longitude": "127.1246",
+      "isCenter": false
+    },
+    {
+      "id": "4157",
+      "name": "당진이음BP",
+      "regionCode": "J09",
+      "region": "충남",
+      "phone": "010-6587-1365",
+      "fax": "050-4416-1365",
+      "address1": "충남 당진시 교동길 96 (읍내동)",
+      "address2": "2층",
+      "address": "충남 당진시 교동길 96 (읍내동) 2층",
+      "latitude": "36.89218",
+      "longitude": "126.63272",
       "isCenter": false
     },
     {
